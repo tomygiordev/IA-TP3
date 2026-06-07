@@ -1,0 +1,1257 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Redes neuronales multicapa y Deep Learning — material interactivo</title>
+  <style>
+    :root{
+      --bg:#08111f;
+      --bg2:#0d1730;
+      --panel:#101c35;
+      --panel2:#132241;
+      --text:#edf4ff;
+      --muted:#a7b6d4;
+      --line:rgba(255,255,255,.13);
+      --accent:#7dd3fc;
+      --accent2:#a78bfa;
+      --good:#86efac;
+      --warn:#fde68a;
+      --bad:#fca5a5;
+      --ink:#07101f;
+      --shadow:0 24px 80px rgba(0,0,0,.35);
+      --radius:24px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      background:
+        radial-gradient(circle at top left, rgba(125,211,252,.23), transparent 32rem),
+        radial-gradient(circle at 80% 10%, rgba(167,139,250,.25), transparent 32rem),
+        linear-gradient(180deg, var(--bg), #060a13 70%);
+      color:var(--text);
+      line-height:1.55;
+    }
+    a{color:inherit}
+    .layout{display:grid; grid-template-columns: 310px minmax(0,1fr); min-height:100vh}
+    aside{
+      position:sticky; top:0; height:100vh; overflow:auto;
+      padding:22px 18px;
+      background:rgba(7,14,28,.76);
+      border-right:1px solid var(--line);
+      backdrop-filter: blur(18px);
+    }
+    .brand{display:flex; gap:12px; align-items:center; margin-bottom:18px}
+    .logo{
+      width:44px;height:44px;border-radius:16px;
+      background:conic-gradient(from 180deg,var(--accent),var(--accent2),var(--good),var(--accent));
+      box-shadow:0 0 24px rgba(125,211,252,.45);
+    }
+    .brand h1{font-size:15px;line-height:1.2;margin:0}
+    .brand small{display:block;color:var(--muted);font-size:12px;margin-top:3px}
+    .toc{display:flex;flex-direction:column;gap:7px;margin-top:18px}
+    .toc a{
+      display:grid; grid-template-columns:28px 1fr; gap:8px; align-items:center;
+      text-decoration:none;color:var(--muted);font-size:13px;
+      border:1px solid transparent;padding:9px 10px;border-radius:14px;
+    }
+    .toc a:hover,.toc a.active{color:var(--text);border-color:rgba(125,211,252,.35);background:rgba(125,211,252,.09)}
+    .toc span:first-child{
+      width:26px;height:26px;border-radius:9px;display:grid;place-items:center;
+      background:rgba(255,255,255,.08); color:var(--accent); font-family:var(--mono); font-size:12px;
+    }
+    .side-note{margin-top:20px;border:1px solid var(--line);border-radius:18px;padding:14px;color:var(--muted);font-size:13px;background:rgba(255,255,255,.04)}
+    main{min-width:0}
+    .hero{padding:74px clamp(22px,5vw,72px) 42px; border-bottom:1px solid var(--line)}
+    .eyebrow{display:inline-flex;gap:8px;align-items:center;color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:.12em;font-size:12px;margin-bottom:14px}
+    .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(125,211,252,.35);background:rgba(125,211,252,.1);border-radius:999px;padding:7px 11px;color:#dff7ff;font-size:12px;font-weight:750}
+    .hero h2{font-size:clamp(36px,6vw,72px);line-height:.96;margin:0 0 18px;letter-spacing:-.055em;max-width:1000px}
+    .hero p{font-size:clamp(17px,2vw,22px);color:var(--muted);max-width:940px;margin:0 0 24px}
+    .hero-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:30px;max-width:1050px}
+    .hero-card{border:1px solid var(--line);background:rgba(255,255,255,.055);border-radius:22px;padding:18px;box-shadow:var(--shadow)}
+    .hero-card b{display:block;font-size:15px;margin-bottom:7px}.hero-card span{color:var(--muted);font-size:14px}
+    section.module{padding:58px clamp(22px,5vw,72px); border-bottom:1px solid var(--line)}
+    .section-head{display:flex;gap:18px;align-items:flex-start;margin-bottom:26px;max-width:1050px}
+    .num{flex:0 0 auto; width:48px;height:48px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(125,211,252,.22),rgba(167,139,250,.22));border:1px solid rgba(255,255,255,.18);font-family:var(--mono);font-weight:900;color:var(--accent)}
+    .section-head h3{font-size:clamp(28px,4vw,46px);line-height:1.02;letter-spacing:-.035em;margin:0 0 8px}.section-head p{margin:0;color:var(--muted);font-size:17px;max-width:900px}
+    .slides{color:var(--accent);font-family:var(--mono);font-size:12px;font-weight:800;letter-spacing:.02em;margin-bottom:8px}
+    .content-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(280px,.75fr);gap:20px;align-items:start;max-width:1180px}
+    .card{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.035));border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+    .card h4{margin:0 0 12px;font-size:21px;letter-spacing:-.015em}.card p{color:var(--muted)}
+    .card p:first-child{margin-top:0}.card p:last-child{margin-bottom:0}
+    .key{border-left:4px solid var(--accent);padding:14px 16px;border-radius:16px;background:rgba(125,211,252,.08);color:#dff7ff;margin:16px 0}
+    .warn{border-left-color:var(--warn);background:rgba(253,230,138,.08);color:#fff4c9}.bad{border-left-color:var(--bad);background:rgba(252,165,165,.08);color:#ffdada}.good{border-left-color:var(--good);background:rgba(134,239,172,.08);color:#ddffe7}
+    code,.formula{font-family:var(--mono);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);padding:.14em .38em;border-radius:8px;color:#e7f8ff}
+    .formula-block{font-family:var(--mono);font-size:15px;white-space:pre-wrap;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:18px;padding:16px;color:#d8ecff;overflow:auto}
+    .formula-block.math-block{
+      font-family:var(--sans);
+      white-space:normal;
+      font-size:17px;
+      line-height:1.45;
+      color:#e8f7ff;
+      background:linear-gradient(180deg,rgba(0,0,0,.28),rgba(125,211,252,.06));
+      border-color:rgba(125,211,252,.24);
+    }
+    .formula-block.math-block mjx-container{
+      overflow-x:auto;
+      overflow-y:hidden;
+      padding:.15rem 0;
+    }
+    .formula-block.math-block mjx-container[display="true"]{
+      text-align:left !important;
+      margin:.25rem 0 !important;
+    }
+    .formula-block.math-block .MJX-TEX{
+      color:#f2f8ff;
+    }
+    .mini-list{display:grid;gap:10px;margin:0;padding:0;list-style:none}.mini-list li{display:flex;gap:10px;color:var(--muted)}.mini-list li::before{content:"→";color:var(--accent);font-weight:900}
+    .lab{margin-top:24px;max-width:1180px;border:1px solid rgba(125,211,252,.26);background:linear-gradient(145deg,rgba(125,211,252,.105),rgba(167,139,250,.085));border-radius:30px;padding:22px;box-shadow:var(--shadow)}
+    .lab-head{display:flex;gap:12px;align-items:center;margin-bottom:18px}.lab-badge{font-family:var(--mono);font-size:12px;font-weight:900;color:var(--ink);background:var(--accent);border-radius:999px;padding:7px 10px}.lab h4{margin:0;font-size:22px}.lab p{color:var(--muted)}
+    .lab-grid{display:grid;grid-template-columns:340px minmax(0,1fr);gap:20px;align-items:start}
+    .controls{display:grid;gap:13px}.control{background:rgba(0,0,0,.18);border:1px solid var(--line);border-radius:18px;padding:13px}.control label{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:#d9e7ff;margin-bottom:8px}.control output{font-family:var(--mono);color:var(--accent)}
+    input[type="range"]{width:100%;accent-color:#7dd3fc}select,button,input[type="number"]{font:inherit;border-radius:14px;border:1px solid var(--line);background:rgba(0,0,0,.2);color:var(--text);padding:10px 12px}button{cursor:pointer;background:linear-gradient(135deg,rgba(125,211,252,.25),rgba(167,139,250,.22));font-weight:800}button:hover{filter:brightness(1.08)}
+    canvas{width:100%;height:auto;max-width:100%;background:rgba(3,8,18,.56);border:1px solid rgba(255,255,255,.12);border-radius:22px;display:block}
+    .result{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}.metric{background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:18px;padding:13px}.metric small{display:block;color:var(--muted);font-size:12px}.metric b{font-family:var(--mono);font-size:19px;color:#e8f8ff}
+    .check{margin-top:18px;border-top:1px solid var(--line);padding-top:16px}.check details{background:rgba(0,0,0,.18);border:1px solid var(--line);border-radius:18px;padding:14px}.check summary{cursor:pointer;font-weight:850;color:#e8f7ff}.check p{color:var(--muted)}
+    .flow{display:grid;grid-template-columns:repeat(7,minmax(80px,1fr));gap:9px;align-items:center}.flow div{min-height:76px;border:1px solid var(--line);border-radius:18px;padding:12px;background:rgba(255,255,255,.05);text-align:center;display:grid;place-items:center;color:#dbeaff;font-weight:800;font-size:13px}.flow div:nth-child(even){background:rgba(125,211,252,.08);color:#e7fbff}.flow .arrow{border:none;background:transparent;box-shadow:none;color:var(--accent);font-size:26px;min-height:auto}
+    .cards3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.cards2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .small{font-size:13px;color:var(--muted)}
+    table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:18px}th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;color:var(--muted)}th{color:#e8f7ff;background:rgba(255,255,255,.06)}tr:last-child td{border-bottom:none}
+    .quiz{display:grid;gap:13px}.q{border:1px solid var(--line);background:rgba(255,255,255,.045);border-radius:18px;padding:14px}.q p{margin:.1rem 0 .65rem;color:#e8f7ff;font-weight:800}.q button{margin:4px 6px 4px 0;font-size:13px}.feedback{margin-top:8px;color:var(--muted)}
+
+    .term{
+      position:relative;
+      display:inline;
+      color:#e8f7ff;
+      font-weight:800;
+      border-bottom:1px dashed rgba(125,211,252,.7);
+      cursor:help;
+      outline:none;
+    }
+    .term::after{
+      content:"?";
+      display:inline-grid;
+      place-items:center;
+      width:15px;
+      height:15px;
+      margin-left:4px;
+      border-radius:50%;
+      font-size:10px;
+      font-weight:900;
+      color:var(--ink);
+      background:var(--accent);
+      transform:translateY(-1px);
+    }
+    .tiptext{
+      visibility:hidden;
+      opacity:0;
+      position:absolute;
+      left:0;
+      bottom:135%;
+      z-index:9999;
+      min-width:220px;
+      width:min(320px, 80vw);
+      padding:12px 13px;
+      border:1px solid rgba(125,211,252,.36);
+      border-radius:15px;
+      background:rgba(3,10,22,.98);
+      color:#dff7ff;
+      box-shadow:0 18px 50px rgba(0,0,0,.45);
+      font-size:13px;
+      line-height:1.45;
+      font-weight:550;
+      text-align:left;
+      pointer-events:none;
+      transform:translateY(8px);
+      transition:opacity .15s ease, transform .15s ease, visibility .15s;
+    }
+    .term:hover .tiptext,
+    .term:focus .tiptext{
+      visibility:visible;
+      opacity:1;
+      transform:translateY(0);
+    }
+    .term-left .tiptext{left:auto;right:0}
+
+    .footer{padding:36px clamp(22px,5vw,72px);color:var(--muted);font-size:13px}
+
+    .figure{
+      margin:18px 0;
+      border:1px solid rgba(125,211,252,.24);
+      background:linear-gradient(145deg,rgba(4,12,26,.74),rgba(18,31,58,.72));
+      border-radius:24px;
+      padding:16px;
+      overflow:hidden;
+    }
+    .figure svg{width:100%;height:auto;display:block}
+    .figcap{margin:10px 2px 0;color:var(--muted);font-size:13px}
+    .figcap b{color:#e8f7ff}
+    .node{fill:rgba(125,211,252,.20);stroke:rgba(125,211,252,.78);stroke-width:2}
+    .node2{fill:rgba(167,139,250,.18);stroke:rgba(167,139,250,.78);stroke-width:2}
+    .node3{fill:rgba(134,239,172,.16);stroke:rgba(134,239,172,.78);stroke-width:2}
+    .wire{stroke:rgba(255,255,255,.28);stroke-width:2}
+    .wireStrong{stroke:rgba(125,211,252,.78);stroke-width:3}
+    .svgtext{fill:#e8f7ff;font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:14px}
+    .svgmuted{fill:#a7b6d4;font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:12px}
+    .svgmono{fill:#dff7ff;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+
+    @media (max-width: 980px){.layout{display:block}aside{position:relative;height:auto}.toc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.hero-grid,.content-grid,.lab-grid,.cards3,.cards2{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.flow .arrow{transform:rotate(90deg)}.result{grid-template-columns:1fr 1fr}}
+    @media (max-width: 620px){.toc{grid-template-columns:1fr}.section-head{display:block}.num{margin-bottom:12px}.result{grid-template-columns:1fr}}
+    @media print{aside{display:none}.layout{display:block}body{background:white;color:black}.card,.lab,.hero-card{box-shadow:none;background:white;color:black}.module{break-inside:avoid}}
+  </style>
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script','noscript','style','textarea','pre','code']
+      },
+      chtml: {
+        scale: 1.04,
+        mtextInheritFont: true
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+</head>
+<body>
+<div class="layout">
+  <aside>
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div><h1>MLP & Deep Learning</h1><small>Material interactivo</small></div>
+    </div>
+    <div class="pill">11 módulos · teoría y práctica</div>
+    <nav class="toc" id="toc">
+      <a href="#m0"><span>0</span><span>Mapa de lectura</span></a>
+      <a href="#m1"><span>1</span><span>Red = función</span></a>
+      <a href="#m2"><span>2</span><span>Neurona y bias</span></a>
+      <a href="#m3"><span>3</span><span>Forward y activaciones</span></a>
+      <a href="#m4"><span>4</span><span>Pérdida</span></a>
+      <a href="#m5"><span>5</span><span>Gradiente</span></a>
+      <a href="#m6"><span>6</span><span>Backpropagation</span></a>
+      <a href="#m7"><span>7</span><span>Arquitectura</span></a>
+      <a href="#m8"><span>8</span><span>Generalización</span></a>
+      <a href="#m9"><span>9</span><span>Métricas</span></a>
+      <a href="#m10"><span>10</span><span>Colmenas y cierre</span></a>
+    </nav>
+    <div class="side-note">
+      <b>Modo de estudio:</b> se recomienda avanzar por módulos, revisar la explicación conceptual y luego resolver el laboratorio asociado antes de continuar.
+    </div>
+  </aside>
+  <main>
+    <header class="hero">
+      <div class="eyebrow">Inteligencia Artificial · 4º año</div>
+      <h2>Redes neuronales multicapa y Deep Learning</h2>
+      <p>Este material presenta los fundamentos de las redes neuronales multicapa mediante una progresión conceptual, figuras explicativas, ejemplos guiados y laboratorios interactivos ubicados junto a cada tema central.</p>
+      <div class="hero-grid">
+        <div class="hero-card"><b>Idea central</b><span>Una red no aprende magia: ajusta pesos y bias para bajar una pérdida.</span></div>
+        <div class="hero-card"><b>Ruta conceptual</b><span>Neurona → capas → forward → pérdida → gradiente → backpropagation → evaluación.</span></div>
+        <div class="hero-card"><b>Resultado esperado</b><span>Comprender qué hace una MLP, cómo aprende y cómo se evalúa su capacidad de generalización.</span></div>
+      </div>
+    </header>
+
+    <section class="module" id="m0">
+      <div class="section-head">
+        <div class="num">0</div>
+        <div><div class="slides">Slides 1–3 · Apertura y mapa conceptual</div><h3>Primero el mapa, después las fórmulas</h3><p>La clase se entiende mejor como una cadena de problemas: cada bloque responde una pregunta distinta. Separar esas preguntas evita confundir arquitectura, optimización y evaluación.</p></div>
+      </div>
+      <div class="content-grid">
+        <div class="card">
+          <h4>La historia completa en una frase</h4>
+          <p>Una MLP es una función con parámetros. Recibe un vector \(x\), lo transforma capa por capa y devuelve una predicción \(\hat{y}\). Entrenar significa ajustar esos parámetros para que la predicción se parezca a la realidad.</p>
+          <div class="flow" aria-label="flujo conceptual">
+            <div>Entrada x</div><div class="arrow">→</div><div>Capas</div><div class="arrow">→</div><div>Predicción ŷ</div><div class="arrow">→</div><div>Error</div>
+          </div>
+          <p>La parte matemática no está para decorar. Sirve para responder: <b>qué cambia</b> cuando modificás pesos, bias, arquitectura, pérdida o datos.</p>
+        </div>
+        <div class="card">
+          <h4>Preguntas guía</h4>
+          <ul class="mini-list">
+            <li>¿Qué representa una neurona?</li>
+            <li>¿Por qué muchas capas sin activación no sirven?</li>
+            <li>¿Qué mide la función de pérdida?</li>
+            <li>¿Por qué el gradiente indica cómo corregir?</li>
+            <li>¿Cómo evita backprop recalcular todo?</li>
+            <li>¿Qué significa que un modelo generalice?</li>
+          </ul>
+          <div class="key warn">Advertencia útil: memorizar fórmulas permite repetir definiciones, pero no alcanza para justificar una red. Lo importante es interpretar qué representa cada expresión.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="module" id="m1">
+      <div class="section-head">
+        <div class="num">1</div>
+        <div><div class="slides">Slides 4–5 · MLP y aproximación universal</div><h3>Una red es una función compuesta, no una caja mágica</h3><p>La palabra “profunda” describe una composición de transformaciones. Cada capa toma la representación anterior, aplica una transformación afín, desplaza mediante bias y luego introduce una no linealidad.</p></div>
+      </div>
+      <div class="content-grid">
+        <div class="card">
+          <h4>Qué es una MLP</h4>
+          <p>Una <b>Multilayer Perceptron</b> transforma vectores de entrada en salidas mediante capas densas. En una capa densa, cada neurona ve todas las activaciones de la capa anterior.</p>
+          <div class="formula-block math-block">\[
+\begin{aligned}
+z^{(\ell)} &= W^{(\ell)} a^{(\ell-1)} + b^{(\ell)} \\
+a^{(\ell)} &= \varphi^{(\ell)}\!\left(z^{(\ell)}\right)
+\end{aligned}
+\]</div>
+          <p>Los parámetros \(\theta\) son todos los pesos \(W\) y bias \(b\). La red completa es una composición: capa 1, capa 2, capa 3… hasta la salida.</p>
+
+          <div class="figure" role="img" aria-label="Diagrama de arquitectura MLP con entradas, capas ocultas y salida">
+            <svg viewBox="0 0 760 360" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <marker id="arrowMlp" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                  <path d="M0,0 L8,4 L0,8 Z" fill="rgba(125,211,252,.9)"/>
+                </marker>
+              </defs>
+              <text x="58" y="34" class="svgtext">Entrada</text>
+              <text x="292" y="34" class="svgtext">Capas ocultas</text>
+              <text x="628" y="34" class="svgtext">Salida</text>
+              <!-- connections input to h1 -->
+              <g class="wires">
+                <line class="wire" x1="110" y1="90" x2="300" y2="70"/><line class="wire" x1="110" y1="90" x2="300" y2="140"/><line class="wire" x1="110" y1="90" x2="300" y2="210"/><line class="wire" x1="110" y1="90" x2="300" y2="280"/>
+                <line class="wire" x1="110" y1="180" x2="300" y2="70"/><line class="wire" x1="110" y1="180" x2="300" y2="140"/><line class="wire" x1="110" y1="180" x2="300" y2="210"/><line class="wire" x1="110" y1="180" x2="300" y2="280"/>
+                <line class="wire" x1="110" y1="270" x2="300" y2="70"/><line class="wire" x1="110" y1="270" x2="300" y2="140"/><line class="wire" x1="110" y1="270" x2="300" y2="210"/><line class="wire" x1="110" y1="270" x2="300" y2="280"/>
+                <line class="wire" x1="350" y1="70" x2="495" y2="110"/><line class="wire" x1="350" y1="70" x2="495" y2="180"/><line class="wire" x1="350" y1="70" x2="495" y2="250"/>
+                <line class="wire" x1="350" y1="140" x2="495" y2="110"/><line class="wire" x1="350" y1="140" x2="495" y2="180"/><line class="wire" x1="350" y1="140" x2="495" y2="250"/>
+                <line class="wire" x1="350" y1="210" x2="495" y2="110"/><line class="wire" x1="350" y1="210" x2="495" y2="180"/><line class="wire" x1="350" y1="210" x2="495" y2="250"/>
+                <line class="wire" x1="350" y1="280" x2="495" y2="110"/><line class="wire" x1="350" y1="280" x2="495" y2="180"/><line class="wire" x1="350" y1="280" x2="495" y2="250"/>
+                <line class="wireStrong" x1="545" y1="110" x2="655" y2="180" marker-end="url(#arrowMlp)"/><line class="wireStrong" x1="545" y1="180" x2="655" y2="180" marker-end="url(#arrowMlp)"/><line class="wireStrong" x1="545" y1="250" x2="655" y2="180" marker-end="url(#arrowMlp)"/>
+              </g>
+              <circle class="node" cx="90" cy="90" r="22"/><circle class="node" cx="90" cy="180" r="22"/><circle class="node" cx="90" cy="270" r="22"/>
+              <text x="82" y="94" class="svgmono">x₁</text><text x="82" y="184" class="svgmono">x₂</text><text x="82" y="274" class="svgmono">x₃</text>
+              <circle class="node2" cx="325" cy="70" r="24"/><circle class="node2" cx="325" cy="140" r="24"/><circle class="node2" cx="325" cy="210" r="24"/><circle class="node2" cx="325" cy="280" r="24"/>
+              <text x="316" y="74" class="svgmono">h₁</text><text x="316" y="144" class="svgmono">h₂</text><text x="316" y="214" class="svgmono">h₃</text><text x="316" y="284" class="svgmono">h₄</text>
+              <circle class="node2" cx="520" cy="110" r="24"/><circle class="node2" cx="520" cy="180" r="24"/><circle class="node2" cx="520" cy="250" r="24"/>
+              <text x="511" y="114" class="svgmono">g₁</text><text x="511" y="184" class="svgmono">g₂</text><text x="511" y="254" class="svgmono">g₃</text>
+              <circle class="node3" cx="680" cy="180" r="28"/><text x="671" y="184" class="svgmono">ŷ</text>
+              <text x="230" y="325" class="svgmuted">Cada conexión tiene un peso. Cada neurona suma bias y aplica activación.</text>
+            </svg>
+            <p class="figcap"><b>Figura:</b> una MLP densa conecta cada capa con la siguiente. La profundidad agrega composición; el ancho agrega capacidad dentro de una capa.</p>
+          </div>
+
+          <div class="key">La red no “descubre reglas” como una persona: ajusta una familia enorme de funciones para reducir una pérdida en datos observados.</div>
+        </div>
+        <div class="card">
+          <h4>Teorema de aproximación universal</h4>
+          <p>Dice, informalmente, que una red feedforward con activación no lineal y suficientes neuronas puede aproximar funciones continuas sobre un dominio compacto.</p>
+          <div class="bad key">Lo que NO dice: no garantiza que el entrenamiento encuentre esos parámetros, que generalice, que use pocos datos ni que sea una buena idea usar una red gigante para todo.</div>
+          <p>La lectura correcta es distinguir <b>capacidad de representación</b> de <b>capacidad de aprendizaje y generalización</b>.</p>
+        </div>
+      </div>
+      <div class="lab" id="lab-approx">
+        <div class="lab-head"><span class="lab-badge">LAB 1</span><h4>Capacidad: combinar unidades ocultas para aproximar una función</h4></div>
+        <p>Este laboratorio no entrena una red real. Representa una analogía visual: al aumentar la cantidad de unidades ocultas, la red dispone de más componentes no lineales para aproximar una función objetivo.</p>
+        <div class="lab-grid">
+          <div class="controls">
+            <div class="control"><label>Cantidad de unidades ocultas <output id="approxNOut">4</output></label><input id="approxN" type="range" min="1" max="12" step="1" value="4"></div>
+            <div class="control"><label>Flexibilidad de cada unidad <output id="approxSharpOut">4.0</output></label><input id="approxSharp" type="range" min="1" max="10" step="0.5" value="4"></div>
+            <div class="key good">Más unidades ocultas aumentan la expresividad, pero también la cantidad de parámetros. Sin datos suficientes o regularización, el modelo puede ajustar ruido.</div>
+          </div>
+          <div><canvas id="approxCanvas" width="760" height="380"></canvas></div>
+        </div>
+        <div class="check"><details><summary>¿Qué debería observar?</summary><p>Con pocas unidades ocultas, la aproximación es limitada. Con más unidades, la curva puede seguir mejor las ondulaciones. La flexibilidad de cada unidad controla qué tan local o suave es su aporte en esta simulación; no es un hiperparámetro estándar de toda MLP.</p></details></div>
+      </div>
+    </section>
+
+    <section class="module" id="m2">
+      <div class="section-head">
+        <div class="num">2</div>
+        <div><div class="slides">Slides 6–8 · Neurona, bias, dimensiones y notación matricial</div><h3>Neurona artificial: sumar, desplazar y activar</h3><p>Una neurona calcula una combinación ponderada, suma un bias y aplica una activación. El bias permite desplazar el umbral de decisión; sin él, muchas fronteras quedan obligadas a pasar por el origen.</p></div>
+      </div>
+      <div class="content-grid">
+        <div class="card">
+          <h4>La neurona por dentro</h4>
+          <div class="formula-block math-block">\[
+\begin{aligned}
+z &= w_1x_1 + w_2x_2 + \cdots + w_nx_n + b = w^{\top}x + b \\
+a &= \varphi(z)
+\end{aligned}
+\]</div>
+          <p>Los <b>pesos</b> controlan cuánto importa cada entrada y en qué dirección empujan. El <b>bias</b> desplaza el umbral de activación. La <b>activación</b> introduce no linealidad.</p>
+          <p>Geométricamente, \(z=0\) define un hiperplano. Los pesos definen orientación; el bias mueve la frontera.</p>
+
+          <div class="figure" role="img" aria-label="Diagrama interno de una neurona artificial">
+            <svg viewBox="0 0 760 250" xmlns="http://www.w3.org/2000/svg">
+              <defs><marker id="arrowNeuron" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="rgba(125,211,252,.9)"/></marker></defs>
+              <text x="42" y="42" class="svgtext">Entradas</text>
+              <circle class="node" cx="80" cy="85" r="20"/><circle class="node" cx="80" cy="145" r="20"/><circle class="node" cx="80" cy="205" r="20"/>
+              <text x="72" y="89" class="svgmono">x₁</text><text x="72" y="149" class="svgmono">x₂</text><text x="72" y="209" class="svgmono">xₙ</text>
+              <line class="wireStrong" x1="105" y1="85" x2="250" y2="130" marker-end="url(#arrowNeuron)"/>
+              <line class="wireStrong" x1="105" y1="145" x2="250" y2="145" marker-end="url(#arrowNeuron)"/>
+              <line class="wireStrong" x1="105" y1="205" x2="250" y2="160" marker-end="url(#arrowNeuron)"/>
+              <text x="150" y="78" class="svgmuted">w₁</text><text x="162" y="135" class="svgmuted">w₂</text><text x="150" y="208" class="svgmuted">wₙ</text>
+              <rect x="255" y="95" width="160" height="95" rx="18" fill="rgba(167,139,250,.16)" stroke="rgba(167,139,250,.75)" stroke-width="2"/>
+              <text x="285" y="132" class="svgtext">Σ wᵢxᵢ + b</text><text x="312" y="160" class="svgmono">z</text>
+              <circle class="node3" cx="335" cy="58" r="18"/><text x="329" y="62" class="svgmono">b</text><line class="wire" x1="335" y1="76" x2="335" y2="95"/>
+              <line class="wireStrong" x1="415" y1="142" x2="505" y2="142" marker-end="url(#arrowNeuron)"/>
+              <rect x="510" y="104" width="118" height="76" rx="18" fill="rgba(125,211,252,.14)" stroke="rgba(125,211,252,.75)" stroke-width="2"/>
+              <text x="545" y="135" class="svgtext">φ(z)</text><text x="532" y="160" class="svgmuted">activación</text>
+              <line class="wireStrong" x1="628" y1="142" x2="695" y2="142" marker-end="url(#arrowNeuron)"/>
+              <circle class="node3" cx="718" cy="142" r="22"/><text x="712" y="146" class="svgmono">a</text>
+            </svg>
+            <p class="figcap"><b>Figura:</b> la neurona primero calcula una combinación afín y luego aplica una función de activación.</p>
+          </div>
+
+
+          <div class="figure" role="img" aria-label="Comparación entre modelo lineal sin bias y con bias">
+            <svg viewBox="0 0 760 280" xmlns="http://www.w3.org/2000/svg">
+              <rect x="45" y="40" width="300" height="190" rx="18" fill="rgba(255,255,255,.035)" stroke="rgba(255,255,255,.12)"/>
+              <rect x="415" y="40" width="300" height="190" rx="18" fill="rgba(255,255,255,.035)" stroke="rgba(255,255,255,.12)"/>
+              <text x="92" y="30" class="svgtext">Sin bias: frontera obligada al origen</text>
+              <text x="455" y="30" class="svgtext">Con bias: frontera desplazable</text>
+              <line x1="85" y1="205" x2="305" y2="75" stroke="rgba(252,165,165,.9)" stroke-width="4"/>
+              <circle cx="195" cy="140" r="5" fill="#e8f7ff"/><text x="203" y="136" class="svgmuted">origen</text>
+              <line x1="445" y1="190" x2="675" y2="85" stroke="rgba(134,239,172,.9)" stroke-width="4"/>
+              <line x1="445" y1="145" x2="675" y2="40" stroke="rgba(125,211,252,.5)" stroke-width="3" stroke-dasharray="8 8"/>
+              <circle cx="565" cy="140" r="5" fill="#e8f7ff"/><text x="573" y="136" class="svgmuted">origen</text>
+              <text x="90" y="255" class="svgmuted">b = 0 restringe el intercepto</text>
+              <text x="455" y="255" class="svgmuted">b ≠ 0 permite mover el umbral</text>
+            </svg>
+            <p class="figcap"><b>Figura:</b> el bias desplaza la frontera de decisión sin depender de las entradas.</p>
+          </div>
+
+        </div>
+        <div class="card">
+          <h4>Dimensiones: el bug que no perdona</h4>
+          <p>Si la capa \(\ell\) tiene \(n_\ell\) neuronas y la anterior \(n_{\ell-1}\), entonces:</p>
+          <div class="formula-block math-block">\[
+\begin{aligned}
+W^{(\ell)} &\in \mathbb{R}^{n_\ell \times n_{\ell-1}} \\
+b^{(\ell)} &\in \mathbb{R}^{n_\ell} \\
+z^{(\ell)} &\in \mathbb{R}^{n_\ell}
+\end{aligned}
+\]</div>
+          <div class="key warn">Muchos errores de implementación provienen de dimensiones incompatibles: matrices mal orientadas, batch mal organizado o broadcasting no deseado.</div>
+        </div>
+      </div>
+      <div class="lab" id="lab-neuron">
+        <div class="lab-head"><span class="lab-badge">LAB 2</span><h4>Pesos y bias: observar cómo cambia la frontera</h4></div>
+        <p>La recta muestra \(w_1x_1+w_2x_2+b=0\). Los puntos de un lado activan la neurona; los del otro no. La activación seleccionada permite observar cómo cambia la salida.</p>
+        <div class="lab-grid">
+          <div class="controls">
+            <div class="control"><label>w₁ <output id="w1Out"></output></label><input id="w1" type="range" min="-4" max="4" step="0.1" value="1.2"></div>
+            <div class="control"><label>w₂ <output id="w2Out"></output></label><input id="w2" type="range" min="-4" max="4" step="0.1" value="-1.0"></div>
+            <div class="control"><label>bias b <output id="bOut"></output></label><input id="b" type="range" min="-4" max="4" step="0.1" value="0.5"></div>
+            <div class="control"><label>x₁ <output id="x1Out"></output></label><input id="x1" type="range" min="-3" max="3" step="0.1" value="1.0"></div>
+            <div class="control"><label>x₂ <output id="x2Out"></output></label><input id="x2" type="range" min="-3" max="3" step="0.1" value="0.5"></div>
+            <div class="control"><label>Activación</label><select id="neuronAct"><option>step</option><option>relu</option><option>sigmoid</option><option>tanh</option></select></div>
+          </div>
+          <div>
+            <canvas id="neuronCanvas" width="760" height="420"></canvas>
+            <div class="result">
+              <div class="metric"><small>z</small><b id="zVal">0</b></div>
+              <div class="metric"><small>a = φ(z)</small><b id="aVal">0</b></div>
+              <div class="metric"><small>Lectura</small><b id="decisionVal">—</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="check"><details><summary>Chequeo conceptual</summary><p>Subir o bajar el bias desplaza la frontera sin cambiar su inclinación. Cambiar los pesos rota la frontera y también cambia qué entrada pesa más.</p></details></div>
+      </div>
+    </section>
+
+    <section class="module" id="m3">
+      <div class="section-head">
+        <div class="num">3</div>
+        <div><div class="slides">Slides 9–11 · Feedforward y activaciones</div><h3>Forward pass: predecir con los parámetros actuales</h3><p>Forward no aprende. Solo evalúa la red con los parámetros actuales: propaga la entrada capa por capa hasta obtener una predicción.</p></div>
+      </div>
+      <div class="content-grid">
+        <div class="card">
+          <h4>Qué pasa en el forward</h4>
+          <div class="formula-block math-block">\[
+\begin{aligned}
+a^{(0)} &= x \\
+z^{(\ell)} &= W^{(\ell)}a^{(\ell-1)} + b^{(\ell)}, \quad \ell=1,\ldots,L \\
+a^{(\ell)} &= \varphi^{(\ell)}\!\left(z^{(\ell)}\right) \\
+\hat{y} &= a^{(L)}
+\end{aligned}
+\]</div>
+          <p>La última activación depende del problema. Regresión suele usar salida lineal. Clasificación binaria usa sigmoide. Multiclase usa softmax.</p>
+          <div class="key">La salida y la pérdida deben ser coherentes: MSE suele corresponder a regresión, mientras que la entropía cruzada suele corresponder a clasificación.</div>
+
+          <div class="figure" role="img" aria-label="Activaciones de salida según tipo de problema">
+            <svg viewBox="0 0 760 280" xmlns="http://www.w3.org/2000/svg">
+              <defs><marker id="arrowForward" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="rgba(125,211,252,.9)"/></marker></defs>
+              <rect x="40" y="96" width="170" height="82" rx="18" fill="rgba(125,211,252,.12)" stroke="rgba(125,211,252,.68)" stroke-width="2"/>
+              <text x="75" y="130" class="svgtext">Representación</text><text x="92" y="154" class="svgmono">a⁽L-1⁾</text>
+              <line class="wireStrong" x1="210" y1="137" x2="285" y2="137" marker-end="url(#arrowForward)"/>
+              <rect x="290" y="55" width="150" height="58" rx="16" fill="rgba(134,239,172,.13)" stroke="rgba(134,239,172,.7)" stroke-width="2"/>
+              <text x="315" y="82" class="svgtext">Lineal</text><text x="310" y="101" class="svgmuted">regresión: ŷ ∈ R</text>
+              <rect x="290" y="124" width="150" height="58" rx="16" fill="rgba(253,230,138,.13)" stroke="rgba(253,230,138,.7)" stroke-width="2"/>
+              <text x="315" y="151" class="svgtext">Sigmoide</text><text x="306" y="170" class="svgmuted">binaria: p(y=1)</text>
+              <rect x="290" y="193" width="150" height="58" rx="16" fill="rgba(167,139,250,.13)" stroke="rgba(167,139,250,.7)" stroke-width="2"/>
+              <text x="315" y="220" class="svgtext">Softmax</text><text x="303" y="239" class="svgmuted">multiclase: Σpᵢ=1</text>
+              <line class="wire" x1="445" y1="84" x2="650" y2="84"/><line class="wire" x1="445" y1="153" x2="650" y2="153"/><line class="wire" x1="445" y1="222" x2="650" y2="222"/>
+              <text x="660" y="88" class="svgmono">23.7</text><text x="660" y="157" class="svgmono">0.82</text><text x="660" y="226" class="svgmono">[0.1,0.7,0.2]</text>
+            </svg>
+            <p class="figcap"><b>Figura:</b> la activación de salida debe corresponder al tipo de problema y a la pérdida elegida.</p>
+          </div>
+
+        </div>
+        <div class="card">
+          <h4>Activaciones usuales</h4>
+          <table><thead><tr><th>Activación</th><th>Uso típico</th><th>Riesgo</th></tr></thead><tbody>
+            <tr><td>ReLU</td><td>Capas ocultas</td><td>Neuronas muertas</td></tr>
+            <tr><td>Sigmoide</td><td>Probabilidad binaria</td><td>Saturación</td></tr>
+            <tr><td>tanh</td><td>Ocultas antiguas</td><td>Saturación</td></tr>
+            <tr><td>GELU / Swish</td><td>Modelos modernos</td><td>Más costo</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="lab" id="lab-activations">
+        <div class="lab-head"><span class="lab-badge">LAB 3</span><h4>Explorador de activaciones y salidas</h4></div>
+        <p>El gráfico permite comparar curvas. La zona plana de sigmoide/tanh explica por qué pueden aparecer gradientes muy pequeños. ReLU no satura para valores positivos, pero puede quedar en cero para valores negativos.</p>
+        <div class="lab-grid">
+          <div class="controls">
+            <div class="control"><label>Mostrar activación</label><select id="actSelect"><option value="all">Todas</option><option value="relu">ReLU</option><option value="sigmoid">Sigmoide</option><option value="tanh">tanh</option><option value="gelu">GELU aprox.</option></select></div>
+            <div class="control"><label>Logit binario <output id="logitOut">0.0</output></label><input id="logit" type="range" min="-8" max="8" step="0.1" value="0"></div>
+            <div class="control"><label>Logits multiclase</label><div class="small">A=1.2 · B=<span id="logitBText">0.3</span> · C=-0.7</div><input id="logitB" type="range" min="-4" max="4" step="0.1" value="0.3"></div>
+          </div>
+          <div>
+            <canvas id="actCanvas" width="760" height="360"></canvas>
+            <div class="result">
+              <div class="metric"><small>Sigmoide(logit)</small><b id="sigOut">0.50</b></div>
+              <div class="metric"><small>Clase softmax ganadora</small><b id="softWinner">A</b></div>
+              <div class="metric"><small>Probabilidades</small><b id="softVals">—</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="check"><details><summary>Pregunta corta</summary><p>Si el problema es multiclase excluyente, softmax tiene sentido porque fuerza probabilidades que suman 1. Si el problema es multilabel, usarías sigmoides independientes.</p></details></div>
+      </div>
+    </section>
+
+    <section class="module" id="m4">
+      <div class="section-head">
+        <div class="num">4</div>
+        <div><div class="slides">Slides 12–13 · Función de pérdida y MSE</div><h3>Loss: convertir “le erró” en un número optimizable</h3><p>La red necesita una señal de corrección. Esa señal nace de una función de pérdida: compara la predicción con el valor real y cuantifica el error.</p></div>
+      </div>
+      <div class="content-grid">
+        <div class="card">
+          <h4>Riesgo empírico</h4>
+          <p>Entrenar es minimizar el promedio de pérdidas sobre los datos disponibles:</p>
+          <div class="formula-block math-block">\[
+J(\theta)=\frac{1}{n}\sum_{i=1}^{n} L\left(f_\theta(x_i), y_i\right)
+\]</div>
+          <p>Esto no garantiza desempeño perfecto en datos reales. Solo indica que se redujo el error sobre la muestra disponible. La diferencia entre ambas cosas se estudia como generalización.</p>
+        </div>
+        <div class="card">
+          <h4>MSE y entropía cruzada</h4>
+          <p><b>MSE</b> castiga errores grandes al cuadrado. Es natural para regresión, pero sensible a outliers.</p>
+          <p><b>Entropía cruzada</b> castiga asignar baja probabilidad a la clase correcta. Es natural para clasificación.</p>
+          <div class="key warn">La pérdida codifica qué errores te importan. No es una formalidad: se está definiendo el comportamiento del aprendizaje.</div>
+        </div>
+      </div>
+      <div class="lab" id="lab-loss">
+        <div class="lab-head"><span class="lab-badge">LAB 4</span><h4>MSE vs error absoluto: el outlier manda</h4></div>
+        <p>Al modificar la predicción se observa que MSE crece mucho más rápido que MAE cuando el error es grande.</p>
+        <div class="lab-grid">
+          <div class="controls">
+            <div class="control"><label>Valor real y <output id="realYOut">1.0</output></label><input id="realY" type="range" min="-3" max="3" step="0.1" value="1"></div>
+            <div class="control"><label>Predicción ŷ <output id="predYOut">0.0</output></label><input id="predY" type="range" min="-3" max="3" step="0.1" value="0"></div>
+            <div class="control"><label>Probabilidad clase correcta <output id="probOut">0.70</output></label><input id="prob" type="range" min="0.01" max="0.99" step="0.01" value="0.7"></div>
+          </div>
+          <div>
+            <canvas id="lossCanvas" width="760" height="360"></canvas>
+            <div class="result">
+              <div class="metric"><small>Error</small><b id="errVal">—</b></div>
+              <div class="metric"><small>MSE</small><b id="mseVal">—</b></div>
+              <div class="metric"><small>Cross entropy</small><b id="ceVal">—</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="check"><details><summary>¿Por qué MSE penaliza tanto outliers?</summary><p>Porque eleva al cuadrado. Un error de 4 no pesa el doble que uno de 2: pesa cuatro veces más. Por eso puede ser dominado por pocos casos extremos.</p></details></div>
+      </div>
+    </section>
+
+    <section class="module" id="m5">
+      <div class="section-head">
+        <div class="num">5</div>
+        <div><div class="slides">Slides 14–18 · Optimización, derivadas parciales, gradiente y descenso</div><h3>Gradiente: la brújula local del aprendizaje</h3><p>El gradiente reúne todas las derivadas parciales. Indica la dirección de mayor crecimiento local de la pérdida; para minimizar, la actualización avanza en sentido contrario.</p></div>
+      </div>
+      <div class="content-grid">
+        <div class="card">
+          <h4>Actualización principal</h4>
+          <div class="formula-block math-block">\[
+\theta_{t+1}=\theta_t-\eta\,\nabla J(\theta_t)
+\]</div>
+          <p>\(\eta\) es la tasa de aprendizaje. Si es muy pequeña, el proceso avanza lentamente; si es muy grande, puede oscilar o divergir.</p>
+          <p>La función de pérdida \(J(\theta)\) puede imaginarse como una superficie: cada punto \(\theta\) representa una configuración completa de la red y tiene asociado un valor de error. En dos parámetros se puede dibujar con curvas de nivel; en una red real la misma idea ocurre en miles o millones de dimensiones.</p>
+          <p>El gradiente \(\nabla J(\theta_t)\) indica hacia dónde aumentaría más rápido la pérdida alrededor del punto actual. Por eso la actualización resta esa dirección: no se busca subir la superficie, sino desplazarse hacia una zona de menor error.</p>
+          <p>En mini-batch, el gradiente se estima con pequeños lotes. Es más barato que usar todos los datos en cada paso y agrega un ruido controlado que puede ayudar a no quedar atrapado en regiones pobres.</p>
+
+          <div class="figure" role="img" aria-label="Dirección del gradiente y descenso">
+            <svg viewBox="0 0 760 280" xmlns="http://www.w3.org/2000/svg">
+              <defs><marker id="arrowGrad" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="rgba(253,230,138,.95)"/></marker></defs>
+              <path d="M60 225 C150 70 230 70 310 220 S500 260 610 80 S705 100 720 210" fill="none" stroke="rgba(125,211,252,.85)" stroke-width="4"/>
+              <circle cx="238" cy="126" r="9" fill="#e8f7ff"/>
+              <line x1="238" y1="126" x2="300" y2="83" stroke="rgba(252,165,165,.95)" stroke-width="4" marker-end="url(#arrowGrad)"/>
+              <line x1="238" y1="126" x2="174" y2="169" stroke="rgba(134,239,172,.95)" stroke-width="4" marker-end="url(#arrowGrad)"/>
+              <text x="308" y="82" class="svgtext">+∇J: sube</text>
+              <text x="86" y="180" class="svgtext">−∇J: baja</text>
+              <text x="70" y="252" class="svgmuted">La actualización usa θ ← θ − η∇J(θ)</text>
+            </svg>
+            <p class="figcap"><b>Figura:</b> el gradiente apunta hacia el mayor crecimiento local; el descenso por gradiente actualiza en sentido contrario.</p>
+          </div>
+
+        </div>
+        <div class="card">
+          <h4>Cómo leer la superficie de pérdida</h4>
+          <p>Las curvas de nivel agrupan configuraciones de parámetros con pérdida similar. Moverse de una curva externa hacia una curva interna equivale, en esa visualización, a reducir el error.</p>
+          <p>Los puntos del recorrido representan sucesivas actualizaciones de la red: se calcula la pérdida, se obtiene el gradiente, se corrigen los parámetros y se repite. El entrenamiento es iterativo, no una solución cerrada.</p>
+          <h4>Garantía local</h4>
+          <p>Si la función es suave bajo ciertas condiciones, un paso suficientemente pequeño reduce la pérdida localmente. En redes profundas no hay convexidad global garantizada, pero la intuición sigue siendo central.</p>
+          <div class="key">La optimización no busca “la verdad” en sentido absoluto: busca parámetros que reduzcan una pérdida definida sobre datos y supuestos concretos.</div>
+        </div>
+      </div>
+      <div class="lab" id="lab-gradient">
+        <div class="lab-head"><span class="lab-badge">LAB 5</span><h4>Descenso por gradiente en una superficie simple</h4></div>
+        <p>Se minimiza \(J(w)=(w-1.7)^2+0.2\sin(5w)\). Distintas tasas de aprendizaje permiten observar avance estable, oscilación o divergencia.</p>
+        <div class="lab-grid">
+          <div class="controls">
+            <div class="control"><label>w inicial <output id="gdWOut">-2.5</output></label><input id="gdW" type="range" min="-4" max="4" step="0.1" value="-2.5"></div>
+            <div class="control"><label>η <output id="gdEtaOut">0.12</output></label><input id="gdEta" type="range" min="0.01" max="0.9" step="0.01" value="0.12"></div>
+            <div class="control"><label>Pasos <output id="gdStepsOut">18</output></label><input id="gdSteps" type="range" min="1" max="60" step="1" value="18"></div>
+            <button id="gdReset" type="button">Recalcular camino</button>
+          </div>
+          <div>
+            <canvas id="gdCanvas" width="760" height="390"></canvas>
+            <div class="result">
+              <div class="metric"><small>w final</small><b id="gdFinalW">—</b></div>
+              <div class="metric"><small>J final</small><b id="gdFinalJ">—</b></div>
+              <div class="metric"><small>Diagnóstico</small><b id="gdDiag">—</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="check"><details><summary>Lectura esperada</summary><p>El gradiente solo mira información local. Una tasa de aprendizaje razonable permite bajar la pérdida; una tasa alta puede saltar entre lados de la curva y empeorar.</p></details></div>
+      </div>
+    </section>
+
+    <section class="module" id="m6">
+      <div class="section-head">
+        <div class="num">6</div>
+        <div><div class="slides">Slides 19–21 y 31–35 · Regla de la cadena, backprop y ejemplo numérico</div><h3>Backpropagation: repartir culpas con eficiencia</h3><p>Backpropagation no es una fórmula aislada: es la regla de la cadena aplicada de derecha a izquierda para calcular muchos gradientes sin recomputar derivadas completas desde cero.</p></div>
+      </div>
+      <div class="content-grid">
+        <div class="card">
+          <h4>La idea</h4>
+          <p>Forward calcula activaciones. Backward calcula cómo cambia la pérdida si cambia cada parámetro. A cada neurona le llega una “responsabilidad de error”, normalmente llamada <code>δ</code>.</p>
+
+          <div class="figure" role="img" aria-label="Forward y backward en una red multicapa">
+            <svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <marker id="arrowBpF" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="rgba(134,239,172,.95)"/></marker>
+                <marker id="arrowBpB" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="rgba(252,165,165,.95)"/></marker>
+              </defs>
+              <rect x="45" y="105" width="95" height="70" rx="18" fill="rgba(125,211,252,.12)" stroke="rgba(125,211,252,.7)" stroke-width="2"/><text x="84" y="145" class="svgmono">x</text>
+              <rect x="190" y="105" width="115" height="70" rx="18" fill="rgba(167,139,250,.14)" stroke="rgba(167,139,250,.7)" stroke-width="2"/><text x="223" y="135" class="svgmono">z¹,a¹</text><text x="217" y="155" class="svgmuted">capa 1</text>
+              <rect x="355" y="105" width="115" height="70" rx="18" fill="rgba(167,139,250,.14)" stroke="rgba(167,139,250,.7)" stroke-width="2"/><text x="388" y="135" class="svgmono">z²,a²</text><text x="382" y="155" class="svgmuted">capa 2</text>
+              <rect x="520" y="105" width="95" height="70" rx="18" fill="rgba(134,239,172,.12)" stroke="rgba(134,239,172,.7)" stroke-width="2"/><text x="558" y="145" class="svgmono">ŷ</text>
+              <rect x="665" y="105" width="60" height="70" rx="18" fill="rgba(252,165,165,.12)" stroke="rgba(252,165,165,.7)" stroke-width="2"/><text x="690" y="145" class="svgmono">L</text>
+              <line x1="140" y1="125" x2="190" y2="125" stroke="rgba(134,239,172,.95)" stroke-width="4" marker-end="url(#arrowBpF)"/>
+              <line x1="305" y1="125" x2="355" y2="125" stroke="rgba(134,239,172,.95)" stroke-width="4" marker-end="url(#arrowBpF)"/>
+              <line x1="470" y1="125" x2="520" y2="125" stroke="rgba(134,239,172,.95)" stroke-width="4" marker-end="url(#arrowBpF)"/>
+              <line x1="615" y1="125" x2="665" y2="125" stroke="rgba(134,239,172,.95)" stroke-width="4" marker-end="url(#arrowBpF)"/>
+              <line x1="665" y1="168" x2="615" y2="168" stroke="rgba(252,165,165,.95)" stroke-width="4" marker-end="url(#arrowBpB)"/>
+              <line x1="520" y1="168" x2="470" y2="168" stroke="rgba(252,165,165,.95)" stroke-width="4" marker-end="url(#arrowBpB)"/>
+              <line x1="355" y1="168" x2="305" y2="168" stroke="rgba(252,165,165,.95)" stroke-width="4" marker-end="url(#arrowBpB)"/>
+              <text x="250" y="70" class="svgtext">Forward: calcula predicción</text>
+              <text x="250" y="230" class="svgtext">Backward: propaga derivadas locales</text>
+              <text x="315" y="260" class="svgmono">∂L/∂W, ∂L/∂b</text>
+            </svg>
+            <p class="figcap"><b>Figura:</b> forward evalúa la función; backpropagation calcula gradientes reutilizando derivadas locales.</p>
+          </div>
+
+          <div class="formula-block math-block">\[
+\begin{aligned}
+\delta^{(\ell)} &= \left(W^{(\ell+1)}\right)^{\top}\delta^{(\ell+1)} \odot \varphi'\!\left(z^{(\ell)}\right) \\
+\frac{\partial J}{\partial W^{(\ell)}} &= \delta^{(\ell)}\left(a^{(\ell-1)}\right)^{\top} \\
+\frac{\partial J}{\partial b^{(\ell)}} &= \delta^{(\ell)}
+\end{aligned}
+\]</div>
+        </div>
+        <div class="card">
+          <h4>Lectura del bias</h4>
+          <p>En una capa densa, el gradiente del bias coincide con el error local porque \(\partial z/\partial b = 1\).</p>
+          <div class="key good">Si el modelo subestima sistemáticamente, el bias de salida puede subir para elevar la predicción base. Pero ojo: el bias no mide importancia de una variable.</div>
+        </div>
+      </div>
+      <div class="lab" id="lab-backprop">
+        <div class="lab-head"><span class="lab-badge">LAB 6</span><h4>Un paso de backprop en una red 2–2–1</h4></div>
+        <p>La red tiene dos entradas, dos neuronas sigmoides ocultas y salida lineal. Al modificar la tasa de aprendizaje y ejecutar una actualización, se observa el efecto de backpropagation sobre la predicción y la pérdida.</p>
+        <div class="lab-grid">
+          <div class="controls">
+            <div class="control"><label>x₁ <output id="bpX1Out">1.0</output></label><input id="bpX1" type="range" min="-2" max="2" step="0.1" value="1"></div>
+            <div class="control"><label>x₂ <output id="bpX2Out">0.5</output></label><input id="bpX2" type="range" min="-2" max="2" step="0.1" value="0.5"></div>
+            <div class="control"><label>y real <output id="bpYOut">1.0</output></label><input id="bpY" type="range" min="-1" max="2" step="0.1" value="1"></div>
+            <div class="control"><label>η <output id="bpEtaOut">0.10</output></label><input id="bpEta" type="range" min="0.01" max="0.6" step="0.01" value="0.1"></div>
+            <button id="bpStep" type="button">Aplicar un update</button>
+            <button id="bpInit" type="button">Reiniciar pesos</button>
+          </div>
+          <div>
+            <canvas id="bpCanvas" width="760" height="390"></canvas>
+            <div class="result">
+              <div class="metric"><small>ŷ antes</small><b id="bpBefore">—</b></div>
+              <div class="metric"><small>ŷ después</small><b id="bpAfter">—</b></div>
+              <div class="metric"><small>Pérdida</small><b id="bpLoss">—</b></div>
+            </div>
+            <div class="formula-block" id="bpTrace" style="margin-top:12px">—</div>
+          </div>
+        </div>
+        <div class="check"><details><summary>Qué mirar</summary><p>Cada peso se actualiza según dos factores: el error local de la neurona destino y la activación que ingresó por esa conexión. Por eso backpropagation asigna correcciones diferentes a cada parámetro.</p></details></div>
+      </div>
+    </section>
+
+    <section class="module" id="m7">
+      <div class="section-head">
+        <div class="num">7</div>
+        <div><div class="slides">Slides 22–23 · Arquitectura, parámetros y regularización</div><h3>Arquitectura: más grande no siempre significa mejor</h3><p>Ancho, profundidad e inicialización definen capacidad y dificultad de optimización. La regularización busca que la red aprenda patrones estables y no memorice particularidades accidentales del conjunto de entrenamiento.</p></div>
+      </div>
+      <div class="content-grid">
+        <div class="card">
+          <h4>Parámetros por capa</h4>
+          <p>Una capa densa con <code>n_in</code> entradas y <code>n_out</code> neuronas tiene:</p>
+          <div class="formula-block math-block">\[
+\#\text{parámetros}=n_{\text{out}}\,n_{\text{in}} + n_{\text{out}}
+\]</div>
+          <p>El primer término son pesos. El segundo, bias. Esta cuenta importa porque capacidad excesiva con pocos datos suele terminar en overfitting.</p>
+        </div>
+        <div class="card">
+          <h4>Regularización</h4>
+          <ul class="mini-list">
+            <li><b>L2 / weight decay:</b> penaliza pesos grandes.</li>
+            <li><b>Dropout:</b> apaga neuronas durante entrenamiento.</li>
+            <li><b>Early stopping:</b> corta cuando validación deja de mejorar.</li>
+            <li><b>Normalización:</b> ayuda a que la optimización no pelee contra escalas absurdas.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="lab" id="lab-params">
+        <div class="lab-head"><span class="lab-badge">LAB 7</span><h4>Calculadora de arquitectura</h4></div>
+        <p>El laboratorio permite diseñar una MLP simple y observar cuántos parámetros introduce cada decisión arquitectónica.</p>
+        <div class="lab-grid">
+          <div class="controls">
+            <div class="control"><label>Entradas n₀ <output id="pInOut">8</output></label><input id="pIn" type="range" min="1" max="64" step="1" value="8"></div>
+            <div class="control"><label>Oculta 1 <output id="pH1Out">16</output></label><input id="pH1" type="range" min="1" max="128" step="1" value="16"></div>
+            <div class="control"><label>Oculta 2 <output id="pH2Out">8</output></label><input id="pH2" type="range" min="0" max="128" step="1" value="8"></div>
+            <div class="control"><label>Salidas <output id="pOutOut">1</output></label><input id="pOut" type="range" min="1" max="20" step="1" value="1"></div>
+          </div>
+          <div>
+            <canvas id="paramCanvas" width="760" height="330"></canvas>
+            <div class="result">
+              <div class="metric"><small>Total parámetros</small><b id="pTotal">—</b></div>
+              <div class="metric"><small>Capa más pesada</small><b id="pHeavy">—</b></div>
+              <div class="metric"><small>Riesgo típico</small><b id="pRisk">—</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="check"><details><summary>Regla práctica</summary><p>Una práctica razonable consiste en comenzar con una arquitectura simple, medir entrenamiento y validación, aumentar capacidad si domina el sesgo y regularizar o simplificar si domina la varianza.</p></details></div>
+      </div>
+    </section>
+
+    <section class="module" id="m8">
+      <div class="section-head">
+        <div class="num">8</div>
+        <div><div class="slides">Slides 24–27 · Train/valid/test, underfitting, overfitting, sesgo-varianza y análisis de error</div><h3>Generalizar: aprobar con datos que la red nunca vio</h3><p>El objetivo no es minimizar únicamente el error de entrenamiento, sino lograr buen desempeño en datos nuevos.</p></div>
+      </div>
+      <div class="content-grid">
+        <div class="card">
+          <h4>División de datos</h4>
+          <ul class="mini-list">
+            <li><b>Train:</b> ajusta pesos y bias.</li>
+            <li><b>Validación:</b> elige hiperparámetros, arquitectura, umbral y early stopping.</li>
+            <li><b>Test:</b> estima desempeño final. No se toca para decidir el modelo.</li>
+          </ul>
+          <div class="bad key">Fuga de información: si el mismo paciente, cliente, sensor, colmena o período aparece en train y test, el resultado puede parecer excelente y fallar en producción.</div>
+
+          <div class="figure" role="img" aria-label="División de datos en entrenamiento, validación y prueba">
+            <svg viewBox="0 0 760 230" xmlns="http://www.w3.org/2000/svg">
+              <rect x="70" y="85" width="420" height="55" rx="16" fill="rgba(125,211,252,.20)" stroke="rgba(125,211,252,.75)" stroke-width="2"/>
+              <rect x="490" y="85" width="105" height="55" rx="16" fill="rgba(253,230,138,.20)" stroke="rgba(253,230,138,.75)" stroke-width="2"/>
+              <rect x="595" y="85" width="105" height="55" rx="16" fill="rgba(134,239,172,.18)" stroke="rgba(134,239,172,.75)" stroke-width="2"/>
+              <text x="240" y="119" class="svgtext">Train 70%</text>
+              <text x="513" y="119" class="svgtext">Valid 15%</text>
+              <text x="622" y="119" class="svgtext">Test 15%</text>
+              <text x="80" y="52" class="svgmuted">Ajusta pesos y bias</text>
+              <text x="465" y="52" class="svgmuted">Elige hiperparámetros</text>
+              <text x="604" y="52" class="svgmuted">Evalúa final</text>
+              <line x1="542" y1="145" x2="542" y2="175" stroke="rgba(253,230,138,.7)" stroke-width="2"/><line x1="648" y1="145" x2="648" y2="175" stroke="rgba(134,239,172,.7)" stroke-width="2"/>
+              <text x="106" y="190" class="svgmuted">El conjunto de prueba no debe participar en decisiones de arquitectura, umbral ni early stopping.</text>
+            </svg>
+            <p class="figcap"><b>Figura:</b> train ajusta el modelo, validación guía decisiones y test estima el desempeño final.</p>
+          </div>
+
+        </div>
+        <div class="card">
+          <h4>Sesgo, varianza y ruido</h4>
+          <p><b>Sesgo:</b> el modelo es demasiado rígido. Alto error en train y validación.</p>
+          <p><b>Varianza:</b> el modelo se adapta demasiado a la muestra. Bajo error en train, alto en validación/test.</p>
+          <p><b>Ruido irreducible:</b> error que no desaparece porque faltan variables, hay azar o medición defectuosa.</p>
+        </div>
+      </div>
+      <div class="lab" id="lab-generalization">
+        <div class="lab-head"><span class="lab-badge">LAB 8</span><h4>Curvas de aprendizaje: detectar underfitting y overfitting</h4></div>
+        <p>La simulación modifica capacidad y regularización. El gráfico no entrena una red real, pero reproduce el patrón que debe interpretarse al analizar curvas de aprendizaje.</p>
+        <div class="lab-grid">
+          <div class="controls">
+            <div class="control"><label>Capacidad del modelo <output id="capOut">5</output></label><input id="cap" type="range" min="1" max="10" step="1" value="5"></div>
+            <div class="control"><label>Regularización <output id="regOut">3</output></label><input id="reg" type="range" min="0" max="10" step="1" value="3"></div>
+            <div class="control"><label>Ruido de datos <output id="noiseOut">2</output></label><input id="noise" type="range" min="0" max="10" step="1" value="2"></div>
+          </div>
+          <div>
+            <canvas id="genCanvas" width="760" height="360"></canvas>
+            <div class="result">
+              <div class="metric"><small>Diagnóstico</small><b id="genDiag">—</b></div>
+              <div class="metric"><small>Brecha train-valid</small><b id="genGap">—</b></div>
+              <div class="metric"><small>Acción sugerida</small><b id="genAction">—</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="check"><details><summary>Checklist de análisis de error</summary><p>Conviene separar errores por clase, segmento, período, origen de datos y nivel de confianza. También se deben inspeccionar ejemplos mal clasificados y comparar contra un baseline simple.</p></details></div>
+      </div>
+    </section>
+
+    <section class="module" id="m9">
+      <div class="section-head">
+        <div class="num">9</div>
+        <div><div class="slides">Slides 28–30 · Matriz de confusión, ROC/AUC y cross-validation</div><h3>Métricas: elegir qué error te importa</h3><p>Accuracy puede ser útil, pero resulta insuficiente en clases desbalanceadas: un modelo puede acertar muchos casos frecuentes e ignorar los casos relevantes.</p></div>
+      </div>
+      <div class="content-grid">
+        <div class="card">
+          <h4>Matriz de confusión</h4>
+          <table><thead><tr><th>Métrica</th><th>Pregunta que responde</th></tr></thead><tbody>
+            <tr><td>Accuracy</td><td>¿Qué proporción total acerté?</td></tr>
+            <tr><td>Precision</td><td>Cuando dije positivo, ¿cuántas veces era verdad?</td></tr>
+            <tr><td>Recall</td><td>De los positivos reales, ¿qué proporción fue detectada?</td></tr>
+            <tr><td>F1</td><td>Balance entre precision y recall.</td></tr>
+          </tbody></table>
+        </div>
+        <div class="card">
+          <h4>ROC/AUC y cross-validation</h4>
+          <p>ROC evalúa distintos umbrales mediante TPR y FPR. AUC resume el área bajo esa curva. Con clases muy desbalanceadas, Precision-Recall suele ser más informativa.</p>
+          <p>K-fold divide el dataset en K partes para reducir azar al estimar generalización. En series temporales no se debe mezclar futuro con pasado.</p>
+
+          <div class="figure" role="img" aria-label="Matriz de confusión para clasificación binaria">
+            <svg viewBox="0 0 760 330" xmlns="http://www.w3.org/2000/svg">
+              <text x="295" y="35" class="svgtext">Predicción</text>
+              <text x="70" y="180" class="svgtext" transform="rotate(-90 70 180)">Real</text>
+              <rect x="170" y="70" width="220" height="95" rx="18" fill="rgba(134,239,172,.16)" stroke="rgba(134,239,172,.75)" stroke-width="2"/>
+              <rect x="400" y="70" width="220" height="95" rx="18" fill="rgba(253,230,138,.16)" stroke="rgba(253,230,138,.75)" stroke-width="2"/>
+              <rect x="170" y="175" width="220" height="95" rx="18" fill="rgba(252,165,165,.16)" stroke="rgba(252,165,165,.75)" stroke-width="2"/>
+              <rect x="400" y="175" width="220" height="95" rx="18" fill="rgba(125,211,252,.16)" stroke="rgba(125,211,252,.75)" stroke-width="2"/>
+              <text x="246" y="54" class="svgmuted">Positivo</text><text x="476" y="54" class="svgmuted">Negativo</text>
+              <text x="113" y="123" class="svgmuted">Positivo</text><text x="113" y="229" class="svgmuted">Negativo</text>
+              <text x="245" y="115" class="svgtext">TP</text><text x="218" y="140" class="svgmuted">detectado correctamente</text>
+              <text x="475" y="115" class="svgtext">FN</text><text x="438" y="140" class="svgmuted">caso positivo omitido</text>
+              <text x="245" y="220" class="svgtext">FP</text><text x="211" y="245" class="svgmuted">alarma innecesaria</text>
+              <text x="475" y="220" class="svgtext">TN</text><text x="438" y="245" class="svgmuted">negativo correcto</text>
+              <text x="192" y="304" class="svgmono">precision = TP/(TP+FP) · recall = TP/(TP+FN)</text>
+            </svg>
+            <p class="figcap"><b>Figura:</b> la matriz separa tipos de aciertos y errores; por eso permite discutir costos de decisión.</p>
+          </div>
+
+
+          <div class="figure" role="img" aria-label="Esquema de validación cruzada k-fold">
+            <svg viewBox="0 0 760 260" xmlns="http://www.w3.org/2000/svg">
+              <text x="70" y="38" class="svgtext">K-fold: cada partición actúa una vez como validación</text>
+              <g transform="translate(80,70)">
+                <rect x="0" y="0" width="110" height="35" rx="9" fill="rgba(253,230,138,.25)" stroke="rgba(253,230,138,.75)"/><rect x="120" y="0" width="110" height="35" rx="9" fill="rgba(125,211,252,.16)" stroke="rgba(125,211,252,.55)"/><rect x="240" y="0" width="110" height="35" rx="9" fill="rgba(125,211,252,.16)" stroke="rgba(125,211,252,.55)"/><rect x="360" y="0" width="110" height="35" rx="9" fill="rgba(125,211,252,.16)" stroke="rgba(125,211,252,.55)"/><rect x="480" y="0" width="110" height="35" rx="9" fill="rgba(125,211,252,.16)" stroke="rgba(125,211,252,.55)"/>
+                <rect x="0" y="55" width="110" height="35" rx="9" fill="rgba(125,211,252,.16)" stroke="rgba(125,211,252,.55)"/><rect x="120" y="55" width="110" height="35" rx="9" fill="rgba(253,230,138,.25)" stroke="rgba(253,230,138,.75)"/><rect x="240" y="55" width="110" height="35" rx="9" fill="rgba(125,211,252,.16)" stroke="rgba(125,211,252,.55)"/><rect x="360" y="55" width="110" height="35" rx="9" fill="rgba(125,211,252,.16)" stroke="rgba(125,211,252,.55)"/><rect x="480" y="55" width="110" height="35" rx="9" fill="rgba(125,211,252,.16)" stroke="rgba(125,211,252,.55)"/>
+                <rect x="0" y="110" width="110" height="35" rx="9" fill="rgba(125,211,252,.16)" stroke="rgba(125,211,252,.55)"/><rect x="120" y="110" width="110" height="35" rx="9" fill="rgba(125,211,252,.16)" stroke="rgba(125,211,252,.55)"/><rect x="240" y="110" width="110" height="35" rx="9" fill="rgba(253,230,138,.25)" stroke="rgba(253,230,138,.75)"/><rect x="360" y="110" width="110" height="35" rx="9" fill="rgba(125,211,252,.16)" stroke="rgba(125,211,252,.55)"/><rect x="480" y="110" width="110" height="35" rx="9" fill="rgba(125,211,252,.16)" stroke="rgba(125,211,252,.55)"/>
+              </g>
+              <text x="86" y="238" class="svgmuted">Amarillo: fold de validación · Celeste: folds de entrenamiento</text>
+            </svg>
+            <p class="figcap"><b>Figura:</b> la validación cruzada reduce la dependencia de un único split, pero no reemplaza un test final separado.</p>
+          </div>
+
+        </div>
+      </div>
+      <div class="lab" id="lab-metrics">
+        <div class="lab-head"><span class="lab-badge">LAB 9</span><h4>Umbral de decisión: precision y recall no son gratis</h4></div>
+        <p>La matriz cambia cuando se modifica el umbral. Por lo tanto, el modelo no queda caracterizado por una única matriz de confusión: depende de la decisión tomada sobre sus probabilidades.</p>
+        <div class="lab-grid">
+          <div class="controls">
+            <div class="control"><label>Umbral positivo <output id="thrOut">0.50</output></label><input id="thr" type="range" min="0.05" max="0.95" step="0.01" value="0.5"></div>
+            <div class="control"><label>Prevalencia positiva <output id="prevOut">25%</output></label><input id="prev" type="range" min="5" max="60" step="1" value="25"></div>
+            <div class="control"><label>Separación del modelo <output id="sepOut">6</output></label><input id="sep" type="range" min="1" max="10" step="1" value="6"></div>
+          </div>
+          <div>
+            <canvas id="metricCanvas" width="760" height="360"></canvas>
+            <div class="result">
+              <div class="metric"><small>Accuracy</small><b id="accVal">—</b></div>
+              <div class="metric"><small>Precision</small><b id="precVal">—</b></div>
+              <div class="metric"><small>Recall</small><b id="recVal">—</b></div>
+            </div>
+            <div class="result">
+              <div class="metric"><small>F1</small><b id="f1Val">—</b></div>
+              <div class="metric"><small>FP</small><b id="fpVal">—</b></div>
+              <div class="metric"><small>FN</small><b id="fnVal">—</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="check"><details><summary>Cómo decidir el umbral</summary><p>Si los falsos negativos son muy costosos, suele priorizarse recall y reducirse el umbral. Si los falsos positivos son costosos, suele priorizarse precision y elevarse el umbral. El umbral es una decisión técnica y contextual.</p></details></div>
+      </div>
+    </section>
+
+    <section class="module" id="m10">
+      <div class="section-head">
+        <div class="num">10</div>
+        <div><div class="slides">Slides 36–42 · Caso colmenas, errores comunes, guía y cierre</div><h3>Del aula al mundo: audio de colmenas y modelos defendibles</h3><p>El caso de colmenas obliga a pensar más allá de un dataset controlado: ruido, estacionalidad, sensores, regiones, eventos raros y decisiones con costo.</p></div>
+      </div>
+      <div class="content-grid">
+        <div class="card">
+          <h4>Qué aprende la MLP en el caso colmenas</h4>
+          <p>Con features como energía por banda, MFCC, frecuencia dominante, entropía espectral, temperatura, humedad y hora del día, una MLP puede aprender combinaciones no lineales.</p>
+          <div class="key">Ejemplo: cierto patrón de frecuencia puede importar solo si ocurre a determinada hora y temperatura. Eso es interacción entre variables.</div>
+          <p>El objetivo no es diagnóstico definitivo: es alerta temprana con una tasa aceptable de falsas alarmas.</p>
+
+          <div class="figure" role="img" aria-label="Pipeline de clasificación de estrés en colmenas usando audio">
+            <svg viewBox="0 0 760 270" xmlns="http://www.w3.org/2000/svg">
+              <defs><marker id="arrowBee" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="rgba(125,211,252,.9)"/></marker></defs>
+              <rect x="35" y="95" width="110" height="78" rx="18" fill="rgba(253,230,138,.14)" stroke="rgba(253,230,138,.72)" stroke-width="2"/><text x="67" y="126" class="svgtext">Audio</text><text x="50" y="150" class="svgmuted">sensor barato</text>
+              <line class="wireStrong" x1="145" y1="134" x2="210" y2="134" marker-end="url(#arrowBee)"/>
+              <rect x="215" y="82" width="145" height="104" rx="18" fill="rgba(125,211,252,.13)" stroke="rgba(125,211,252,.72)" stroke-width="2"/><text x="246" y="113" class="svgtext">Features</text><text x="235" y="137" class="svgmuted">MFCC, energía,</text><text x="236" y="157" class="svgmuted">temperatura, hora</text>
+              <line class="wireStrong" x1="360" y1="134" x2="430" y2="134" marker-end="url(#arrowBee)"/>
+              <rect x="435" y="95" width="110" height="78" rx="18" fill="rgba(167,139,250,.14)" stroke="rgba(167,139,250,.72)" stroke-width="2"/><text x="470" y="126" class="svgtext">MLP</text><text x="457" y="150" class="svgmuted">no lineal</text>
+              <line class="wireStrong" x1="545" y1="134" x2="610" y2="134" marker-end="url(#arrowBee)"/>
+              <rect x="615" y="95" width="110" height="78" rx="18" fill="rgba(134,239,172,.14)" stroke="rgba(134,239,172,.72)" stroke-width="2"/><text x="645" y="126" class="svgtext">Alerta</text><text x="638" y="150" class="svgmuted">estrés / normal</text>
+              <text x="95" y="225" class="svgmuted">El split correcto debe separar por colmena, apiario o período temporal para evitar leakage.</text>
+            </svg>
+            <p class="figcap"><b>Figura:</b> el modelo no clasifica audio crudo en abstracto: depende de features, split correcto, umbral y costos de decisión.</p>
+          </div>
+
+        </div>
+        <div class="card">
+          <h4>Errores comunes al entrenar MLP</h4>
+          <ul class="mini-list">
+            <li>No normalizar variables con escalas distintas.</li>
+            <li>Learning rate absurdo: ni aprende o explota.</li>
+            <li>Optimizar accuracy con clases raras.</li>
+            <li>Filtrar información del futuro al entrenamiento.</li>
+            <li>Usar red enorme sin baseline simple.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="lab" id="lab-bees">
+        <div class="lab-head"><span class="lab-badge">LAB 10</span><h4>Colmenas: umbral, costos y split correcto</h4></div>
+        <p>El laboratorio permite definir el costo de cada tipo de error. El mejor umbral depende del costo real de decisión, no de un valor fijo como 0.5.</p>
+        <div class="lab-grid">
+          <div class="controls">
+            <div class="control"><label>Umbral de alerta <output id="beeThrOut">0.45</output></label><input id="beeThr" type="range" min="0.05" max="0.95" step="0.01" value="0.45"></div>
+            <div class="control"><label>Costo falso negativo <output id="fnCostOut">8</output></label><input id="fnCost" type="range" min="1" max="20" step="1" value="8"></div>
+            <div class="control"><label>Costo falso positivo <output id="fpCostOut">2</output></label><input id="fpCost" type="range" min="1" max="20" step="1" value="2"></div>
+            <div class="control"><label>Split</label><select id="splitMode"><option value="bad">Incorrecto: fragmentos mezclados</option><option value="good">Correcto: por colmena/temporada</option></select></div>
+          </div>
+          <div>
+            <canvas id="beeCanvas" width="760" height="360"></canvas>
+            <div class="result">
+              <div class="metric"><small>Costo total</small><b id="beeCost">—</b></div>
+              <div class="metric"><small>Riesgo de evaluación</small><b id="beeRisk">—</b></div>
+              <div class="metric"><small>Recomendación</small><b id="beeRec">—</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="check"><details><summary>La trampa del split incorrecto</summary><p>Si fragmentos de la misma colmena aparecen en entrenamiento y prueba, el modelo puede aprender la firma acústica de esa colmena en vez de patrones de estrés. El resultado puede inflar métricas y fallar en producción.</p></details></div>
+      </div>
+      <div class="lab" id="lab-final">
+        <div class="lab-head"><span class="lab-badge">CIERRE</span><h4>Autoevaluación rápida: defensa conceptual</h4></div>
+        <div class="quiz" id="quiz">
+          <div class="q" data-answer="b"><p>1) Si saco todas las activaciones no lineales de una MLP profunda, ¿qué pasa?</p><button data-opt="a">Se vuelve más poderosa</button><button data-opt="b">Colapsa a una transformación afín</button><button data-opt="c">Aprende igual pero más lento</button><div class="feedback"></div></div>
+          <div class="q" data-answer="c"><p>2) ¿Qué significa que validación suba mientras train baja?</p><button data-opt="a">Buen ajuste garantizado</button><button data-opt="b">Underfitting</button><button data-opt="c">Overfitting probable</button><div class="feedback"></div></div>
+          <div class="q" data-answer="a"><p>3) Si falsos negativos son costosos, ¿qué métrica suele importar más?</p><button data-opt="a">Recall</button><button data-opt="b">Precision</button><button data-opt="c">Cantidad de parámetros</button><div class="feedback"></div></div>
+          <div class="q" data-answer="b"><p>4) ¿Qué calcula backpropagation eficientemente?</p><button data-opt="a">Nuevos datos</button><button data-opt="b">Gradientes de la pérdida respecto de parámetros</button><button data-opt="c">El mejor test split</button><div class="feedback"></div></div>
+        </div>
+        <div class="cards3" style="margin-top:18px">
+          <div class="card"><h4>Para crear una MLP</h4><p>Definí problema, prepará datos, seleccioná arquitectura, entrená, diagnosticá e iterá.</p></div>
+          <div class="card"><h4>Para defenderla</h4><p>Mostrá curvas, métricas adecuadas, split correcto, baseline y análisis de errores.</p></div>
+          <div class="card"><h4>Para sostener una defensa responsable</h4><p>Explicar límites, costos de decisión, sesgos y condiciones donde la red no sería recomendable.</p></div>
+        </div>
+      </div>
+    </section>
+    <footer class="footer">
+      Material académico basado en la clase “Redes neuronales multicapa y Deep Learning”, IA 4º año, 21/05/2026. Incluye explicación conceptual, figuras didácticas y laboratorios interactivos para acompañar el estudio.
+    </footer>
+  </main>
+</div>
+<script>
+const $ = (id)=>document.getElementById(id);
+const fmt = (x,d=3)=>Number(x).toFixed(d);
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+function sigmoid(x){return 1/(1+Math.exp(-x));}
+function tanh(x){return Math.tanh(x);} 
+function relu(x){return Math.max(0,x);} 
+function gelu(x){return 0.5*x*(1+Math.tanh(Math.sqrt(2/Math.PI)*(x+0.044715*Math.pow(x,3))));}
+function clearCanvas(ctx,w,h){ctx.clearRect(0,0,w,h);ctx.fillStyle='rgba(3,8,18,.72)';ctx.fillRect(0,0,w,h);} 
+function drawAxes(ctx,w,h,xmin,xmax,ymin,ymax){
+  const sx=x=>40+(x-xmin)/(xmax-xmin)*(w-70); const sy=y=>h-35-(y-ymin)/(ymax-ymin)*(h-70);
+  ctx.strokeStyle='rgba(255,255,255,.12)';ctx.lineWidth=1;
+  for(let i=Math.ceil(xmin);i<=xmax;i++){ctx.beginPath();ctx.moveTo(sx(i),30);ctx.lineTo(sx(i),h-35);ctx.stroke();}
+  for(let j=Math.ceil(ymin);j<=ymax;j++){ctx.beginPath();ctx.moveTo(40,sy(j));ctx.lineTo(w-30,sy(j));ctx.stroke();}
+  ctx.strokeStyle='rgba(255,255,255,.45)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(sx(0),30);ctx.lineTo(sx(0),h-35);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(40,sy(0));ctx.lineTo(w-30,sy(0));ctx.stroke();
+  return {sx,sy};
+}
+function line(ctx,pts,color,width=3){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();pts.forEach((p,i)=>{if(i)ctx.lineTo(p[0],p[1]);else ctx.moveTo(p[0],p[1]);});ctx.stroke();}
+
+function drawApprox(){
+  const c=$('approxCanvas'),ctx=c.getContext('2d'),w=c.width,h=c.height; clearCanvas(ctx,w,h);
+  const n=+$('approxN').value, sharp=+$('approxSharp').value; $('approxNOut').textContent=n; $('approxSharpOut').textContent=sharp.toFixed(1);
+  const {sx,sy}=drawAxes(ctx,w,h,-3.2,3.2,-1.8,1.8);
+  let target=[],approx=[];
+  for(let i=0;i<360;i++){
+    const x=-3+6*i/359; const y=Math.sin(1.5*x)+0.25*Math.sin(4*x);
+    let a=0; for(let k=1;k<=n;k++){ const center=-3+6*(k-.5)/n; const amp=Math.sin(1.5*center)+0.25*Math.sin(4*center); const bump=Math.max(0,1-Math.abs(x-center)/(3.2/(n*.75))); a+=amp*Math.tanh(sharp*bump)/n*1.7; }
+    target.push([sx(x),sy(y)]); approx.push([sx(x),sy(a)]);
+  }
+  line(ctx,target,'rgba(134,239,172,.95)',3); line(ctx,approx,'rgba(125,211,252,.95)',3);
+  ctx.fillStyle='#e8f7ff';ctx.font='14px system-ui';ctx.fillText('verde: función objetivo · celeste: aproximación con unidades ocultas',50,28);
+}
+
+function drawNeuron(){
+  const ids=['w1','w2','b','x1','x2']; ids.forEach(id=>$(id+'Out').textContent=(+$(id).value).toFixed(1));
+  const w1=+$('w1').value,w2=+$('w2').value,b=+$('b').value,x1=+$('x1').value,x2=+$('x2').value,act=$('neuronAct').value;
+  const z=w1*x1+w2*x2+b; let a=act==='step'?(z>=0?1:0):act==='relu'?relu(z):act==='sigmoid'?sigmoid(z):tanh(z);
+  $('zVal').textContent=fmt(z,3); $('aVal').textContent=fmt(a,3); $('decisionVal').textContent=z>=0?'activa':'no activa';
+  const c=$('neuronCanvas'),ctx=c.getContext('2d'),w=c.width,h=c.height; clearCanvas(ctx,w,h);
+  const {sx,sy}=drawAxes(ctx,w,h,-3,3,-3,3);
+  for(let ix=-3;ix<=3;ix+=.3){for(let iy=-3;iy<=3;iy+=.3){const zz=w1*ix+w2*iy+b;ctx.fillStyle=zz>=0?'rgba(125,211,252,.24)':'rgba(252,165,165,.18)';ctx.beginPath();ctx.arc(sx(ix),sy(iy),3,0,Math.PI*2);ctx.fill();}}
+  if(Math.abs(w2)>0.001){let pts=[]; for(let xx=-3;xx<=3;xx+=.05){let yy=-(w1*xx+b)/w2; if(yy>=-3&&yy<=3) pts.push([sx(xx),sy(yy)]);} if(pts.length) line(ctx,pts,'rgba(253,230,138,.95)',4);}
+  else {const xx=-b/w1; line(ctx,[[sx(xx),sy(-3)],[sx(xx),sy(3)]],'rgba(253,230,138,.95)',4);}
+  ctx.fillStyle='white';ctx.beginPath();ctx.arc(sx(x1),sy(x2),8,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(0,0,0,.7)';ctx.lineWidth=3;ctx.stroke();
+  ctx.fillStyle='#e8f7ff';ctx.font='14px system-ui';ctx.fillText('punto blanco = entrada actual · línea amarilla = z=0',50,28);
+}
+
+function drawActs(){
+  const c=$('actCanvas'),ctx=c.getContext('2d'),w=c.width,h=c.height; clearCanvas(ctx,w,h);
+  const {sx,sy}=drawAxes(ctx,w,h,-6,6,-1.5,4);
+  const selected=$('actSelect').value;
+  const funcs={relu:[relu,'rgba(125,211,252,.95)'],sigmoid:[sigmoid,'rgba(134,239,172,.95)'],tanh:[tanh,'rgba(167,139,250,.95)'],gelu:[gelu,'rgba(253,230,138,.95)']};
+  Object.entries(funcs).forEach(([name,[fn,color]])=>{if(selected==='all'||selected===name){let pts=[];for(let i=0;i<400;i++){let x=-6+12*i/399;pts.push([sx(x),sy(fn(x))]);}line(ctx,pts,color,3);}});
+  ctx.fillStyle='#e8f7ff';ctx.font='14px system-ui';ctx.fillText('ReLU · sigmoide · tanh · GELU aproximada',50,28);
+  const logit=+$('logit').value; $('logitOut').textContent=logit.toFixed(1); $('sigOut').textContent=sigmoid(logit).toFixed(3);
+  const b=+$('logitB').value; $('logitBText').textContent=b.toFixed(1); const logits=[1.2,b,-0.7]; const m=Math.max(...logits); const ex=logits.map(v=>Math.exp(v-m)); const sum=ex.reduce((a,b)=>a+b,0); const probs=ex.map(v=>v/sum); const names=['A','B','C']; let win=0; probs.forEach((p,i)=>{if(p>probs[win])win=i}); $('softWinner').textContent=names[win]; $('softVals').textContent=probs.map((p,i)=>names[i]+':'+p.toFixed(2)).join(' ');
+}
+
+function drawLoss(){
+  const y=+$('realY').value,yp=+$('predY').value,p=+$('prob').value; $('realYOut').textContent=y.toFixed(1);$('predYOut').textContent=yp.toFixed(1);$('probOut').textContent=p.toFixed(2);
+  const err=yp-y,mse=err*err,ce=-Math.log(p); $('errVal').textContent=fmt(err,2);$('mseVal').textContent=fmt(mse,3);$('ceVal').textContent=fmt(ce,3);
+  const c=$('lossCanvas'),ctx=c.getContext('2d'),w=c.width,h=c.height; clearCanvas(ctx,w,h);
+  const {sx,sy}=drawAxes(ctx,w,h,-3,3,0,9);
+  let msePts=[],maePts=[]; for(let i=0;i<360;i++){let x=-3+6*i/359; msePts.push([sx(x),sy((x-y)*(x-y))]); maePts.push([sx(x),sy(Math.abs(x-y))]);}
+  line(ctx,msePts,'rgba(125,211,252,.95)',3); line(ctx,maePts,'rgba(253,230,138,.95)',3);
+  ctx.fillStyle='white';ctx.beginPath();ctx.arc(sx(yp),sy(mse),8,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#e8f7ff';ctx.font='14px system-ui';ctx.fillText('celeste: MSE · amarillo: MAE · punto: predicción actual',50,28);
+}
+
+function J(w){return Math.pow(w-1.7,2)+0.2*Math.sin(5*w);} function dJ(w){return 2*(w-1.7)+1.0*Math.cos(5*w);} 
+function drawGD(){
+  const w0=+$('gdW').value,eta=+$('gdEta').value,steps=+$('gdSteps').value; $('gdWOut').textContent=w0.toFixed(1);$('gdEtaOut').textContent=eta.toFixed(2);$('gdStepsOut').textContent=steps;
+  let ws=[w0],wcur=w0; for(let i=0;i<steps;i++){wcur=wcur-eta*dJ(wcur); if(!Number.isFinite(wcur)||Math.abs(wcur)>20) break; ws.push(wcur);} 
+  $('gdFinalW').textContent=fmt(wcur,3); $('gdFinalJ').textContent=Number.isFinite(wcur)?fmt(J(wcur),3):'∞'; $('gdDiag').textContent=eta>.45?'inestable':eta<.04?'lento':'razonable';
+  const c=$('gdCanvas'),ctx=c.getContext('2d'),cw=c.width,ch=c.height; clearCanvas(ctx,cw,ch);
+  const {sx,sy}=drawAxes(ctx,cw,ch,-4,4,-.2,20);
+  let pts=[]; for(let i=0;i<400;i++){let x=-4+8*i/399;pts.push([sx(x),sy(J(x))]);} line(ctx,pts,'rgba(125,211,252,.95)',3);
+  let path=ws.filter(Number.isFinite).map(v=>[sx(v),sy(J(v))]); line(ctx,path,'rgba(253,230,138,.95)',2);
+  path.forEach((p,i)=>{ctx.fillStyle=i===0?'rgba(252,165,165,.95)':'white';ctx.beginPath();ctx.arc(p[0],p[1],i===0?7:4,0,Math.PI*2);ctx.fill();});
+  ctx.fillStyle='#e8f7ff';ctx.font='14px system-ui';ctx.fillText('rojo: inicio · blanco/amarillo: trayectoria de descenso',50,28);
+}
+
+const bpInitial={W1:[[0.25,-0.35],[0.15,0.4]],b1:[0.1,-0.2],W2:[0.2,-0.3],b2:0.05}; let bp=JSON.parse(JSON.stringify(bpInitial));
+function bpForward(params,x){const z1=[params.W1[0][0]*x[0]+params.W1[0][1]*x[1]+params.b1[0],params.W1[1][0]*x[0]+params.W1[1][1]*x[1]+params.b1[1]]; const a1=z1.map(sigmoid); const yhat=params.W2[0]*a1[0]+params.W2[1]*a1[1]+params.b2; return {z1,a1,yhat};}
+function drawBP(doStep=false){
+  const x=[+$('bpX1').value,+$('bpX2').value],y=+$('bpY').value,eta=+$('bpEta').value; $('bpX1Out').textContent=x[0].toFixed(1);$('bpX2Out').textContent=x[1].toFixed(1);$('bpYOut').textContent=y.toFixed(1);$('bpEtaOut').textContent=eta.toFixed(2);
+  const before=bpForward(bp,x); const e=before.yhat-y; const loss=.5*e*e; let after=before;
+  let dW2=[e*before.a1[0],e*before.a1[1]], db2=e;
+  let delta1=[e*bp.W2[0]*before.a1[0]*(1-before.a1[0]), e*bp.W2[1]*before.a1[1]*(1-before.a1[1])];
+  let dW1=[[delta1[0]*x[0],delta1[0]*x[1]],[delta1[1]*x[0],delta1[1]*x[1]]], db1=[delta1[0],delta1[1]];
+  if(doStep){bp.W2[0]-=eta*dW2[0];bp.W2[1]-=eta*dW2[1];bp.b2-=eta*db2; for(let i=0;i<2;i++){for(let j=0;j<2;j++)bp.W1[i][j]-=eta*dW1[i][j]; bp.b1[i]-=eta*db1[i];} after=bpForward(bp,x);} else after=before;
+  const afterLoss=.5*Math.pow(after.yhat-y,2); $('bpBefore').textContent=fmt(before.yhat,4); $('bpAfter').textContent=fmt(after.yhat,4); $('bpLoss').textContent=fmt(loss,4)+' → '+fmt(afterLoss,4);
+  $('bpTrace').textContent=`δ salida = ŷ - y = ${fmt(e,4)}\n∂E/∂W₂ = [${fmt(dW2[0],4)}, ${fmt(dW2[1],4)}]\n∂E/∂b₂ = ${fmt(db2,4)}\nδ ocultas = [${fmt(delta1[0],4)}, ${fmt(delta1[1],4)}]`;
+  const c=$('bpCanvas'),ctx=c.getContext('2d'),w=c.width,h=c.height; clearCanvas(ctx,w,h);
+  const nodes=[[120,190,'x₁'],[120,280,'x₂'],[360,150,'h₁'],[360,310,'h₂'],[620,230,'ŷ']];
+  function drawNode(x,y,label,val){ctx.fillStyle='rgba(125,211,252,.18)';ctx.strokeStyle='rgba(125,211,252,.55)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,38,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#e8f7ff';ctx.textAlign='center';ctx.font='bold 16px system-ui';ctx.fillText(label,x,y-4); if(val!==undefined){ctx.font='12px monospace';ctx.fillStyle='#a7b6d4';ctx.fillText(val,x,y+16);}}
+  ctx.strokeStyle='rgba(255,255,255,.18)';ctx.lineWidth=3;[[0,2],[0,3],[1,2],[1,3],[2,4],[3,4]].forEach(([a,b])=>{ctx.beginPath();ctx.moveTo(nodes[a][0]+38,nodes[a][1]);ctx.lineTo(nodes[b][0]-38,nodes[b][1]);ctx.stroke();});
+  drawNode(120,190,'x₁',x[0].toFixed(1));drawNode(120,280,'x₂',x[1].toFixed(1));drawNode(360,150,'h₁',before.a1[0].toFixed(2));drawNode(360,310,'h₂',before.a1[1].toFixed(2));drawNode(620,230,'ŷ',after.yhat.toFixed(3));
+  ctx.fillStyle='#e8f7ff';ctx.textAlign='left';ctx.font='14px system-ui';ctx.fillText('Forward: izquierda → derecha · Backprop: derecha → izquierda',50,28);
+}
+
+function drawParams(){
+  const ni=+$('pIn').value,h1=+$('pH1').value,h2=+$('pH2').value,no=+$('pOut').value; $('pInOut').textContent=ni;$('pH1Out').textContent=h1;$('pH2Out').textContent=h2;$('pOutOut').textContent=no;
+  const p1=h1*ni+h1, p2=h2>0?h2*h1+h2:0, p3=no*(h2>0?h2:h1)+no, total=p1+p2+p3; $('pTotal').textContent=total.toLocaleString('es-AR'); const heavy=Math.max(p1,p2,p3); $('pHeavy').textContent=heavy===p1?'Entrada→H1':heavy===p2?'H1→H2':'Última'; $('pRisk').textContent=total>5000?'overfitting':total<60?'sesgo':'moderado';
+  const c=$('paramCanvas'),ctx=c.getContext('2d'),w=c.width,h=c.height; clearCanvas(ctx,w,h); const layers=[ni,h1]; if(h2>0)layers.push(h2); layers.push(no); const xs=layers.map((_,i)=>80+i*(w-160)/(layers.length-1));
+  layers.forEach((n,i)=>{const shown=Math.min(n,14); for(let j=0;j<shown;j++){const yy=50+j*(h-100)/(Math.max(1,shown-1)); ctx.fillStyle='rgba(125,211,252,.18)';ctx.strokeStyle='rgba(125,211,252,.5)';ctx.beginPath();ctx.arc(xs[i],yy,12,0,Math.PI*2);ctx.fill();ctx.stroke();} ctx.fillStyle='#e8f7ff';ctx.textAlign='center';ctx.font='13px monospace';ctx.fillText('n='+n,xs[i],h-20);});
+  ctx.strokeStyle='rgba(255,255,255,.08)'; for(let i=0;i<xs.length-1;i++){for(let a=0;a<Math.min(layers[i],8);a++){for(let b=0;b<Math.min(layers[i+1],8);b++){ctx.beginPath();ctx.moveTo(xs[i]+12,55+a*(h-110)/(Math.max(1,Math.min(layers[i],8)-1)));ctx.lineTo(xs[i+1]-12,55+b*(h-110)/(Math.max(1,Math.min(layers[i+1],8)-1)));ctx.stroke();}}}
+  ctx.fillStyle='#e8f7ff';ctx.textAlign='left';ctx.font='14px system-ui';ctx.fillText('Dibujo truncado a 14 neuronas por capa para mantener la visualización legible.',50,28);
+}
+
+function drawGen(){
+  const cap=+$('cap').value,reg=+$('reg').value,noise=+$('noise').value; $('capOut').textContent=cap;$('regOut').textContent=reg;$('noiseOut').textContent=noise;
+  let train=[],valid=[]; for(let e=1;e<=60;e++){let base=1.3*Math.exp(-e/(8+12/cap))+0.08+noise*.015; let tr=base/(.6+cap*.08)+0.01; let over=Math.max(0,(cap-5))*Math.pow(e/60,2)*(.18)*(1-reg/14); let val=base+over+noise*.018+Math.max(0,4-cap)*.08; train.push(tr);valid.push(val);} 
+  const gap=valid[59]-train[59]; let diag=cap<4?'underfitting':gap>.28?'overfitting':'ajuste ok'; $('genDiag').textContent=diag; $('genGap').textContent=gap.toFixed(2); $('genAction').textContent=diag==='underfitting'?'más capacidad/épocas':diag==='overfitting'?'regularizar/simplificar':'validar test';
+  const c=$('genCanvas'),ctx=c.getContext('2d'),w=c.width,h=c.height; clearCanvas(ctx,w,h); const {sx,sy}=drawAxes(ctx,w,h,1,60,0,2.2); line(ctx,train.map((v,i)=>[sx(i+1),sy(v)]),'rgba(125,211,252,.95)',3); line(ctx,valid.map((v,i)=>[sx(i+1),sy(v)]),'rgba(253,230,138,.95)',3); ctx.fillStyle='#e8f7ff';ctx.font='14px system-ui';ctx.fillText('celeste: train · amarillo: validación',50,28);
+}
+function buildScores(prev,sep){let arr=[]; const n=120,pos=Math.round(n*prev/100); for(let i=0;i<n;i++){const y=i<pos?1:0; const t=(i*37%101)/100; const base=y?(0.45+sep*.045):(0.55-sep*.045); const score=clamp(base+(t-.5)*.45,0.01,.99); arr.push({y,score});} return arr.sort((a,b)=>a.score-b.score);}
+function computeMetrics(arr,thr){let TP=0,TN=0,FP=0,FN=0; arr.forEach(o=>{const pred=o.score>=thr?1:0; if(pred&&o.y)TP++; else if(pred&&!o.y)FP++; else if(!pred&&!o.y)TN++; else FN++;}); const acc=(TP+TN)/arr.length, prec=TP/(TP+FP||1), rec=TP/(TP+FN||1), f1=2*prec*rec/(prec+rec||1); return {TP,TN,FP,FN,acc,prec,rec,f1};}
+function drawMetrics(){
+  const thr=+$('thr').value,prev=+$('prev').value,sep=+$('sep').value; $('thrOut').textContent=thr.toFixed(2);$('prevOut').textContent=prev+'%';$('sepOut').textContent=sep; const arr=buildScores(prev,sep),m=computeMetrics(arr,thr);
+  $('accVal').textContent=(m.acc*100).toFixed(1)+'%';$('precVal').textContent=(m.prec*100).toFixed(1)+'%';$('recVal').textContent=(m.rec*100).toFixed(1)+'%';$('f1Val').textContent=m.f1.toFixed(2);$('fpVal').textContent=m.FP;$('fnVal').textContent=m.FN;
+  const c=$('metricCanvas'),ctx=c.getContext('2d'),w=c.width,h=c.height; clearCanvas(ctx,w,h); const pad=60; const bw=(w-2*pad)/arr.length; arr.forEach((o,i)=>{ctx.fillStyle=o.y?'rgba(134,239,172,.8)':'rgba(252,165,165,.7)';ctx.fillRect(pad+i*bw,h-50-o.score*(h-100),Math.max(2,bw-1),o.score*(h-100));}); ctx.strokeStyle='rgba(253,230,138,.95)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(pad,h-50-thr*(h-100));ctx.lineTo(w-pad,h-50-thr*(h-100));ctx.stroke(); ctx.fillStyle='#e8f7ff';ctx.font='14px system-ui';ctx.fillText('verde: positivos reales · rojo: negativos reales · línea: umbral',50,28);
+}
+function drawBee(){
+  const thr=+$('beeThr').value,fnC=+$('fnCost').value,fpC=+$('fpCost').value,mode=$('splitMode').value; $('beeThrOut').textContent=thr.toFixed(2);$('fnCostOut').textContent=fnC;$('fpCostOut').textContent=fpC; const arr=buildScores(18, mode==='bad'?8:5),m=computeMetrics(arr,thr); const cost=m.FN*fnC+m.FP*fpC; $('beeCost').textContent=cost; $('beeRisk').textContent=mode==='bad'?'alto leakage':'más realista'; $('beeRec').textContent=m.FN*fnC>m.FP*fpC?'bajar umbral':'subir/validar umbral';
+  const c=$('beeCanvas'),ctx=c.getContext('2d'),w=c.width,h=c.height; clearCanvas(ctx,w,h); const max=Math.max(1,m.TP,m.TN,m.FP,m.FN); const labels=['TP','FP','FN','TN'],vals=[m.TP,m.FP,m.FN,m.TN],cols=['rgba(134,239,172,.85)','rgba(253,230,138,.85)','rgba(252,165,165,.85)','rgba(125,211,252,.85)']; vals.forEach((v,i)=>{const x=90+i*160,bar=v/max*220;ctx.fillStyle=cols[i];ctx.fillRect(x,h-60-bar,90,bar);ctx.fillStyle='#e8f7ff';ctx.textAlign='center';ctx.font='bold 16px system-ui';ctx.fillText(labels[i],x+45,h-35);ctx.fillText(v,x+45,h-70-bar);}); ctx.textAlign='left';ctx.font='14px system-ui';ctx.fillText('Distribución de resultados para alertas de estrés en colmenas',50,28);
+}
+
+document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',()=>{drawApprox();drawNeuron();drawActs();drawLoss();drawGD();drawBP(false);drawParams();drawGen();drawMetrics();drawBee();}));
+$('gdReset').addEventListener('click',drawGD); $('bpStep').addEventListener('click',()=>drawBP(true)); $('bpInit').addEventListener('click',()=>{bp=JSON.parse(JSON.stringify(bpInitial));drawBP(false);});
+
+const glossaryTerms = [
+  ['Cantidad de unidades ocultas','Cantidad de neuronas de la capa oculta usadas en esta simulación. A mayor cantidad, la aproximación visual dispone de más piezas para formar curvas complejas. No equivale automáticamente a mejor generalización.'],
+  ['Flexibilidad de cada unidad','Control visual de esta simulación. Representa qué tan suave o localizada es la contribución de cada unidad. No es un hiperparámetro universal de las MLP reales.'],
+  ['unidades ocultas','Neuronas ubicadas entre la entrada y la salida. Transforman la información en representaciones intermedias.'],
+  ['MLP','Multilayer Perceptron: red feedforward formada por capas densas, usada en regresión y clasificación.'],
+  ['red feedforward','Red donde la información fluye desde la entrada hacia la salida sin ciclos recurrentes.'],
+  ['capa densa','Capa en la que cada neurona recibe como entrada todas las activaciones de la capa anterior.'],
+  ['pesos','Parámetros que multiplican las entradas. Controlan dirección e importancia de cada señal.'],
+  ['bias','Parámetro aditivo que desplaza el umbral o intercepto de una neurona.'],
+  ['activación no lineal','Función aplicada después de la combinación lineal. Permite que varias capas no colapsen en una sola transformación lineal.'],
+  ['activación','Función aplicada a z para producir la salida de una neurona. Puede ser ReLU, sigmoide, tanh, softmax, etc.'],
+  ['hiperplano','Generalización de una recta en 2D o un plano en 3D. En una neurona, z=0 define la frontera de decisión.'],
+  ['composición','Aplicación encadenada de funciones: la salida de una capa se convierte en entrada de la siguiente.'],
+  ['parámetros','Valores ajustables del modelo, principalmente pesos y bias.'],
+  ['aproximación universal','Resultado teórico: bajo ciertas condiciones, una red con suficientes unidades puede aproximar funciones continuas en un dominio acotado. No garantiza aprendizaje ni generalización.'],
+  ['dominio compacto','Conjunto cerrado y acotado. En términos prácticos, una región limitada del espacio de entrada.'],
+  ['capacidad de representación','Variedad de funciones que el modelo podría expresar con alguna elección de parámetros.'],
+  ['generalización','Capacidad de mantener buen desempeño en datos no vistos durante el entrenamiento.'],
+  ['función objetivo','Función real o patrón que se intenta aproximar. En un problema aplicado, suele estar representada indirectamente por los datos.'],
+  ['salida lineal','Salida sin activación no lineal final. Es típica en regresión.'],
+  ['sigmoide','Función que convierte un valor real en un número entre 0 y 1; útil para probabilidades binarias.'],
+  ['softmax','Función que transforma varios logits en probabilidades que suman 1; útil en clasificación multiclase excluyente.'],
+  ['MSE','Mean Squared Error o error cuadrático medio. Penaliza errores grandes al elevarlos al cuadrado.'],
+  ['entropía cruzada','Pérdida usada en clasificación; penaliza asignar baja probabilidad a la clase correcta.'],
+  ['riesgo empírico','Promedio de la pérdida sobre los datos observados. Es lo que se minimiza en entrenamiento.'],
+  ['gradiente','Vector de derivadas parciales. Indica la dirección de mayor crecimiento local de la pérdida.'],
+  ['tasa de aprendizaje','Tamaño del paso de actualización. Si es muy alta puede divergir; si es muy baja aprende lento.'],
+  ['mini-batch','Subconjunto de ejemplos usado para estimar el gradiente en una actualización.'],
+  ['backpropagation','Algoritmo que aplica la regla de la cadena de derecha a izquierda para calcular gradientes eficientemente.'],
+  ['error local','Responsabilidad de error asociada a una neurona o capa durante backpropagation. Suele representarse con δ.'],
+  ['dropout','Técnica de regularización que apaga aleatoriamente neuronas durante el entrenamiento.'],
+  ['early stopping','Técnica que detiene el entrenamiento cuando la validación deja de mejorar.'],
+  ['regularización','Conjunto de técnicas que reducen sobreajuste imponiendo restricciones o ruido controlado.'],
+  ['leakage','Fuga de información: datos o señales del test/futuro entran al entrenamiento y falsean la evaluación.'],
+  ['underfitting','El modelo es demasiado simple o entrenó poco; falla tanto en entrenamiento como en validación.'],
+  ['overfitting','El modelo memoriza particularidades del entrenamiento y falla en datos nuevos.'],
+  ['precision','De todas las predicciones positivas, proporción que fue realmente positiva.'],
+  ['recall','De todos los positivos reales, proporción que el modelo detectó.'],
+  ['F1','Media armónica entre precision y recall. Resume el equilibrio entre ambas.'],
+  ['ROC','Curva que compara tasa de verdaderos positivos y falsos positivos al variar el umbral.'],
+  ['AUC','Área bajo la curva ROC. Resume la capacidad de ranking del modelo entre clases.'],
+  ['K-fold','Validación cruzada donde el dataset se divide en K partes y cada una actúa una vez como validación.'],
+  ['baseline','Modelo simple usado como referencia mínima. Si una red compleja no lo supera, probablemente no aporta valor.'],
+  ['drift','Cambio en la distribución de los datos con el tiempo. Puede degradar un modelo en producción.']
+].sort((a,b)=>b[0].length-a[0].length);
+function escapeHtml(str){return str.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function escapeRegExp(str){return str.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+function applyGlossaryTooltips(){
+  const blockedTags = new Set(['SCRIPT','STYLE','CODE','PRE','SVG','CANVAS','OUTPUT','INPUT','SELECT','OPTION','BUTTON','TEXTAREA','H1','H2','H3','H4','SUMMARY']);
+  const blockedSelectors = [
+    'aside', '.toc', '.brand', '.side-note', '.pill', '.hero', '.section-head',
+    '.figure', '.figcap', '.formula-block', '.tiptext', '.term', '.metric', '.result', '.q'
+  ];
+  const countsBySection = Object.create(null);
+  const map = Object.create(null);
+  glossaryTerms.forEach(([term,def])=>{map[term.toLocaleLowerCase('es-AR')]={term,def};});
+  const pattern = new RegExp('(?<![\\p{L}\\p{N}_])(' + glossaryTerms.map(([t])=>escapeRegExp(t)).join('|') + ')(?![\\p{L}\\p{N}_])','giu');
+
+  function isBlocked(node){
+    let el = node.parentElement;
+    while(el){
+      if(blockedTags.has(el.tagName)) return true;
+      if(blockedSelectors.some(sel=>el.matches && el.matches(sel))) return true;
+      el = el.parentElement;
+    }
+    return false;
+  }
+
+  function sectionKey(node){
+    const section = node.parentElement && node.parentElement.closest('section.module');
+    return section ? section.id : 'global';
+  }
+
+  function looksLikeDefinition(text, offset, term){
+    const before = text.slice(Math.max(0, offset - 18), offset).toLocaleLowerCase('es-AR');
+    const after = text.slice(offset + term.length, offset + term.length + 55).toLocaleLowerCase('es-AR');
+    const whole = text.toLocaleLowerCase('es-AR');
+
+    // Evita tooltips exactamente donde el texto ya está definiendo el concepto.
+    if(/^\s*(es|son|se define|se entiende|consiste|representa|corresponde|equivale)\b/.test(after)) return true;
+    if(/\b(llama|denomina|define|significa)\s*$/.test(before)) return true;
+    if(/\bqué es\b|\bque es\b/.test(whole) && whole.includes(term.toLocaleLowerCase('es-AR'))) return true;
+    return false;
+  }
+
+  const walker = document.createTreeWalker(document.querySelector('main'), NodeFilter.SHOW_TEXT, {
+    acceptNode(node){
+      if(!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      if(isBlocked(node)) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+
+  const nodes=[];
+  while(walker.nextNode()) nodes.push(walker.currentNode);
+
+  nodes.forEach(node=>{
+    const text = node.nodeValue;
+    pattern.lastIndex = 0;
+    let match, last = 0, changed = false, html = '';
+    const sec = sectionKey(node);
+    countsBySection[sec] = countsBySection[sec] || Object.create(null);
+
+    while((match = pattern.exec(text)) !== null){
+      const raw = match[0];
+      const key = raw.toLocaleLowerCase('es-AR');
+      const entry = map[key];
+      if(!entry) continue;
+
+      html += escapeHtml(text.slice(last, match.index));
+      const termKey = entry.term.toLocaleLowerCase('es-AR');
+      const alreadyUsed = countsBySection[sec][termKey] || 0;
+      const skipDefinition = looksLikeDefinition(text, match.index, raw);
+
+      if(alreadyUsed >= 1 || skipDefinition){
+        html += escapeHtml(raw);
+      } else {
+        countsBySection[sec][termKey] = alreadyUsed + 1;
+        const alignClass = raw.length > 18 ? ' term-left' : '';
+        html += `<span class="term${alignClass}" tabindex="0">${escapeHtml(raw)}<span class="tiptext">${escapeHtml(entry.def)}</span></span>`;
+        changed = true;
+      }
+      last = match.index + raw.length;
+    }
+
+    if(changed){
+      html += escapeHtml(text.slice(last));
+      const span = document.createElement('span');
+      span.innerHTML = html;
+      node.parentNode.replaceChild(span, node);
+    }
+  });
+}
+applyGlossaryTooltips();
+
+document.querySelectorAll('.q button').forEach(btn=>btn.addEventListener('click',e=>{const q=e.target.closest('.q'); const ok=e.target.dataset.opt===q.dataset.answer; const fb=q.querySelector('.feedback'); fb.textContent=ok?'Correcto. La respuesta refleja el concepto central.':'Incorrecto. Conviene revisar el módulo correspondiente: el error es conceptual, no solo memorístico.'; fb.style.color=ok?'#86efac':'#fca5a5';}));
+const sections=[...document.querySelectorAll('section.module')],links=[...document.querySelectorAll('.toc a')]; const obs=new IntersectionObserver(entries=>{entries.forEach(en=>{if(en.isIntersecting){links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+en.target.id));}})},{rootMargin:'-35% 0px -55% 0px'}); sections.forEach(s=>obs.observe(s));
+drawApprox();drawNeuron();drawActs();drawLoss();drawGD();drawBP(false);drawParams();drawGen();drawMetrics();drawBee();
+</script>
+</body>
+</html>

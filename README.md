@@ -31,6 +31,7 @@ Las decisiones siguen recomendaciones de fuentes profesionales:
 .
 |-- README.md
 |-- requirements.txt
+|-- AGENTS.md
 |-- src/
 |   |-- config.py
 |   |-- data.py
@@ -55,6 +56,8 @@ Las decisiones siguen recomendaciones de fuentes profesionales:
 |   |-- REVIEWER_NOTES.md
 |   |-- materials/
 |   `-- modules/
+|-- .agents/
+|   `-- commit-policy.md
 |-- report/
 |   `-- guia_informe.md
 |-- notebooks/
@@ -138,9 +141,9 @@ Ese HTML explica de forma visual el flujo del repositorio, la arquitectura MLP, 
 
 ## Instrucciones para agentes
 
-El repositorio incluye una skill portable en `.codex/skills/commit-feature-en-espanol/`.
+La regla general para cualquier agente está en `AGENTS.md`.
 
-Su regla principal es que cada feature implementada debe cerrarse con un commit Git independiente, escrito en español y con una descripción detallada de lo realizado, las decisiones tomadas y la verificación ejecutada.
+Además, el repositorio incluye una guía complementaria en `.agents/commit-policy.md` para detallar cómo deben redactarse los commits por feature.
 
 ## Advertencia sobre el informe
 

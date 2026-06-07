@@ -6,9 +6,11 @@ Este documento registra que hace cada archivo relevante del proyecto. La idea es
 
 | Archivo o carpeta | Rol |
 | --- | --- |
+| `AGENTS.md` | Instrucciones generales del repositorio para cualquier agente. |
 | `README.md` | Presentacion principal para GitHub: objetivo, estructura, instalacion, ejecucion y resultados. |
 | `requirements.txt` | Dependencias necesarias para ejecutar el proyecto. |
 | `.gitignore` | Evita subir entorno virtual, caches y datos temporales. |
+| `.agents/` | Reglas y apoyo neutral para agentes, no atado a una herramienta especifica. |
 | `src/` | Codigo fuente del entrenamiento, evaluacion y configuracion. |
 | `results/` | Evidencia generada por los entrenamientos: metricas y graficos. |
 | `docs/` | Documentacion tecnica y explicativa. |

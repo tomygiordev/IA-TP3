@@ -145,6 +145,3 @@ La regla general para cualquier agente está en `AGENTS.md`.
 
 Además, el repositorio incluye una guía complementaria en `.agents/commit-policy.md` para detallar cómo deben redactarse los commits por feature.
 
-## Advertencia sobre el informe
-
-La consigna permite IA para dudas, codigo y graficos, pero prohibe usar IA para escribir el informe final. Por eso `report/guia_informe.md` es solo una estructura de trabajo: el texto final debe redactarlo el grupo.

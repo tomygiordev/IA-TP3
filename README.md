@@ -136,6 +136,12 @@ Ese HTML explica de forma visual el flujo del repositorio, la arquitectura MLP, 
 - [Notas para revision critica](docs/REVIEWER_NOTES.md)
 - [Guia del informe](report/guia_informe.md)
 
+## Instrucciones para agentes
+
+El repositorio incluye una skill portable en `.codex/skills/commit-feature-en-espanol/`.
+
+Su regla principal es que cada feature implementada debe cerrarse con un commit Git independiente, escrito en español y con una descripción detallada de lo realizado, las decisiones tomadas y la verificación ejecutada.
+
 ## Advertencia sobre el informe
 
 La consigna permite IA para dudas, codigo y graficos, pero prohibe usar IA para escribir el informe final. Por eso `report/guia_informe.md` es solo una estructura de trabajo: el texto final debe redactarlo el grupo.

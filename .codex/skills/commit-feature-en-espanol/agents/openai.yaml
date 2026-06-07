@@ -1,0 +1,4 @@
+interface:
+  display_name: "Commit por feature"
+  short_description: "Commits detallados en español por feature."
+  default_prompt: "Después de cada feature implementada, revisa cambios, verifica lo realizado y crea un commit Git en español con descripción detallada."

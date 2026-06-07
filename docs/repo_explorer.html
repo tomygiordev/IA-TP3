@@ -1,0 +1,1004 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TP 3 IA - Explorador del repo</title>
+  <style>
+    :root {
+      --ink: #1d2521;
+      --ink-2: #34413a;
+      --paper: #f3f7f2;
+      --paper-2: #e8eee8;
+      --line: #becabd;
+      --accent: #b9502c;
+      --accent-2: #25735a;
+      --signal: #d6d04a;
+      --deep: #17201c;
+      --soft: rgba(29, 37, 33, .08);
+      --shadow: 0 22px 60px rgba(23, 32, 28, .14);
+      --radius: 8px;
+      --mono: "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+      --sans: "Bahnschrift", "Aptos Display", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--sans);
+      background:
+        linear-gradient(115deg, rgba(37, 115, 90, .10) 0 18%, transparent 18% 100%),
+        linear-gradient(90deg, rgba(29, 37, 33, .045) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(29, 37, 33, .045) 1px, transparent 1px),
+        var(--paper);
+      background-size: auto, 36px 36px, 36px 36px, auto;
+      letter-spacing: 0;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .18;
+      background-image:
+        repeating-linear-gradient(135deg, transparent 0 16px, rgba(29, 37, 33, .06) 16px 17px);
+      mix-blend-mode: multiply;
+    }
+
+    a { color: inherit; }
+    button {
+      font: inherit;
+      color: inherit;
+      border: 0;
+      cursor: pointer;
+    }
+
+    .shell {
+      min-height: 100dvh;
+      display: grid;
+      grid-template-columns: 86px minmax(0, 1fr);
+    }
+
+    .rail {
+      position: sticky;
+      top: 0;
+      height: 100dvh;
+      border-right: 1px solid var(--line);
+      background: rgba(243, 247, 242, .86);
+      backdrop-filter: blur(16px);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      justify-items: center;
+      padding: 18px 12px;
+    }
+
+    .mark {
+      width: 48px;
+      aspect-ratio: 1;
+      border: 1px solid var(--deep);
+      display: grid;
+      place-items: center;
+      font-family: var(--mono);
+      font-weight: 900;
+      background: var(--signal);
+      box-shadow: 6px 6px 0 var(--deep);
+      transform: rotate(-4deg);
+    }
+
+    .rail nav {
+      display: grid;
+      gap: 12px;
+      align-content: center;
+    }
+
+    .rail a {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      text-decoration: none;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .34);
+      font-family: var(--mono);
+      font-size: 12px;
+      transition: transform .22s ease, background .22s ease, border-color .22s ease;
+    }
+
+    .rail a:hover {
+      transform: translateY(-3px) rotate(-3deg);
+      border-color: var(--deep);
+      background: #fff;
+    }
+
+    .stamp {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .12em;
+      color: var(--ink-2);
+    }
+
+    main { min-width: 0; }
+
+    .hero {
+      min-height: 92dvh;
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(330px, .75fr);
+      gap: 34px;
+      align-items: end;
+      padding: 56px clamp(20px, 5vw, 72px) 34px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero-copy {
+      max-width: 980px;
+      padding-bottom: 20px;
+    }
+
+    .eyebrow {
+      display: inline-grid;
+      grid-auto-flow: column;
+      gap: 10px;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--accent-2);
+      border-bottom: 2px solid var(--accent-2);
+      padding-bottom: 8px;
+    }
+
+    h1 {
+      margin: 18px 0 18px;
+      font-size: clamp(42px, 8vw, 104px);
+      line-height: .88;
+      max-width: 920px;
+      letter-spacing: 0;
+      font-weight: 900;
+    }
+
+    .hero-copy p {
+      max-width: 760px;
+      margin: 0;
+      font-size: clamp(18px, 2.2vw, 25px);
+      line-height: 1.32;
+      color: var(--ink-2);
+    }
+
+    .hero-panel {
+      border: 1px solid var(--deep);
+      background: rgba(255, 255, 255, .58);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      transform: rotate(1deg);
+    }
+
+    .hero-panel header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 12px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    .meter {
+      display: grid;
+      gap: 12px;
+    }
+
+    .meter-row {
+      display: grid;
+      grid-template-columns: 86px 1fr 62px;
+      gap: 10px;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .bar {
+      height: 12px;
+      border: 1px solid var(--deep);
+      background: var(--paper-2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      width: var(--value);
+      background: linear-gradient(90deg, var(--accent-2), var(--signal));
+      animation: scan 2.8s ease-in-out infinite;
+    }
+
+    @keyframes scan {
+      0%, 100% { filter: saturate(.9); }
+      50% { filter: saturate(1.3); }
+    }
+
+    section {
+      padding: 56px clamp(20px, 5vw, 72px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, .74fr) minmax(260px, .26fr);
+      gap: 28px;
+      align-items: end;
+      margin-bottom: 28px;
+    }
+
+    h2 {
+      font-size: clamp(30px, 4.6vw, 56px);
+      line-height: .98;
+      margin: 0;
+      max-width: 880px;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--ink-2);
+      line-height: 1.45;
+    }
+
+    .tagline {
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--deep);
+      background: var(--signal);
+      box-shadow: 4px 4px 0 var(--deep);
+      width: fit-content;
+    }
+
+    .flow-grid {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .blueprint {
+      min-height: 460px;
+      border: 1px solid var(--deep);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.32), rgba(255,255,255,.12)),
+        var(--deep);
+      color: var(--paper);
+      position: relative;
+      overflow: hidden;
+      padding: 24px;
+    }
+
+    .blueprint::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(243,247,242,.06) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(243,247,242,.06) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+    }
+
+    .node-map {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(120px, 1fr));
+      gap: 18px;
+      min-height: 410px;
+      align-content: center;
+    }
+
+    .node {
+      border: 1px solid rgba(243,247,242,.44);
+      background: rgba(243,247,242,.08);
+      color: var(--paper);
+      padding: 16px;
+      min-height: 126px;
+      display: grid;
+      align-content: space-between;
+      text-align: left;
+      transition: transform .24s ease, background .24s ease, border-color .24s ease;
+      position: relative;
+    }
+
+    .node::after {
+      content: "";
+      position: absolute;
+      right: -13px;
+      top: 50%;
+      width: 26px;
+      height: 1px;
+      background: rgba(214, 208, 74, .8);
+    }
+
+    .node:nth-child(3)::after,
+    .node:nth-child(6)::after { display: none; }
+
+    .node:hover,
+    .node.active {
+      transform: translateY(-5px);
+      background: rgba(214, 208, 74, .15);
+      border-color: var(--signal);
+    }
+
+    .node b {
+      display: block;
+      font-size: 19px;
+      line-height: 1.05;
+    }
+
+    .node small {
+      font-family: var(--mono);
+      color: #cbd8ce;
+    }
+
+    .inspector,
+    .file-board,
+    .metric-board {
+      border: 1px solid var(--deep);
+      background: rgba(255, 255, 255, .58);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .inspector h3,
+    .file-board h3,
+    .metric-board h3 {
+      margin: 0 0 12px;
+      font-size: 24px;
+    }
+
+    .inspector p {
+      margin: 0 0 16px;
+      color: var(--ink-2);
+      line-height: 1.5;
+    }
+
+    .inspector ul,
+    .critic-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .inspector li,
+    .critic-list li {
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
+      color: var(--ink-2);
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .chip {
+      border: 1px solid var(--deep);
+      background: rgba(255,255,255,.52);
+      padding: 10px 12px;
+      font-family: var(--mono);
+      font-size: 12px;
+      transition: transform .2s ease, background .2s ease;
+    }
+
+    .chip:hover,
+    .chip.active {
+      background: var(--signal);
+      transform: translateY(-2px);
+    }
+
+    .file-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px;
+    }
+
+    .file {
+      grid-column: span 4;
+      min-height: 136px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .5);
+      padding: 14px;
+      display: grid;
+      align-content: space-between;
+      transition: transform .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .file:hover {
+      transform: translateY(-4px);
+      border-color: var(--deep);
+      background: #fff;
+    }
+
+    .file code {
+      display: block;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--accent);
+      word-break: break-word;
+    }
+
+    .file span {
+      color: var(--ink-2);
+      line-height: 1.35;
+    }
+
+    .experiments {
+      display: grid;
+      grid-template-columns: minmax(290px, .42fr) minmax(0, .58fr);
+      gap: 22px;
+    }
+
+    .experiment-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .exp-button {
+      text-align: left;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .52);
+      padding: 14px;
+      display: grid;
+      gap: 6px;
+      transition: transform .2s ease, background .2s ease, border-color .2s ease;
+    }
+
+    .exp-button:hover,
+    .exp-button.active {
+      transform: translateX(7px);
+      background: #fff;
+      border-color: var(--deep);
+    }
+
+    .exp-button b {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--accent);
+    }
+
+    .exp-button span { color: var(--ink-2); }
+
+    .metric-board {
+      min-height: 430px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 18px;
+    }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .score {
+      border-top: 1px solid var(--deep);
+      padding-top: 12px;
+    }
+
+    .score small {
+      display: block;
+      font-family: var(--mono);
+      color: var(--ink-2);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .score strong {
+      display: block;
+      font-family: var(--mono);
+      font-size: clamp(24px, 4vw, 42px);
+      color: var(--deep);
+      margin-top: 4px;
+    }
+
+    .chart-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .chart-wrap {
+      border: 1px solid var(--deep);
+      background: #fff;
+      padding: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .chart-wrap img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--line);
+    }
+
+    .critic {
+      display: grid;
+      grid-template-columns: minmax(0, .58fr) minmax(320px, .42fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .critic-card {
+      border: 1px solid var(--deep);
+      background: var(--deep);
+      color: var(--paper);
+      padding: 24px;
+      min-height: 380px;
+      display: grid;
+      align-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .critic-card::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 12px;
+      background: repeating-linear-gradient(90deg, var(--signal) 0 18px, var(--accent) 18px 36px);
+    }
+
+    .critic-card h3 {
+      font-size: clamp(28px, 4vw, 50px);
+      line-height: .98;
+      margin: 0;
+      max-width: 650px;
+    }
+
+    .critic-card p {
+      color: #cbd8ce;
+      max-width: 700px;
+      line-height: 1.5;
+    }
+
+    .question-bank {
+      display: grid;
+      gap: 10px;
+    }
+
+    .question-bank button {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.58);
+      padding: 14px;
+      text-align: left;
+      transition: transform .2s ease, background .2s ease;
+    }
+
+    .question-bank button:hover,
+    .question-bank button.active {
+      transform: translateY(-3px);
+      background: var(--signal);
+    }
+
+    .answer {
+      border: 1px solid var(--deep);
+      background: #fff;
+      padding: 20px;
+      line-height: 1.5;
+      min-height: 150px;
+    }
+
+    footer {
+      padding: 28px clamp(20px, 5vw, 72px);
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink-2);
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      animation: rise .58s cubic-bezier(.16, 1, .3, 1) forwards;
+      animation-delay: calc(var(--i, 0) * 90ms);
+    }
+
+    @keyframes rise {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 980px) {
+      .shell { grid-template-columns: 1fr; }
+      .rail {
+        position: static;
+        height: auto;
+        grid-template-columns: auto 1fr auto;
+        grid-template-rows: auto;
+        justify-items: start;
+      }
+      .rail nav {
+        grid-auto-flow: column;
+        overflow-x: auto;
+        width: 100%;
+        justify-content: center;
+      }
+      .stamp { writing-mode: initial; transform: none; }
+      .hero,
+      .section-head,
+      .flow-grid,
+      .experiments,
+      .critic {
+        grid-template-columns: 1fr;
+      }
+      .hero {
+        min-height: auto;
+        padding-top: 34px;
+      }
+      .file { grid-column: span 6; }
+      .node-map { grid-template-columns: 1fr 1fr; }
+      .node::after { display: none; }
+    }
+
+    @media (max-width: 620px) {
+      section { padding: 34px 16px; }
+      .hero { padding: 30px 16px; }
+      .file { grid-column: span 12; }
+      .node-map { grid-template-columns: 1fr; }
+      .score-grid { grid-template-columns: 1fr; }
+      .meter-row { grid-template-columns: 74px 1fr 48px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="rail" aria-label="Navegacion principal">
+      <div class="mark">TP3</div>
+      <nav>
+        <a href="#mapa" title="Arquitectura">ARQ</a>
+        <a href="#archivos" title="Archivos">DOC</a>
+        <a href="#experimentos" title="Experimentos">EXP</a>
+        <a href="#evidencia" title="Evidencia">RES</a>
+        <a href="#defensa" title="Defensa">REV</a>
+      </nav>
+      <div class="stamp">MLP DEFENSIBLE</div>
+    </aside>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy reveal" style="--i:0">
+          <div class="eyebrow">Repositorio explicado para revision exigente</div>
+          <h1>Una MLP simple, visible y dificil de objetar.</h1>
+          <p>Este explorador muestra como se organiza el TP, por que cada archivo existe, que arquitectura se entreno y como defender las decisiones ante preguntas incomodas.</p>
+        </div>
+
+        <aside class="hero-panel reveal" style="--i:2" aria-label="Resumen de salud del proyecto">
+          <header>
+            <span>estado del repo</span>
+            <span>revision: lista</span>
+          </header>
+          <div class="meter">
+            <div class="meter-row"><span>consigna</span><div class="bar"><span style="--value: 100%"></span></div><strong>100</strong></div>
+            <div class="meter-row"><span>docs</span><div class="bar"><span style="--value: 92%"></span></div><strong>92</strong></div>
+            <div class="meter-row"><span>codigo</span><div class="bar"><span style="--value: 88%"></span></div><strong>88</strong></div>
+            <div class="meter-row"><span>defensa</span><div class="bar"><span style="--value: 94%"></span></div><strong>94</strong></div>
+          </div>
+        </aside>
+      </section>
+
+      <section id="mapa">
+        <div class="section-head">
+          <div>
+            <div class="tagline">01 / flujo del sistema</div>
+            <h2>La arquitectura queda como una linea de montaje auditable.</h2>
+          </div>
+          <p>Click en cada bloque para ver por que existe. La clave es que test no se usa para elegir hiperparametros y que el vectorizador solo aprende del conjunto de entrenamiento.</p>
+        </div>
+
+        <div class="flow-grid">
+          <div class="blueprint">
+            <div class="node-map" id="nodeMap">
+              <button class="node active" data-node="dataset"><small>01</small><b>Hugging Face dataset</b><small>binario y chico</small></button>
+              <button class="node" data-node="splits"><small>02</small><b>Train / val / test</b><small>sin filtracion</small></button>
+              <button class="node" data-node="vectorizer"><small>03</small><b>TextVectorization</b><small>tf_idf</small></button>
+              <button class="node" data-node="mlp"><small>04</small><b>Keras Sequential</b><small>capas densas</small></button>
+              <button class="node" data-node="experiments"><small>05</small><b>Experimentos</b><small>hiperparametros</small></button>
+              <button class="node" data-node="evaluation"><small>06</small><b>Evaluacion final</b><small>matriz y F1</small></button>
+            </div>
+          </div>
+
+          <aside class="inspector" id="inspector">
+            <h3>Hugging Face dataset</h3>
+            <p>Se usa `cornell-movie-review-data/rotten_tomatoes` porque es binario, manejable y trae splits definidos.</p>
+            <ul>
+              <li>Evita perder tiempo buscando un dataset gigante.</li>
+              <li>Permite entrenar muchas veces en una PC comun.</li>
+              <li>Encaja directo con salida sigmoide y binary crossentropy.</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+
+      <section id="archivos">
+        <div class="section-head">
+          <div>
+            <div class="tagline">02 / mapa de archivos</div>
+            <h2>Cada pieza tiene una responsabilidad concreta.</h2>
+          </div>
+          <p>La raiz queda limpia para GitHub. Los materiales de catedra estan en `docs/materials`, la explicacion tecnica en `docs` y el codigo en `src`.</p>
+        </div>
+
+        <div class="file-board">
+          <div class="filters" id="filters">
+            <button class="chip active" data-filter="all">todo</button>
+            <button class="chip" data-filter="code">codigo</button>
+            <button class="chip" data-filter="docs">documentacion</button>
+            <button class="chip" data-filter="results">resultados</button>
+            <button class="chip" data-filter="materials">materiales</button>
+          </div>
+          <div class="file-grid" id="fileGrid">
+            <article class="file" data-kind="code"><code>src/config.py</code><span>Experimentos, semilla, dataset y umbral.</span></article>
+            <article class="file" data-kind="code"><code>src/data.py</code><span>Carga Hugging Face y arma splits.</span></article>
+            <article class="file" data-kind="code"><code>src/model.py</code><span>Vectorizador y MLP Sequential.</span></article>
+            <article class="file" data-kind="code"><code>src/evaluate.py</code><span>Metricas, matriz y curvas.</span></article>
+            <article class="file" data-kind="code"><code>src/train.py</code><span>Corre experimentos y guarda evidencia.</span></article>
+            <article class="file" data-kind="code"><code>src/smoke_test.py</code><span>Prueba minima del pipeline.</span></article>
+            <article class="file" data-kind="docs"><code>README.md</code><span>Presentacion principal para GitHub.</span></article>
+            <article class="file" data-kind="docs"><code>docs/ARCHITECTURE.md</code><span>Explica el flujo tecnico.</span></article>
+            <article class="file" data-kind="docs"><code>docs/REVIEWER_NOTES.md</code><span>Anticipa preguntas criticas.</span></article>
+            <article class="file" data-kind="results"><code>results/metrics.csv</code><span>Comparacion de experimentos.</span></article>
+            <article class="file" data-kind="results"><code>results/confusion_matrix.png</code><span>Matriz de confusion final.</span></article>
+            <article class="file" data-kind="materials"><code>docs/materials/TP...</code><span>Consigna y teoria original.</span></article>
+          </div>
+        </div>
+      </section>
+
+      <section id="experimentos">
+        <div class="section-head">
+          <div>
+            <div class="tagline">03 / hiperparametros</div>
+            <h2>Los experimentos no son decoracion: prueban capacidad, ritmo y regularizacion.</h2>
+          </div>
+          <p>La seleccion se hace por F1 de validacion. Test queda reservado para reportar desempeno final.</p>
+        </div>
+
+        <div class="experiments">
+          <div class="experiment-list" id="experimentList">
+            <button class="exp-button active" data-exp="e3"><b>e3_regularized</b><span>Dropout + L2, mejor val_f1.</span></button>
+            <button class="exp-button" data-exp="e0"><b>e0_baseline</b><span>Modelo simple de referencia.</span></button>
+            <button class="exp-button" data-exp="e1"><b>e1_more_capacity</b><span>Mas neuronas y profundidad.</span></button>
+            <button class="exp-button" data-exp="e2"><b>e2_lower_learning_rate</b><span>Learning rate mas bajo.</span></button>
+            <button class="exp-button" data-exp="e4"><b>e4_overfitting_demo</b><span>Pocos datos, red grande.</span></button>
+          </div>
+
+          <article class="metric-board" id="metricBoard">
+            <div>
+              <h3>e3_regularized</h3>
+              <p>Regularizacion con Dropout 0.5 y L2 0.0001. Gana por F1 de validacion.</p>
+            </div>
+            <div class="score-grid">
+              <div class="score"><small>val_f1</small><strong>0.7577</strong></div>
+              <div class="score"><small>test_f1</small><strong>0.7646</strong></div>
+              <div class="score"><small>test_precision</small><strong>0.7442</strong></div>
+              <div class="score"><small>test_recall</small><strong>0.7861</strong></div>
+            </div>
+            <p id="metricNote">La defensa fuerte: no se eligio por test, sino por validacion.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="evidencia">
+        <div class="section-head">
+          <div>
+            <div class="tagline">04 / evidencia visual</div>
+            <h2>Los graficos muestran comportamiento, no solo numeros sueltos.</h2>
+          </div>
+          <p>La curva de overfitting es especialmente util: train queda perfecto mientras validacion se degrada.</p>
+        </div>
+
+        <div class="chart-tabs" id="chartTabs">
+          <button class="chip active" data-img="../results/confusion_matrix.png">matriz</button>
+          <button class="chip" data-img="../results/best_learning_curves.png">mejor modelo</button>
+          <button class="chip" data-img="../results/overfitting_learning_curves.png">overfitting</button>
+        </div>
+        <div class="chart-wrap">
+          <img id="chartImage" src="../results/confusion_matrix.png" alt="Matriz de confusion del mejor modelo">
+        </div>
+      </section>
+
+      <section id="defensa">
+        <div class="section-head">
+          <div>
+            <div class="tagline">05 / modo critico</div>
+            <h2>Preguntas incomodas, respuestas preparadas.</h2>
+          </div>
+          <p>Este bloque esta pensado para el companero que revisa todo. Si una decision no se puede defender, no deberia estar en el repo.</p>
+        </div>
+
+        <div class="critic">
+          <div class="critic-card">
+            <div>
+              <h3>La respuesta corta: hicimos menos cosas, pero las hicimos trazables.</h3>
+              <p>El TP no necesita una arquitectura de moda. Necesita demostrar que se entiende entrenamiento, validacion, sobreajuste, hiperparametros y metricas.</p>
+            </div>
+            <ul class="critic-list">
+              <li>Consigna cubierta: Keras Sequential, MLP, Hugging Face y clasificacion binaria.</li>
+              <li>Buenas practicas: sin adaptar vectorizador con test, sin elegir modelo por test.</li>
+              <li>Evidencia: metricas, matriz de confusion y curvas separadas.</li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="question-bank" id="questionBank">
+              <button class="active" data-q="transformers">Por que no Transformers?</button>
+              <button data-q="metric">Por que F1?</button>
+              <button data-q="test">Por que no elegir por test?</button>
+              <button data-q="overfit">Que demuestra el overfitting?</button>
+            </div>
+            <div class="answer" id="answerBox">Porque la consigna pide MLP y Keras Sequential. Usar Transformers resolveria otro problema y haria mas dificil defender el objetivo teorico del TP.</div>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <span>TP 3 IA - MLP para clasificacion binaria</span>
+        <span>Diseñado para explicar, ejecutar y defender</span>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const nodeData = {
+      dataset: {
+        title: "Hugging Face dataset",
+        text: "Se usa rotten_tomatoes porque es binario, manejable y trae splits definidos.",
+        bullets: ["Clasificacion binaria directa.", "Entrena rapido en PC comun.", "Evita agrandar el problema antes de tener base funcional."]
+      },
+      splits: {
+        title: "Train / validation / test",
+        text: "Train aprende, validacion elige hiperparametros y test evalua al final.",
+        bullets: ["Reduce riesgo de data leakage.", "Evita seleccionar el modelo mirando test.", "Es defendible segun AWS Prescriptive Guidance."]
+      },
+      vectorizer: {
+        title: "TextVectorization tf_idf",
+        text: "Convierte texto en vectores numericos para que una MLP densa pueda procesarlo.",
+        bullets: ["Se adapta solo con train.", "Mantiene una arquitectura simple.", "Evita usar modelos secuenciales fuera de consigna."]
+      },
+      mlp: {
+        title: "Keras Sequential",
+        text: "La red es una pila lineal de capas densas, exactamente el caso de uso natural de Sequential.",
+        bullets: ["Dense con ReLU en ocultas.", "Sigmoid para probabilidad binaria.", "Binary crossentropy como perdida."]
+      },
+      experiments: {
+        title: "Experimentos",
+        text: "Los experimentos cambian capacidad, learning rate y regularizacion.",
+        bullets: ["Baseline simple.", "Mayor capacidad.", "Dropout y L2.", "Overfitting intencional."]
+      },
+      evaluation: {
+        title: "Evaluacion final",
+        text: "El mejor se elige por F1 de validacion y luego se reporta test.",
+        bullets: ["Matriz de confusion.", "Accuracy, precision, recall y F1.", "Umbral de clasificacion fijado en 0.5."]
+      }
+    };
+
+    const experiments = {
+      e3: {
+        title: "e3_regularized",
+        text: "Regularizacion con Dropout 0.5 y L2 0.0001. Gana por F1 de validacion.",
+        values: ["0.7577", "0.7646", "0.7442", "0.7861"],
+        note: "La defensa fuerte: no se eligio por test, sino por validacion."
+      },
+      e0: {
+        title: "e0_baseline",
+        text: "Modelo simple con una capa de 32 neuronas. Sirve como referencia inicial.",
+        values: ["0.7525", "0.7662", "0.7438", "0.7899"],
+        note: "Buen punto de partida, aunque empieza a sobreajustar despues de pocas epocas."
+      },
+      e1: {
+        title: "e1_more_capacity",
+        text: "Dos capas ocultas de 128 y 64 neuronas. Aumenta capacidad, no necesariamente generalizacion.",
+        values: ["0.7529", "0.7674", "0.7333", "0.8049"],
+        note: "Mas parametros pueden mejorar train rapido, pero tambien elevan riesgo de overfitting."
+      },
+      e2: {
+        title: "e2_lower_learning_rate",
+        text: "Learning rate 0.0001. Entrena mas lento y con mas epocas.",
+        values: ["0.7299", "0.7692", "0.7788", "0.7598"],
+        note: "No todo cambio estable mejora validacion; por eso se compara empiricamente."
+      },
+      e4: {
+        title: "e4_overfitting_demo",
+        text: "Red grande con solo 500 ejemplos. Esta configuracion esta pensada para fallar en generalizacion.",
+        values: ["0.6758", "0.6729", "0.5247", "0.9381"],
+        note: "La metrica aislada puede enganar: las curvas muestran memorizacion clara."
+      }
+    };
+
+    const answers = {
+      transformers: "Porque la consigna pide MLP y Keras Sequential. Usar Transformers resolveria otro problema y haria mas dificil defender el objetivo teorico del TP.",
+      metric: "F1 combina precision y recall. Accuracy sirve como referencia porque el dataset esta balanceado, pero F1 permite discutir mejor falsos positivos y falsos negativos.",
+      test: "Porque test debe reservarse para evaluacion final. Si elegimos el mejor modelo mirando test, contaminamos la medicion de generalizacion.",
+      overfit: "Demuestra que una red con demasiada capacidad puede memorizar entrenamiento: accuracy de train llega a 1.0, pero validacion queda pobre y su loss sube."
+    };
+
+    const inspector = document.querySelector("#inspector");
+    document.querySelectorAll(".node").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".node").forEach((node) => node.classList.remove("active"));
+        button.classList.add("active");
+        const data = nodeData[button.dataset.node];
+        inspector.innerHTML = `
+          <h3>${data.title}</h3>
+          <p>${data.text}</p>
+          <ul>${data.bullets.map((item) => `<li>${item}</li>`).join("")}</ul>
+        `;
+      });
+    });
+
+    document.querySelectorAll("#filters .chip").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("#filters .chip").forEach((chip) => chip.classList.remove("active"));
+        button.classList.add("active");
+        const filter = button.dataset.filter;
+        document.querySelectorAll(".file").forEach((file) => {
+          file.style.display = filter === "all" || file.dataset.kind === filter ? "grid" : "none";
+        });
+      });
+    });
+
+    const metricBoard = document.querySelector("#metricBoard");
+    document.querySelectorAll(".exp-button").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".exp-button").forEach((exp) => exp.classList.remove("active"));
+        button.classList.add("active");
+        const data = experiments[button.dataset.exp];
+        metricBoard.innerHTML = `
+          <div>
+            <h3>${data.title}</h3>
+            <p>${data.text}</p>
+          </div>
+          <div class="score-grid">
+            <div class="score"><small>val_f1</small><strong>${data.values[0]}</strong></div>
+            <div class="score"><small>test_f1</small><strong>${data.values[1]}</strong></div>
+            <div class="score"><small>test_precision</small><strong>${data.values[2]}</strong></div>
+            <div class="score"><small>test_recall</small><strong>${data.values[3]}</strong></div>
+          </div>
+          <p>${data.note}</p>
+        `;
+      });
+    });
+
+    const chartImage = document.querySelector("#chartImage");
+    document.querySelectorAll("#chartTabs .chip").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("#chartTabs .chip").forEach((chip) => chip.classList.remove("active"));
+        button.classList.add("active");
+        chartImage.src = button.dataset.img;
+        chartImage.alt = `Grafico ${button.textContent}`;
+      });
+    });
+
+    const answerBox = document.querySelector("#answerBox");
+    document.querySelectorAll("#questionBank button").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("#questionBank button").forEach((q) => q.classList.remove("active"));
+        button.classList.add("active");
+        answerBox.textContent = answers[button.dataset.q];
+      });
+    });
+  </script>
+</body>
+</html>

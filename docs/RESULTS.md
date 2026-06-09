@@ -19,29 +19,29 @@ python src\train.py
 
 ```text
 experiment: e3_regularized
-val_accuracy: 0.7570
-val_precision: 0.7556
-val_recall: 0.7598
-val_f1: 0.7577
-test_accuracy: 0.7580
-test_precision: 0.7442
-test_recall: 0.7861
-test_f1: 0.7646
+val_accuracy: 0.7627
+val_precision: 0.7583
+val_recall: 0.7711
+val_f1: 0.7647
+test_accuracy: 0.7702
+test_precision: 0.7535
+test_recall: 0.8030
+test_f1: 0.7775
 ```
 
 ## Matriz de confusion del mejor modelo
 
 ```text
                  Predicho negativo   Predicho positivo
-Real negativo          389                 144
-Real positivo          114                 419
+Real negativo          393                 140
+Real positivo          105                 428
 ```
 
 Lectura:
 
-- El modelo acierta 389 negativos y 419 positivos.
-- Comete 144 falsos positivos.
-- Comete 114 falsos negativos.
+- El modelo acierta 393 negativos y 428 positivos.
+- Comete 140 falsos positivos.
+- Comete 105 falsos negativos.
 - El recall positivo es mayor que la precision positiva, por eso el modelo tiende levemente a recuperar mas positivos aunque acepte algunos falsos positivos.
 
 ## Overfitting

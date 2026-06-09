@@ -100,11 +100,11 @@ python src\train.py
 El mejor experimento por F1 de validacion fue `e3_regularized`, con Dropout y L2:
 
 ```text
-val_f1:         0.7577
-test_accuracy:  0.7580
-test_precision: 0.7442
-test_recall:    0.7861
-test_f1:        0.7646
+val_f1:         0.7647
+test_accuracy:  0.7702
+test_precision: 0.7535
+test_recall:    0.8030
+test_f1:        0.7775
 ```
 
 La matriz de confusion final esta en:

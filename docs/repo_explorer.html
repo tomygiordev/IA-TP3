@@ -779,7 +779,7 @@
           <div class="experiment-list" id="experimentList">
             <button class="exp-button active" data-exp="e3"><b>e3_regularized</b><span>Dropout + L2, mejor val_f1.</span></button>
             <button class="exp-button" data-exp="e0"><b>e0_baseline</b><span>Modelo simple de referencia.</span></button>
-            <button class="exp-button" data-exp="e1"><b>e1_more_capacity</b><span>Mas neuronas y profundidad.</span></button>
+            <button class="exp-button" data-exp="e1"><b>e1_more_capacity</b><span>Mas neuronas, misma profundidad.</span></button>
             <button class="exp-button" data-exp="e2"><b>e2_lower_learning_rate</b><span>Learning rate mas bajo.</span></button>
             <button class="exp-button" data-exp="e4"><b>e4_overfitting_demo</b><span>Pocos datos, red grande.</span></button>
           </div>
@@ -790,10 +790,10 @@
               <p>Regularizacion con Dropout 0.5 y L2 0.0001. Gana por F1 de validacion.</p>
             </div>
             <div class="score-grid">
-              <div class="score"><small>val_f1</small><strong>0.7577</strong></div>
-              <div class="score"><small>test_f1</small><strong>0.7646</strong></div>
-              <div class="score"><small>test_precision</small><strong>0.7442</strong></div>
-              <div class="score"><small>test_recall</small><strong>0.7861</strong></div>
+              <div class="score"><small>val_f1</small><strong>0.7647</strong></div>
+              <div class="score"><small>test_f1</small><strong>0.7775</strong></div>
+              <div class="score"><small>test_precision</small><strong>0.7535</strong></div>
+              <div class="score"><small>test_recall</small><strong>0.8030</strong></div>
             </div>
             <p id="metricNote">La defensa fuerte: no se eligio por test, sino por validacion.</p>
           </article>
@@ -898,7 +898,7 @@
       e3: {
         title: "e3_regularized",
         text: "Regularizacion con Dropout 0.5 y L2 0.0001. Gana por F1 de validacion.",
-        values: ["0.7577", "0.7646", "0.7442", "0.7861"],
+        values: ["0.7647", "0.7775", "0.7535", "0.8030"],
         note: "La defensa fuerte: no se eligio por test, sino por validacion."
       },
       e0: {
@@ -909,20 +909,20 @@
       },
       e1: {
         title: "e1_more_capacity",
-        text: "Dos capas ocultas de 128 y 64 neuronas. Aumenta capacidad, no necesariamente generalizacion.",
-        values: ["0.7529", "0.7674", "0.7333", "0.8049"],
+        text: "Una capa oculta de 128 neuronas. Aumenta capacidad sin sumar profundidad innecesaria.",
+        values: ["0.7447", "0.7656", "0.7395", "0.7936"],
         note: "Mas parametros pueden mejorar train rapido, pero tambien elevan riesgo de overfitting."
       },
       e2: {
         title: "e2_lower_learning_rate",
         text: "Learning rate 0.0001. Entrena mas lento y con mas epocas.",
-        values: ["0.7299", "0.7692", "0.7788", "0.7598"],
+        values: ["0.7403", "0.7609", "0.7697", "0.7523"],
         note: "No todo cambio estable mejora validacion; por eso se compara empiricamente."
       },
       e4: {
         title: "e4_overfitting_demo",
-        text: "Red grande con solo 500 ejemplos. Esta configuracion esta pensada para fallar en generalizacion.",
-        values: ["0.6758", "0.6729", "0.5247", "0.9381"],
+        text: "Una capa oculta grande con solo 500 ejemplos. Esta configuracion esta pensada para fallar en generalizacion.",
+        values: ["0.6127", "0.6465", "0.6741", "0.6210"],
         note: "La metrica aislada puede enganar: las curvas muestran memorizacion clara."
       }
     };

@@ -29,8 +29,8 @@ EXPERIMENTS = [
     ),
     ExperimentConfig(
         name="e1_more_capacity",
-        hidden_units=(128, 64),
-        description="Mayor capacidad: mas neuronas y dos capas ocultas.",
+        hidden_units=(128,),
+        description="Mayor capacidad: mas neuronas en una sola capa oculta.",
     ),
     ExperimentConfig(
         name="e2_lower_learning_rate",
@@ -40,14 +40,14 @@ EXPERIMENTS = [
     ),
     ExperimentConfig(
         name="e3_regularized",
-        hidden_units=(128, 64),
+        hidden_units=(128,),
         dropout=0.5,
         l2=1e-4,
         description="Regularizacion con dropout y L2.",
     ),
     ExperimentConfig(
         name="e4_overfitting_demo",
-        hidden_units=(512, 512, 256),
+        hidden_units=(512,),
         epochs=35,
         train_limit=500,
         description="Simulacion intencional de overfitting con pocos datos y mucha capacidad.",

@@ -67,7 +67,16 @@ Justificacion de la metrica principal: el dataset esta balanceado, asi que accur
 
 Coherencia metodologica: val_f1 0.7647 y test_f1 0.7775 son casi iguales, senal de que la seleccion por validacion no sobreestimo el rendimiento real.
 
-## 7. Limitaciones (para el cierre del informe)
+## 7. Detalles finos (observaciones que distinguen un buen informe)
+
+- **Hay dos overfittings, no uno.** El de e4 es simulado y extremo. Pero e0, e1 y e3 tambien sobreajustan por defecto (mejor val_loss en la epoca 1); la diferencia es que el early stopping lo controla. El sobreajuste es el comportamiento natural de una red con capacidad de sobra, no un accidente que hubo que fabricar.
+- **Los hiperparametros mueven el tipo de error.** Con el mismo umbral 0.5, e0/e1/e3 son "optimistas" (recall > precision en test), pero e2 invierte el balance (precision 0.7787 > recall 0.7392). Cambiar un hiperparametro no solo sube o baja F1: puede cambiar que clase de error comete el modelo. Argumento concreto para mirar precision y recall por separado.
+- **Test dio mas alto que validacion en los 5 experimentos.** test_f1 > val_f1 en todos los casos. Que ocurra en los cinco sugiere que el split de test es levemente mas "facil" que el de validacion: propiedad de los splits oficiales, no error metodologico, porque los modelos se comparan entre si siempre sobre validacion.
+- **El modelo sobreajustado igual aprendio algo.** e4 memoriza su train (accuracy 1.0) pero rinde 0.6604 en test: peor que el resto, lejos del 0.5 del azar. El overfitting degrada la generalizacion, no la destruye; por eso la metrica aislada engana y hacen falta las curvas.
+- **Reproducibilidad verificada.** Semilla global fija + determinismo de TensorFlow: al reentrenar el lote completo, e3 reprodujo sus metricas digito por digito. Todo numero del informe se regenera con `python src/train.py`.
+- **e2 fue el unico que agoto sus 12 epocas.** Aprender mas despacio retrasa la memorizacion (el quiebre de validacion llega mas tarde), pero retrasar el sobreajuste no es evitarlo ni garantiza mejor resultado: e2 quedo ultimo entre los modelos normales.
+
+## 8. Limitaciones (para el cierre del informe)
 
 - Umbral fijo en 0.5: no se exploro ajustarlo para mover el balance precision/recall.
 - TF-IDF ignora orden y contexto de las palabras; un baseline razonable, no el techo del problema.

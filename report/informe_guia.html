@@ -408,6 +408,7 @@
         <a href="#overfitting" title="Overfitting">OVF</a>
         <a href="#experimentos" title="Experimentos">EXP</a>
         <a href="#evaluacion" title="Evaluacion final">EVA</a>
+        <a href="#detalles" title="Detalles finos">DET</a>
         <a href="#cierre" title="Limitaciones y cierre">LIM</a>
       </nav>
       <div class="stamp">INFORME GUIA</div>
@@ -631,10 +632,47 @@
         </div>
       </section>
 
+      <section id="detalles">
+        <div class="section-head">
+          <div>
+            <div class="tagline">06 / detalles finos</div>
+            <h2>Lo que se ve solo cuando se miran los datos de cerca.</h2>
+          </div>
+          <p>Observaciones que no entran en una tabla pero distinguen un informe que reporta numeros de uno que los entiende. Todas salen de <code>results/metrics.csv</code> y de las curvas.</p>
+        </div>
+
+        <div class="reading-list">
+          <div class="reading">
+            <b>Hay dos overfittings en este TP, no uno</b>
+            <p>El de la seccion 3 (e4) es el simulado: capacidad enorme, 500 ejemplos, 35 epocas y sin early stopping, fabricado para que falle. Pero la red tambien sobreajusta <i>por defecto</i>: e0, e1 y e3 tienen su mejor val_loss en la epoca 1, y de ahi en adelante validacion empeora mientras train mejora (se ve en las curvas del mejor modelo). La diferencia entre ambos casos no es el fenomeno, es el control: el early stopping detecta el quiebre y restaura los mejores pesos. El sobreajuste no es un accidente exotico que hubo que provocar: es el comportamiento natural de una red con capacidad de sobra, y lo que cambia es si se lo controla o se lo deja correr.</p>
+          </div>
+          <div class="reading">
+            <b>Los hiperparametros mueven el tipo de error, no solo el rendimiento</b>
+            <p>Con el mismo umbral de 0.5, e0, e1 y e3 son modelos "optimistas" (recall mayor que precision: 0.7899/0.7438, 0.7936/0.7395 y 0.8030/0.7535 en test). Pero e2, el del learning rate bajo, invierte el balance: precision 0.7787 y recall 0.7392. Es decir, cambiar un hiperparametro no solo sube o baja el F1: puede cambiar que tipo de error comete el modelo. Es un argumento concreto de por que mirar precision y recall por separado, y no quedarse con una sola cifra.</p>
+          </div>
+          <div class="reading">
+            <b>Test dio mas alto que validacion en los 5 experimentos</b>
+            <p>El test_f1 supera al val_f1 en todos los casos (por ejemplo e3: 0.7775 contra 0.7647). Si fuera un solo experimento podria ser azar, pero que pase en los cinco sugiere que el split de test del dataset es levemente mas "facil" que el de validacion. Esto no invalida nada: los modelos se comparan entre si siempre sobre el mismo conjunto (validacion), asi que la eleccion del mejor no se ve afectada. Es una propiedad de los splits oficiales, y reconocerla muestra lectura critica de los datos.</p>
+          </div>
+          <div class="reading">
+            <b>El modelo sobreajustado igual aprendio algo</b>
+            <p>e4 memoriza por completo su train (accuracy 1.0), pero en test rinde 0.6604: bastante peor que el resto, pero lejos del 0.5 del azar. El overfitting degrada la generalizacion, no la destruye: incluso memorizando, la red capturo patrones reales (palabras fuertemente positivas o negativas) que transfieren a datos nuevos. Por eso una metrica aislada engana: 0.66 de accuracy "no parece tan mal" hasta que las curvas muestran que el modelo dejo de aprender en la epoca 3 y todo lo demas fue memorizacion.</p>
+          </div>
+          <div class="reading">
+            <b>Los resultados son reproducibles, y eso se verifico</b>
+            <p>El proyecto fija una semilla global y pide determinismo a TensorFlow. No es decorativo: al reentrenar todo el lote (tras corregir la configuracion de e2), e3 reprodujo exactamente las mismas metricas, digito por digito. Para un informe academico esto importa: cualquier numero del informe se puede regenerar ejecutando <code>python src/train.py</code>, y la comparacion entre experimentos no depende de la suerte de una corrida.</p>
+          </div>
+          <div class="reading">
+            <b>e2 fue el unico que agoto sus epocas, y eso tambien cuenta una historia</b>
+            <p>Con learning rate 1e-4, e2 corrio las 12 epocas completas mientras los demas frenaron en la 6. Aprender mas despacio retrasa la memorizacion: el quiebre de validacion llega mas tarde. Pero retrasar el sobreajuste no es evitarlo, y tampoco garantiza mejor resultado final (e2 quedo ultimo entre los modelos normales). La velocidad de aprendizaje cambia la dinamica del entrenamiento, no el destino.</p>
+          </div>
+        </div>
+      </section>
+
       <section id="cierre">
         <div class="section-head">
           <div>
-            <div class="tagline">06 / limitaciones y cierre</div>
+            <div class="tagline">07 / limitaciones y cierre</div>
             <h2>Que queda honestamente afuera.</h2>
           </div>
           <p>Material para el cierre del informe: limitaciones reconocidas y posibles mejoras futuras.</p>

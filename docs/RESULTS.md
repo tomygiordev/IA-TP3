@@ -15,6 +15,13 @@ python src/train.py
 | `results/best_learning_curves.png` | Curvas del mejor modelo. |
 | `results/overfitting_learning_curves.png` | Curvas del experimento de overfitting. |
 
+Ademas, `python src/report_charts.py` genera dos graficos comparativos a partir de `metrics.csv`, usados por el informe guia:
+
+| Archivo | Contenido |
+| --- | --- |
+| `results/precision_recall_test.png` | Precision vs recall en test por experimento. |
+| `results/val_vs_test_f1.png` | F1 de validacion vs test por experimento, con linea de azar. |
+
 ## Mejor modelo actual
 
 ```text

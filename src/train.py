@@ -149,17 +149,28 @@ def evaluate_final_model(config):
 def main() -> None:
     results_dir = Path(RESULTS_DIR)
     results_dir.mkdir(exist_ok=True)
+    runs_path = results_dir / "runs.csv"
 
-    run_rows = []
+    if runs_path.exists():
+        runs = pd.read_csv(runs_path)
+        run_rows = runs.to_dict("records")
+        completed = set(zip(runs["experiment"], runs["seed"]))
+        print(f"Reanudando desde {len(run_rows)} corridas guardadas")
+    else:
+        run_rows = []
+        completed = set()
+
     for config in EXPERIMENTS:
         for seed in EXPERIMENT_SEEDS:
+            if (config.name, seed) in completed:
+                continue
             print(f"Entrenando {config.name} con semilla {seed}")
             row, _, _, _ = train_experiment(config, seed)
             run_rows.append(row)
+            pd.DataFrame(run_rows).to_csv(runs_path, index=False)
 
     runs = pd.DataFrame(run_rows)
     summary = summarize_runs(runs)
-    runs.to_csv(results_dir / "runs.csv", index=False)
     summary.to_csv(results_dir / "summary.csv", index=False)
 
     best_name = summary.iloc[0]["experiment"]

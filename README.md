@@ -29,95 +29,43 @@ Las decisiones siguen recomendaciones de fuentes profesionales:
 
 ```text
 .
-|-- README.md
-|-- requirements.txt
-|-- AGENTS.md
-|-- src/
-|   |-- config.py
-|   |-- data.py
-|   |-- model.py
-|   |-- evaluate.py
-|   |-- train.py
-|   |-- smoke_test.py
-|   `-- __init__.py
-|-- results/
-|   |-- metrics.csv
-|   |-- confusion_matrix.png
-|   |-- best_learning_curves.png
-|   |-- learning_curves.png
-|   `-- overfitting_learning_curves.png
-|-- docs/
-|   |-- repo_explorer.html
-|   |-- FILE_MAP.md
-|   |-- ARCHITECTURE.md
-|   |-- EXPERIMENTS.md
-|   |-- RESULTS.md
-|   |-- SOURCES.md
-|   |-- REVIEWER_NOTES.md
-|   |-- materials/
-|   `-- modules/
-|-- .agents/
-|   `-- commit-policy.md
-|-- report/
-|   `-- guia_informe.md
-|-- notebooks/
-`-- data/
+|-- README.md          -> presentacion del proyecto
+|-- requirements.txt   -> dependencias
+|-- AGENTS.md          -> instrucciones para agentes, incluida la politica de commits
+|-- src/               -> codigo: configuracion, datos, modelo, entrenamiento y evaluacion
+|-- results/           -> evidencia generada: metricas y graficos
+|-- docs/              -> documentacion tecnica y explicativa
+|   |-- materials/     -> consigna y teoria de catedra
+|   `-- prompts/       -> prompts usados como apoyo durante el TP
+`-- report/            -> guia para redactar el informe final
 ```
 
 ## Instalacion
 
-Se recomienda usar Python 3.10 para TensorFlow.
-
-```powershell
-py -3.10 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
+```bash
+python -m venv .venv
+# Linux/macOS: source .venv/bin/activate
+# Windows:     .venv\Scripts\activate
 pip install -r requirements.txt
-```
-
-Si pip falla por certificados SSL en Windows, puede usarse:
-
-```powershell
-python -m pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
 ```
 
 ## Ejecucion rapida
 
 Prueba minima para verificar entorno, dataset, vectorizador, modelo y metricas:
 
-```powershell
-python src\smoke_test.py
+```bash
+python src/smoke_test.py
 ```
 
 Entrenamiento completo de los experimentos:
 
-```powershell
-python src\train.py
+```bash
+python src/train.py
 ```
 
-## Resultados actuales
+## Resultados
 
-El mejor experimento por F1 de validacion fue `e3_regularized`, con Dropout y L2:
-
-```text
-val_f1:         0.7647
-test_accuracy:  0.7702
-test_precision: 0.7535
-test_recall:    0.8030
-test_f1:        0.7775
-```
-
-La matriz de confusion final esta en:
-
-```text
-results/confusion_matrix.png
-```
-
-La simulacion de overfitting esta en:
-
-```text
-results/overfitting_learning_curves.png
-```
+El mejor experimento se selecciona por F1 de validacion y se evalua una sola vez en test. Los numeros vigentes estan en [docs/RESULTS.md](docs/RESULTS.md) y en `results/metrics.csv`. La matriz de confusion final esta en `results/confusion_matrix.png` y la simulacion de overfitting en `results/overfitting_learning_curves.png`.
 
 ## Explorador interactivo
 
@@ -127,11 +75,10 @@ Abrir en el navegador:
 docs/repo_explorer.html
 ```
 
-Ese HTML explica de forma visual el flujo del repositorio, la arquitectura MLP, los experimentos y los argumentos para defender cada decision ante una revision critica.
+Ese HTML explica de forma visual el flujo del repositorio, la arquitectura MLP, los experimentos y el porque de cada decision tecnica.
 
 ## Documentacion
 
-- [Mapa de archivos](docs/FILE_MAP.md)
 - [Arquitectura](docs/ARCHITECTURE.md)
 - [Experimentos](docs/EXPERIMENTS.md)
 - [Resultados](docs/RESULTS.md)
@@ -142,7 +89,5 @@ Ese HTML explica de forma visual el flujo del repositorio, la arquitectura MLP, 
 
 ## Instrucciones para agentes
 
-La regla general para cualquier agente está en `AGENTS.md`.
-
-Además, el repositorio incluye una guía complementaria en `.agents/commit-policy.md` para detallar cómo deben redactarse los commits por feature.
+La regla general para cualquier agente, incluida la politica de commits por feature, está en `AGENTS.md`.
 

@@ -1,21 +1,23 @@
 # Arquitectura del proyecto
 
+Este documento describe el flujo del sistema y las decisiones metodologicas a nivel general. Los valores concretos de cada experimento (capas, neuronas, learning rate, regularizacion) viven en `src/config.py` y los resultados en `results/metrics.csv`, de modo que esta explicacion no se desactualiza con cada cambio.
+
 ## Flujo general
 
 ```text
 Hugging Face Dataset
         |
         v
-src/data.py
+Carga y splits (src/data.py)
         |
         v
-TextVectorization adaptado solo con train
+Vectorizacion de texto adaptada solo con train
         |
         v
 MLP Keras Sequential
         |
         v
-Validacion para elegir hiperparametros
+Validacion para comparar experimentos
         |
         v
 Test para evaluacion final
@@ -30,49 +32,23 @@ Se usa `cornell-movie-review-data/rotten_tomatoes`, disponible en Hugging Face. 
 
 - Es de clasificacion binaria.
 - Tiene textos cortos, por lo que entrena rapido.
-- Tiene splits definidos de entrenamiento, validacion y test.
+- Trae splits definidos de entrenamiento, validacion y test.
 - Esta balanceado, lo que permite usar accuracy como referencia sin dejar de reportar F1.
 
 ## Representacion del texto
 
-El texto se transforma con `TextVectorization` en modo `tf_idf`.
+El texto se transforma en vectores numericos con `TextVectorization` antes de las capas densas. Esto permite usar una MLP clasica sin recurrir a arquitecturas secuenciales, mantiene el problema simple y hace visible el pipeline: texto crudo, vectorizacion, capas densas, salida probabilistica.
 
-Decision defendible:
-
-- Permite usar una MLP densa sin recurrir a Transformers, RNN ni CNN.
-- Mantiene el problema simple.
-- Hace visible el pipeline clasico: texto crudo, vectorizacion, capas densas, salida probabilistica.
-
-Punto critico:
-
-- El vectorizador se adapta solo con datos de entrenamiento. Adaptarlo con validacion o test seria data leakage.
+Decision metodologica clave: el vectorizador se adapta unicamente con datos de entrenamiento. Adaptarlo con validacion o test seria data leakage.
 
 ## Modelo
 
-La arquitectura base es:
+La red es una MLP densa construida con `keras.Sequential`: capas ocultas con activacion no lineal y una salida sigmoide que devuelve la probabilidad de clase positiva. Sobre esa probabilidad se aplica un umbral para construir la matriz de confusion. La configuracion concreta de cada experimento esta en `src/config.py`.
 
-```text
-Input texto
-TextVectorization tf_idf
-Dense ReLU
-Dense sigmoid
-```
+## Entrenamiento y experimentos
 
-La salida `sigmoid` devuelve una probabilidad de clase positiva. Luego se aplica umbral `0.5` para construir la matriz de confusion.
-
-## Entrenamiento
-
-`train.py` ejecuta una lista de experimentos definidos en `config.py`. Cada experimento cambia hiperparametros controlados:
-
-- Cantidad de neuronas.
-- Profundidad.
-- Learning rate.
-- Dropout.
-- Regularizacion L2.
-- Cantidad de datos para simular overfitting.
+`src/train.py` ejecuta la lista de experimentos definida en `src/config.py`. Cada experimento cambia hiperparametros controlados respecto del baseline; el detalle de que varia cada uno y por que esta en `docs/EXPERIMENTS.md`.
 
 ## Seleccion del modelo
 
-El mejor modelo se elige por `val_f1`, no por test. Esto evita usar el conjunto de test como criterio de ajuste.
-
-Despues de elegir el mejor por validacion, se reportan metricas finales en test.
+El mejor modelo se elige por F1 de validacion, nunca por test. El test se reserva para una unica evaluacion final del modelo elegido, lo que evita contaminar la medicion de generalizacion.

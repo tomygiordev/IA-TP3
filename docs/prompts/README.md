@@ -4,10 +4,10 @@ Estos prompts estan pensados como apoyo de trabajo para distintas partes del TP.
 
 Los redacte separados por etapa para que se vea mejor el criterio de uso:
 
-- [01_diseno_inicial.md](/C:/Users/Gime/Desktop/IA%20TP3/docs/prompts/01_diseno_inicial.md)
-- [02_datos_y_preprocesamiento.md](/C:/Users/Gime/Desktop/IA%20TP3/docs/prompts/02_datos_y_preprocesamiento.md)
-- [03_experimentos_y_overfitting.md](/C:/Users/Gime/Desktop/IA%20TP3/docs/prompts/03_experimentos_y_overfitting.md)
-- [04_evaluacion_y_defensa.md](/C:/Users/Gime/Desktop/IA%20TP3/docs/prompts/04_evaluacion_y_defensa.md)
+- [01_diseno_inicial.md](./01_diseno_inicial.md)
+- [02_datos_y_preprocesamiento.md](./02_datos_y_preprocesamiento.md)
+- [03_experimentos_y_overfitting.md](./03_experimentos_y_overfitting.md)
+- [04_evaluacion_y_defensa.md](./04_evaluacion_y_defensa.md)
 
 ## Criterio general
 

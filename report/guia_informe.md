@@ -1,6 +1,6 @@
 # Guia para redactar el informe
 
-La consigna permite IA para dudas, codigo y graficos, pero prohibe usar IA para escribir el informe. Este archivo es solo una estructura de trabajo para que el grupo lo redacte con sus propias palabras.
+La consigna autoriza IA para sacar dudas, crear codigo y graficos. El informe lo redacta el grupo con sus propias palabras. Este archivo es solo una estructura de trabajo.
 
 ## Pagina 1 - Problema y dataset
 

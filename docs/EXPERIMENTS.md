@@ -1,38 +1,27 @@
 # Experimentos
 
-La consigna pide variar hiperparametros en al menos 4 experimentos y explicar resultados. Este proyecto define 5 casos para cubrir comparacion, regularizacion y overfitting.
+La consigna pide variar hiperparametros en al menos 4 experimentos y explicar resultados. Este proyecto define 5 casos para cubrir comparacion, regularizacion y overfitting. Cada experimento cambia una sola cosa respecto del baseline, para poder atribuirle el resultado a esa variable. Los valores exactos estan en `src/config.py`.
 
 ## Tabla de experimentos
 
-| Experimento | Cambio principal | Objetivo |
+| Experimento | Que cambia respecto del baseline | Hipotesis que prueba |
 | --- | --- | --- |
-| `e0_baseline` | MLP chica con una capa de 32 neuronas | Tener una referencia simple. |
-| `e1_more_capacity` | Una capa oculta de 128 neuronas | Ver si mas capacidad mejora el ajuste sin agregar profundidad innecesaria. |
-| `e2_lower_learning_rate` | Learning rate `0.0001` | Observar entrenamiento mas lento/estable. |
-| `e3_regularized` | Dropout `0.5` + L2 `0.0001` | Reducir sobreajuste. |
-| `e4_overfitting_demo` | 500 ejemplos y una capa oculta de 512 neuronas | Simular overfitting de forma intencional. |
+| `e0_baseline` | Nada: MLP chica de referencia | Una red simple ya resuelve el problema de forma aceptable. |
+| `e1_more_capacity` | Mas neuronas en la capa oculta | Mas capacidad puede ajustar mejor, pero no garantiza generalizar mejor. |
+| `e2_lower_learning_rate` | Learning rate mas bajo | Un entrenamiento mas lento y estable no necesariamente gana en validacion. |
+| `e3_regularized` | Mas capacidad + dropout + L2 | La regularizacion controla el sobreajuste del modelo con mas capacidad. |
+| `e4_overfitting_demo` | Pocos datos, mucha capacidad, mas epocas y sin early stopping | Una red sobredimensionada memoriza el train y generaliza mal. |
 
 ## Criterio de comparacion
 
-Se ordena por F1 de validacion (`val_f1`). La razon es que F1 combina precision y recall, y validacion es el conjunto correcto para comparar hiperparametros.
+Se ordena por F1 de validacion (`val_f1`). F1 combina precision y recall, y validacion es el conjunto correcto para comparar hiperparametros: el test queda reservado para la evaluacion final.
 
-## Resultado actual
-
-El mejor por `val_f1` fue:
-
-```text
-e3_regularized
-hidden_units: (128,)
-dropout: 0.5
-l2: 0.0001
-val_f1: 0.7647
-test_f1: 0.7775
-```
+Los resultados numericos vigentes estan en [RESULTS.md](RESULTS.md) y en `results/metrics.csv`.
 
 ## Interpretacion breve
 
 - El baseline funciona bien, pero sobreajusta despues de pocas epocas.
-- Aumentar neuronas en una sola capa oculta mejora train rapido, pero no garantiza mejor generalizacion.
-- Bajar learning rate entrena mas suave, aunque no necesariamente gana en validacion.
-- Dropout + L2 ayuda a controlar el exceso de capacidad.
+- Aumentar neuronas mejora el ajuste en train rapido, pero no garantiza mejor generalizacion.
+- Bajar el learning rate entrena mas suave, aunque no necesariamente gana en validacion.
+- Dropout + L2 ayudan a controlar el exceso de capacidad.
 - El experimento de overfitting memoriza entrenamiento y falla en validacion, que es exactamente lo que se queria demostrar.

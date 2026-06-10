@@ -2,8 +2,8 @@
 
 Los resultados se generan con:
 
-```powershell
-python src\train.py
+```bash
+python src/train.py
 ```
 
 ## Archivos generados

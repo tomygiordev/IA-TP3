@@ -98,7 +98,6 @@ def main() -> None:
         best["test_pred"],
         results_dir / "confusion_matrix.png",
     )
-    save_learning_curves(best["history"], results_dir / "learning_curves.png")
     save_learning_curves(best["history"], results_dir / "best_learning_curves.png")
     if overfitting_result is not None:
         save_learning_curves(

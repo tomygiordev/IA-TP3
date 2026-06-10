@@ -72,7 +72,3 @@ Tipos sugeridos:
 - No usar mensajes vagos como `cambios varios`, `update`, `fix cosas`.
 - No usar `git add .` si hay riesgo de incluir cambios no relacionados.
 - No registrar trabajo parcial sin aclararlo, salvo que el usuario lo pida.
-
-## Material complementario
-
-La guía extendida para esta política se encuentra en `.agents/commit-policy.md`.

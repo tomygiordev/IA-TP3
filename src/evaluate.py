@@ -11,14 +11,27 @@ from sklearn.metrics import (
     f1_score,
     precision_score,
     recall_score,
+    precision_recall_curve,
 )
 
 from config import THRESHOLD
 
 
 def predict_classes(model, texts: np.ndarray, threshold: float = THRESHOLD) -> np.ndarray:
-    probabilities = model.predict(texts, verbose=0).reshape(-1)
+    probabilities = predict_probabilities(model, texts)
     return (probabilities > threshold).astype(np.int32)
+
+
+def predict_probabilities(model, inputs: np.ndarray) -> np.ndarray:
+    return model.predict(inputs, verbose=0).reshape(-1)
+
+
+def find_best_f1_threshold(y_true: np.ndarray, probabilities: np.ndarray) -> tuple[float, float]:
+    precision, recall, thresholds = precision_recall_curve(y_true, probabilities)
+    f1_scores = 2 * precision * recall / np.maximum(precision + recall, 1e-12)
+    best_index = int(np.argmax(f1_scores))
+    threshold = float(thresholds[best_index]) if best_index < len(thresholds) else THRESHOLD
+    return threshold, float(f1_scores[best_index])
 
 
 def classification_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, float]:

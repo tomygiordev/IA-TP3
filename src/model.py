@@ -34,6 +34,39 @@ def build_normalizer(train_features) -> layers.Normalization:
     return normalizer
 
 
+class BinaryF1(keras.metrics.Metric):
+    def __init__(self, name: str = "f1", **kwargs):
+        super().__init__(name=name, **kwargs)
+        self.true_positives = self.add_weight(name="tp", initializer="zeros")
+        self.false_positives = self.add_weight(name="fp", initializer="zeros")
+        self.false_negatives = self.add_weight(name="fn", initializer="zeros")
+
+    def update_state(self, y_true, y_pred, sample_weight=None):
+        y_true = tf.cast(tf.reshape(y_true, (-1,)), tf.bool)
+        y_pred = tf.reshape(y_pred, (-1,)) > 0.5
+        weights = 1.0 if sample_weight is None else tf.cast(sample_weight, self.dtype)
+
+        self.true_positives.assign_add(
+            tf.reduce_sum(tf.cast(y_true & y_pred, self.dtype) * weights)
+        )
+        self.false_positives.assign_add(
+            tf.reduce_sum(tf.cast(~y_true & y_pred, self.dtype) * weights)
+        )
+        self.false_negatives.assign_add(
+            tf.reduce_sum(tf.cast(y_true & ~y_pred, self.dtype) * weights)
+        )
+
+    def result(self):
+        return tf.math.divide_no_nan(
+            2.0 * self.true_positives,
+            2.0 * self.true_positives + self.false_positives + self.false_negatives,
+        )
+
+    def reset_state(self):
+        for variable in self.variables:
+            variable.assign(0.0)
+
+
 def build_mlp(
     config: ExperimentConfig,
     *,
@@ -71,6 +104,7 @@ def build_mlp(
             keras.metrics.BinaryAccuracy(name="accuracy"),
             keras.metrics.Precision(name="precision"),
             keras.metrics.Recall(name="recall"),
+            BinaryF1(),
         ],
     )
     return model

@@ -125,11 +125,10 @@
     main { min-width: 0; }
 
     .hero {
-      min-height: 92dvh;
+      min-height: 72dvh;
       display: grid;
-      grid-template-columns: minmax(0, 1.25fr) minmax(330px, .75fr);
-      gap: 34px;
-      align-items: end;
+      grid-template-columns: 1fr;
+      align-items: center;
       padding: 56px clamp(20px, 5vw, 72px) 34px;
       border-bottom: 1px solid var(--line);
     }
@@ -168,61 +167,6 @@
       font-size: clamp(18px, 2.2vw, 25px);
       line-height: 1.32;
       color: var(--ink-2);
-    }
-
-    .hero-panel {
-      border: 1px solid var(--deep);
-      background: rgba(255, 255, 255, .58);
-      box-shadow: var(--shadow);
-      padding: 18px;
-      transform: rotate(1deg);
-    }
-
-    .hero-panel header {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-      font-family: var(--mono);
-      font-size: 12px;
-      border-bottom: 1px solid var(--line);
-      padding-bottom: 12px;
-      margin-bottom: 16px;
-    }
-
-    .meter {
-      display: grid;
-      gap: 12px;
-    }
-
-    .meter-row {
-      display: grid;
-      grid-template-columns: 86px 1fr 62px;
-      gap: 10px;
-      align-items: center;
-      font-family: var(--mono);
-      font-size: 12px;
-    }
-
-    .bar {
-      height: 12px;
-      border: 1px solid var(--deep);
-      background: var(--paper-2);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .bar span {
-      display: block;
-      height: 100%;
-      width: var(--value);
-      background: linear-gradient(90deg, var(--accent-2), var(--signal));
-      animation: scan 2.8s ease-in-out infinite;
-    }
-
-    @keyframes scan {
-      0%, 100% { filter: saturate(.9); }
-      50% { filter: saturate(1.3); }
     }
 
     section {
@@ -383,13 +327,6 @@
       color: var(--ink-2);
     }
 
-    .filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 18px;
-    }
-
     .chip {
       border: 1px solid var(--deep);
       background: rgba(255,255,255,.52);
@@ -478,37 +415,9 @@
     .exp-button span { color: var(--ink-2); }
 
     .metric-board {
-      min-height: 430px;
       display: grid;
-      grid-template-rows: auto 1fr auto;
+      grid-template-rows: auto 1fr;
       gap: 18px;
-    }
-
-    .score-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .score {
-      border-top: 1px solid var(--deep);
-      padding-top: 12px;
-    }
-
-    .score small {
-      display: block;
-      font-family: var(--mono);
-      color: var(--ink-2);
-      font-size: 11px;
-      text-transform: uppercase;
-    }
-
-    .score strong {
-      display: block;
-      font-family: var(--mono);
-      font-size: clamp(24px, 4vw, 42px);
-      color: var(--deep);
-      margin-top: 4px;
     }
 
     .chart-tabs {
@@ -658,8 +567,6 @@
       .hero { padding: 30px 16px; }
       .file { grid-column: span 12; }
       .node-map { grid-template-columns: 1fr; }
-      .score-grid { grid-template-columns: 1fr; }
-      .meter-row { grid-template-columns: 74px 1fr 48px; }
     }
   </style>
 </head>
@@ -672,31 +579,18 @@
         <a href="#archivos" title="Archivos">DOC</a>
         <a href="#experimentos" title="Experimentos">EXP</a>
         <a href="#evidencia" title="Evidencia">RES</a>
-        <a href="#defensa" title="Defensa">REV</a>
+        <a href="#preguntas" title="Preguntas frecuentes">FAQ</a>
       </nav>
-      <div class="stamp">MLP DEFENSIBLE</div>
+      <div class="stamp">TP 3 - MLP</div>
     </aside>
 
     <main>
       <section class="hero">
         <div class="hero-copy reveal" style="--i:0">
-          <div class="eyebrow">Repositorio explicado para revision exigente</div>
-          <h1>Una MLP simple, visible y dificil de objetar.</h1>
-          <p>Este explorador muestra como se organiza el TP, por que cada archivo existe, que arquitectura se entreno y como defender las decisiones ante preguntas incomodas.</p>
+          <div class="eyebrow">Explorador del repositorio</div>
+          <h1>Una MLP simple, explicada paso a paso.</h1>
+          <p>Este documento explica como esta organizado el proyecto, que hace cada parte del pipeline, que experimentos se entrenaron y por que se tomo cada decision tecnica.</p>
         </div>
-
-        <aside class="hero-panel reveal" style="--i:2" aria-label="Resumen de salud del proyecto">
-          <header>
-            <span>estado del repo</span>
-            <span>revision: lista</span>
-          </header>
-          <div class="meter">
-            <div class="meter-row"><span>consigna</span><div class="bar"><span style="--value: 100%"></span></div><strong>100</strong></div>
-            <div class="meter-row"><span>docs</span><div class="bar"><span style="--value: 92%"></span></div><strong>92</strong></div>
-            <div class="meter-row"><span>codigo</span><div class="bar"><span style="--value: 88%"></span></div><strong>88</strong></div>
-            <div class="meter-row"><span>defensa</span><div class="bar"><span style="--value: 94%"></span></div><strong>94</strong></div>
-          </div>
-        </aside>
       </section>
 
       <section id="mapa">
@@ -705,7 +599,7 @@
             <div class="tagline">01 / flujo del sistema</div>
             <h2>La arquitectura queda como una linea de montaje auditable.</h2>
           </div>
-          <p>Click en cada bloque para ver por que existe. La clave es que test no se usa para elegir hiperparametros y que el vectorizador solo aprende del conjunto de entrenamiento.</p>
+          <p>Cada bloque del flujo se puede seleccionar para ver por que existe. Dos reglas atraviesan todo el sistema: el conjunto de test no se usa para elegir hiperparametros y el vectorizador solo aprende del conjunto de entrenamiento.</p>
         </div>
 
         <div class="flow-grid">
@@ -735,33 +629,20 @@
       <section id="archivos">
         <div class="section-head">
           <div>
-            <div class="tagline">02 / mapa de archivos</div>
-            <h2>Cada pieza tiene una responsabilidad concreta.</h2>
+            <div class="tagline">02 / estructura</div>
+            <h2>Cada carpeta tiene una responsabilidad concreta.</h2>
           </div>
-          <p>La raiz queda limpia para GitHub. Los materiales de catedra estan en `docs/materials`, la explicacion tecnica en `docs` y el codigo en `src`.</p>
+          <p>La estructura separa codigo, evidencia generada y documentacion. El detalle de cada archivo se ve directamente explorando las carpetas.</p>
         </div>
 
         <div class="file-board">
-          <div class="filters" id="filters">
-            <button class="chip active" data-filter="all">todo</button>
-            <button class="chip" data-filter="code">codigo</button>
-            <button class="chip" data-filter="docs">documentacion</button>
-            <button class="chip" data-filter="results">resultados</button>
-            <button class="chip" data-filter="materials">materiales</button>
-          </div>
-          <div class="file-grid" id="fileGrid">
-            <article class="file" data-kind="code"><code>src/config.py</code><span>Experimentos, semilla, dataset y umbral.</span></article>
-            <article class="file" data-kind="code"><code>src/data.py</code><span>Carga Hugging Face y arma splits.</span></article>
-            <article class="file" data-kind="code"><code>src/model.py</code><span>Vectorizador y MLP Sequential.</span></article>
-            <article class="file" data-kind="code"><code>src/evaluate.py</code><span>Metricas, matriz y curvas.</span></article>
-            <article class="file" data-kind="code"><code>src/train.py</code><span>Corre experimentos y guarda evidencia.</span></article>
-            <article class="file" data-kind="code"><code>src/smoke_test.py</code><span>Prueba minima del pipeline.</span></article>
-            <article class="file" data-kind="docs"><code>README.md</code><span>Presentacion principal para GitHub.</span></article>
-            <article class="file" data-kind="docs"><code>docs/ARCHITECTURE.md</code><span>Explica el flujo tecnico.</span></article>
-            <article class="file" data-kind="docs"><code>docs/REVIEWER_NOTES.md</code><span>Anticipa preguntas criticas.</span></article>
-            <article class="file" data-kind="results"><code>results/metrics.csv</code><span>Comparacion de experimentos.</span></article>
-            <article class="file" data-kind="results"><code>results/confusion_matrix.png</code><span>Matriz de confusion final.</span></article>
-            <article class="file" data-kind="materials"><code>docs/materials/TP...</code><span>Consigna y teoria original.</span></article>
+          <div class="file-grid">
+            <article class="file"><code>src/</code><span>Codigo del pipeline: configuracion, datos, modelo, entrenamiento y evaluacion.</span></article>
+            <article class="file"><code>results/</code><span>Evidencia generada por los entrenamientos: metricas y graficos.</span></article>
+            <article class="file"><code>docs/</code><span>Documentacion tecnica: arquitectura, experimentos, resultados y fuentes.</span></article>
+            <article class="file"><code>docs/materials/</code><span>Consigna oficial y teoria de catedra.</span></article>
+            <article class="file"><code>docs/prompts/</code><span>Prompts usados como apoyo durante el TP.</span></article>
+            <article class="file"><code>report/</code><span>Guia para redactar el informe final.</span></article>
           </div>
         </div>
       </section>
@@ -772,30 +653,24 @@
             <div class="tagline">03 / hiperparametros</div>
             <h2>Los experimentos no son decoracion: prueban capacidad, ritmo y regularizacion.</h2>
           </div>
-          <p>La seleccion se hace por F1 de validacion. Test queda reservado para reportar desempeno final.</p>
+          <p>La seleccion se hace por F1 de validacion. Test queda reservado para reportar desempeno final. Los resultados numericos vigentes estan en <code>results/metrics.csv</code>.</p>
         </div>
 
         <div class="experiments">
           <div class="experiment-list" id="experimentList">
-            <button class="exp-button active" data-exp="e3"><b>e3_regularized</b><span>Dropout + L2, mejor val_f1.</span></button>
-            <button class="exp-button" data-exp="e0"><b>e0_baseline</b><span>Modelo simple de referencia.</span></button>
-            <button class="exp-button" data-exp="e1"><b>e1_more_capacity</b><span>Mas neuronas, misma profundidad.</span></button>
+            <button class="exp-button active" data-exp="e0"><b>e0_baseline</b><span>Modelo simple de referencia.</span></button>
+            <button class="exp-button" data-exp="e1"><b>e1_more_capacity</b><span>Mas neuronas en la capa oculta.</span></button>
             <button class="exp-button" data-exp="e2"><b>e2_lower_learning_rate</b><span>Learning rate mas bajo.</span></button>
+            <button class="exp-button" data-exp="e3"><b>e3_regularized</b><span>Dropout + L2 sobre la red con mas capacidad.</span></button>
             <button class="exp-button" data-exp="e4"><b>e4_overfitting_demo</b><span>Pocos datos, red grande.</span></button>
           </div>
 
           <article class="metric-board" id="metricBoard">
             <div>
-              <h3>e3_regularized</h3>
-              <p>Regularizacion con Dropout 0.5 y L2 0.0001. Gana por F1 de validacion.</p>
+              <h3>e0_baseline</h3>
+              <p>MLP chica que sirve como punto de comparacion para el resto de los experimentos.</p>
             </div>
-            <div class="score-grid">
-              <div class="score"><small>val_f1</small><strong>0.7647</strong></div>
-              <div class="score"><small>test_f1</small><strong>0.7775</strong></div>
-              <div class="score"><small>test_precision</small><strong>0.7535</strong></div>
-              <div class="score"><small>test_recall</small><strong>0.8030</strong></div>
-            </div>
-            <p id="metricNote">La defensa fuerte: no se eligio por test, sino por validacion.</p>
+            <p>Hipotesis: una red simple ya resuelve el problema de forma aceptable y permite medir el efecto de cada cambio posterior.</p>
           </article>
         </div>
       </section>
@@ -819,43 +694,42 @@
         </div>
       </section>
 
-      <section id="defensa">
+      <section id="preguntas">
         <div class="section-head">
           <div>
-            <div class="tagline">05 / modo critico</div>
-            <h2>Preguntas incomodas, respuestas preparadas.</h2>
+            <div class="tagline">05 / preguntas frecuentes</div>
+            <h2>Los conceptos detras de las decisiones.</h2>
           </div>
-          <p>Este bloque esta pensado para el companero que revisa todo. Si una decision no se puede defender, no deberia estar en el repo.</p>
+          <p>Estas preguntas resumen los conceptos centrales del TP: separacion de conjuntos, eleccion de metrica y sobreajuste.</p>
         </div>
 
         <div class="critic">
           <div class="critic-card">
             <div>
-              <h3>La respuesta corta: hicimos menos cosas, pero las hicimos trazables.</h3>
-              <p>El TP no necesita una arquitectura de moda. Necesita demostrar que se entiende entrenamiento, validacion, sobreajuste, hiperparametros y metricas.</p>
+              <h3>El objetivo no es la arquitectura: es entender el proceso.</h3>
+              <p>El TP demuestra como se entrena una red neuronal multicapa, como se comparan hiperparametros con un conjunto de validacion, como se reconoce el sobreajuste y como se interpreta el resultado final con una matriz de confusion.</p>
             </div>
             <ul class="critic-list">
               <li>Consigna cubierta: Keras Sequential, MLP, Hugging Face y clasificacion binaria.</li>
-              <li>Buenas practicas: sin adaptar vectorizador con test, sin elegir modelo por test.</li>
-              <li>Evidencia: metricas, matriz de confusion y curvas separadas.</li>
+              <li>Metodologia: el vectorizador se adapta solo con train y el modelo se elige por validacion.</li>
+              <li>Evidencia: metricas, matriz de confusion y curvas de aprendizaje.</li>
             </ul>
           </div>
 
           <div>
             <div class="question-bank" id="questionBank">
-              <button class="active" data-q="transformers">Por que no Transformers?</button>
-              <button data-q="metric">Por que F1?</button>
-              <button data-q="test">Por que no elegir por test?</button>
-              <button data-q="overfit">Que demuestra el overfitting?</button>
+              <button class="active" data-q="metric">Por que F1 como metrica principal?</button>
+              <button data-q="test">Por que no elegir el modelo por test?</button>
+              <button data-q="overfit">Que demuestra la simulacion de overfitting?</button>
             </div>
-            <div class="answer" id="answerBox">Porque la consigna pide MLP y Keras Sequential. Usar Transformers resolveria otro problema y haria mas dificil defender el objetivo teorico del TP.</div>
+            <div class="answer" id="answerBox">F1 combina precision y recall en un solo valor. Accuracy sirve como referencia porque el dataset esta balanceado, pero F1 permite discutir mejor los falsos positivos y falsos negativos.</div>
           </div>
         </div>
       </section>
 
       <footer>
         <span>TP 3 IA - MLP para clasificacion binaria</span>
-        <span>Diseñado para explicar, ejecutar y defender</span>
+        <span>Material explicativo del repositorio</span>
       </footer>
     </main>
   </div>
@@ -870,7 +744,7 @@
       splits: {
         title: "Train / validation / test",
         text: "Train aprende, validacion elige hiperparametros y test evalua al final.",
-        bullets: ["Reduce riesgo de data leakage.", "Evita seleccionar el modelo mirando test.", "Es defendible segun AWS Prescriptive Guidance."]
+        bullets: ["Reduce riesgo de data leakage.", "Evita seleccionar el modelo mirando test.", "Sigue la practica estandar de separacion de conjuntos."]
       },
       vectorizer: {
         title: "TextVectorization tf_idf",
@@ -890,48 +764,42 @@
       evaluation: {
         title: "Evaluacion final",
         text: "El mejor se elige por F1 de validacion y luego se reporta test.",
-        bullets: ["Matriz de confusion.", "Accuracy, precision, recall y F1.", "Umbral de clasificacion fijado en 0.5."]
+        bullets: ["Matriz de confusion.", "Accuracy, precision, recall y F1.", "Las probabilidades se convierten en clases con un umbral."]
       }
     };
 
     const experiments = {
-      e3: {
-        title: "e3_regularized",
-        text: "Regularizacion con Dropout 0.5 y L2 0.0001. Gana por F1 de validacion.",
-        values: ["0.7647", "0.7775", "0.7535", "0.8030"],
-        note: "La defensa fuerte: no se eligio por test, sino por validacion."
-      },
       e0: {
         title: "e0_baseline",
-        text: "Modelo simple con una capa de 32 neuronas. Sirve como referencia inicial.",
-        values: ["0.7525", "0.7662", "0.7438", "0.7899"],
-        note: "Buen punto de partida, aunque empieza a sobreajustar despues de pocas epocas."
+        text: "MLP chica que sirve como punto de comparacion para el resto de los experimentos.",
+        note: "Hipotesis: una red simple ya resuelve el problema de forma aceptable y permite medir el efecto de cada cambio posterior."
       },
       e1: {
         title: "e1_more_capacity",
-        text: "Una capa oculta de 128 neuronas. Aumenta capacidad sin sumar profundidad innecesaria.",
-        values: ["0.7447", "0.7656", "0.7395", "0.7936"],
-        note: "Mas parametros pueden mejorar train rapido, pero tambien elevan riesgo de overfitting."
+        text: "Mas neuronas en la capa oculta, manteniendo el resto igual al baseline.",
+        note: "Hipotesis: mas parametros mejoran el ajuste en entrenamiento, pero no garantizan mejor generalizacion."
       },
       e2: {
         title: "e2_lower_learning_rate",
-        text: "Learning rate 0.0001. Entrena mas lento y con mas epocas.",
-        values: ["0.7403", "0.7609", "0.7697", "0.7523"],
-        note: "No todo cambio estable mejora validacion; por eso se compara empiricamente."
+        text: "Learning rate mas bajo, manteniendo el resto igual al baseline. Entrena mas lento y estable.",
+        note: "Hipotesis: un entrenamiento mas suave no necesariamente gana en validacion; por eso se compara empiricamente."
+      },
+      e3: {
+        title: "e3_regularized",
+        text: "Dropout y regularizacion L2 sobre la red con mas capacidad.",
+        note: "Hipotesis: la regularizacion controla el sobreajuste que aparece al aumentar la capacidad."
       },
       e4: {
         title: "e4_overfitting_demo",
-        text: "Una capa oculta grande con solo 500 ejemplos. Esta configuracion esta pensada para fallar en generalizacion.",
-        values: ["0.6127", "0.6465", "0.6741", "0.6210"],
-        note: "La metrica aislada puede enganar: las curvas muestran memorizacion clara."
+        text: "Una capa oculta grande entrenada con pocos ejemplos, mas epocas y sin early stopping. Configuracion pensada para fallar en generalizacion.",
+        note: "Las curvas de aprendizaje muestran la memorizacion: el train se vuelve casi perfecto mientras la validacion se degrada."
       }
     };
 
     const answers = {
-      transformers: "Porque la consigna pide MLP y Keras Sequential. Usar Transformers resolveria otro problema y haria mas dificil defender el objetivo teorico del TP.",
-      metric: "F1 combina precision y recall. Accuracy sirve como referencia porque el dataset esta balanceado, pero F1 permite discutir mejor falsos positivos y falsos negativos.",
-      test: "Porque test debe reservarse para evaluacion final. Si elegimos el mejor modelo mirando test, contaminamos la medicion de generalizacion.",
-      overfit: "Demuestra que una red con demasiada capacidad puede memorizar entrenamiento: accuracy de train llega a 1.0, pero validacion queda pobre y su loss sube."
+      metric: "F1 combina precision y recall en un solo valor. Accuracy sirve como referencia porque el dataset esta balanceado, pero F1 permite discutir mejor los falsos positivos y falsos negativos.",
+      test: "El test debe reservarse para la evaluacion final. Si el mejor modelo se eligiera mirando test, se contaminaria la medicion de generalizacion.",
+      overfit: "Demuestra que una red con demasiada capacidad puede memorizar el entrenamiento: la accuracy de train llega a 1.0 mientras la de validacion queda baja y su loss sube."
     };
 
     const inspector = document.querySelector("#inspector");
@@ -948,17 +816,6 @@
       });
     });
 
-    document.querySelectorAll("#filters .chip").forEach((button) => {
-      button.addEventListener("click", () => {
-        document.querySelectorAll("#filters .chip").forEach((chip) => chip.classList.remove("active"));
-        button.classList.add("active");
-        const filter = button.dataset.filter;
-        document.querySelectorAll(".file").forEach((file) => {
-          file.style.display = filter === "all" || file.dataset.kind === filter ? "grid" : "none";
-        });
-      });
-    });
-
     const metricBoard = document.querySelector("#metricBoard");
     document.querySelectorAll(".exp-button").forEach((button) => {
       button.addEventListener("click", () => {
@@ -969,12 +826,6 @@
           <div>
             <h3>${data.title}</h3>
             <p>${data.text}</p>
-          </div>
-          <div class="score-grid">
-            <div class="score"><small>val_f1</small><strong>${data.values[0]}</strong></div>
-            <div class="score"><small>test_f1</small><strong>${data.values[1]}</strong></div>
-            <div class="score"><small>test_precision</small><strong>${data.values[2]}</strong></div>
-            <div class="score"><small>test_recall</small><strong>${data.values[3]}</strong></div>
           </div>
           <p>${data.note}</p>
         `;

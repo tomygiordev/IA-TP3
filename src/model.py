@@ -96,9 +96,19 @@ def build_mlp(
 
     model_layers.append(layers.Dense(1, activation="sigmoid", name="class_probability"))
 
+    if config.optimizer == "adam":
+        optimizer = keras.optimizers.Adam(learning_rate=config.learning_rate)
+    elif config.optimizer == "sgd":
+        optimizer = keras.optimizers.SGD(
+            learning_rate=config.learning_rate,
+            momentum=config.momentum,
+        )
+    else:
+        raise ValueError(f"Optimizador no soportado: {config.optimizer}")
+
     model = keras.Sequential(model_layers, name=config.name)
     model.compile(
-        optimizer=keras.optimizers.Adam(learning_rate=config.learning_rate),
+        optimizer=optimizer,
         loss="binary_crossentropy",
         metrics=[
             keras.metrics.BinaryAccuracy(name="accuracy"),

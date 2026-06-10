@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 from pathlib import Path
 
 import numpy as np
@@ -7,11 +8,12 @@ import pandas as pd
 from tensorflow import keras
 
 from config import (
+    ALL_EXPERIMENTS,
     EXPERIMENT_SEEDS,
-    EXPERIMENTS,
     OVERFITTING_EXPERIMENT,
     RANDOM_SEED,
     RESULTS_DIR,
+    SGD_EXPERIMENTS,
     THRESHOLD,
 )
 from data import load_rotten_tomatoes
@@ -80,7 +82,9 @@ def train_experiment(config, seed: int, *, early_stopping: bool = True, verbose:
         "normalize_tfidf": config.normalize_tfidf,
         "hidden_units": str(config.hidden_units),
         "parameters": model.count_params(),
+        "optimizer": config.optimizer,
         "learning_rate": config.learning_rate,
+        "momentum": config.momentum,
         "batch_size": config.batch_size,
         "epochs_requested": config.epochs,
         "epochs_ran": len(history.history["loss"]),
@@ -111,6 +115,9 @@ def summarize_runs(runs: pd.DataFrame) -> pd.DataFrame:
                 "description": first["description"],
                 "hidden_units": first["hidden_units"],
                 "parameters": int(first["parameters"]),
+                "optimizer": first["optimizer"],
+                "learning_rate": first["learning_rate"],
+                "momentum": first["momentum"],
                 "dropout": first["dropout"],
                 "l2": first["l2"],
                 "ngrams": first["ngrams"],
@@ -146,13 +153,28 @@ def evaluate_final_model(config):
     return final_row, history, splits, test_predictions
 
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--sgd-only",
+        action="store_true",
+        help="Ejecuta solamente las configuraciones SGD pendientes y omite la demo de overfitting.",
+    )
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = parse_args()
     results_dir = Path(RESULTS_DIR)
     results_dir.mkdir(exist_ok=True)
     runs_path = results_dir / "runs.csv"
 
     if runs_path.exists():
         runs = pd.read_csv(runs_path)
+        if "optimizer" not in runs:
+            runs["optimizer"] = "adam"
+        if "momentum" not in runs:
+            runs["momentum"] = 0.0
         run_rows = runs.to_dict("records")
         completed = set(zip(runs["experiment"], runs["seed"]))
         print(f"Reanudando desde {len(run_rows)} corridas guardadas")
@@ -160,7 +182,8 @@ def main() -> None:
         run_rows = []
         completed = set()
 
-    for config in EXPERIMENTS:
+    selected_experiments = SGD_EXPERIMENTS if args.sgd_only else ALL_EXPERIMENTS
+    for config in selected_experiments:
         for seed in EXPERIMENT_SEEDS:
             if (config.name, seed) in completed:
                 continue
@@ -174,7 +197,7 @@ def main() -> None:
     summary.to_csv(results_dir / "summary.csv", index=False)
 
     best_name = summary.iloc[0]["experiment"]
-    best_config = next(config for config in EXPERIMENTS if config.name == best_name)
+    best_config = next(config for config in ALL_EXPERIMENTS if config.name == best_name)
     final_row, final_history, splits, test_predictions = evaluate_final_model(best_config)
     pd.DataFrame([final_row]).to_csv(results_dir / "final_metrics.csv", index=False)
     save_confusion_matrix(
@@ -184,16 +207,17 @@ def main() -> None:
     )
     save_learning_curves(final_history, results_dir / "best_learning_curves.png")
 
-    _, _, overfitting_history, _ = train_experiment(
-        OVERFITTING_EXPERIMENT,
-        RANDOM_SEED,
-        early_stopping=False,
-        verbose=2,
-    )
-    save_learning_curves(
-        overfitting_history,
-        results_dir / "overfitting_learning_curves.png",
-    )
+    if not args.sgd_only:
+        _, _, overfitting_history, _ = train_experiment(
+            OVERFITTING_EXPERIMENT,
+            RANDOM_SEED,
+            early_stopping=False,
+            verbose=2,
+        )
+        save_learning_curves(
+            overfitting_history,
+            results_dir / "overfitting_learning_curves.png",
+        )
 
     print("\nMejor configuracion por F1 medio de validacion ajustado:")
     print(summary.iloc[0].to_string())

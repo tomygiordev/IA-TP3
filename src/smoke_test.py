@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+from tensorflow import keras
 
 from config import ExperimentConfig
 from data import load_rotten_tomatoes
@@ -60,6 +61,24 @@ def main() -> None:
 
     assert numeric_probabilities.shape == numeric_y.shape
     assert np.all((0.0 <= numeric_probabilities) & (numeric_probabilities <= 1.0))
+
+    sgd_config = ExperimentConfig(
+        name="sgd_smoke",
+        hidden_units=(4,),
+        optimizer="sgd",
+        learning_rate=0.01,
+        momentum=0.9,
+        epochs=1,
+    )
+    sgd_model = build_mlp(
+        sgd_config,
+        input_shape=(numeric_x.shape[1],),
+        input_dtype="float32",
+        preprocessor=normalizer,
+    )
+    assert isinstance(sgd_model.optimizer, keras.optimizers.SGD)
+    assert np.isclose(float(sgd_model.optimizer.momentum), 0.9)
+    sgd_model.fit(numeric_x, numeric_y, epochs=1, verbose=0)
     print("SMOKE TEST OK")
 
 

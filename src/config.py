@@ -13,7 +13,9 @@ class ExperimentConfig:
     name: str
     max_tokens: int = 5_000
     hidden_units: tuple[int, ...] = (32,)
+    optimizer: str = "adam"
     learning_rate: float = 1e-3
+    momentum: float = 0.0
     batch_size: int = 32
     epochs: int = 12
     dropout: float = 0.0
@@ -85,6 +87,60 @@ EXPERIMENTS = [
         description="MLP chica con unigramas, bigramas y normalizacion L2.",
     ),
 ]
+
+SGD_EXPERIMENTS = [
+    ExperimentConfig(
+        name="sgd_no_momentum",
+        optimizer="sgd",
+        learning_rate=1e-2,
+        epochs=20,
+        description="SGD sin momentum.",
+    ),
+    ExperimentConfig(
+        name="sgd_momentum_09",
+        optimizer="sgd",
+        learning_rate=1e-2,
+        momentum=0.9,
+        epochs=20,
+        description="SGD con momentum 0.9.",
+    ),
+    ExperimentConfig(
+        name="sgd_lr_low",
+        optimizer="sgd",
+        learning_rate=1e-3,
+        momentum=0.9,
+        epochs=20,
+        description="SGD con momentum 0.9 y learning rate menor.",
+    ),
+    ExperimentConfig(
+        name="sgd_lr_high",
+        optimizer="sgd",
+        learning_rate=1e-1,
+        momentum=0.9,
+        epochs=20,
+        description="SGD con momentum 0.9 y learning rate mayor.",
+    ),
+    ExperimentConfig(
+        name="sgd_dropout",
+        optimizer="sgd",
+        learning_rate=1e-2,
+        momentum=0.9,
+        dropout=0.2,
+        epochs=20,
+        description="SGD con momentum 0.9 y dropout 0.2.",
+    ),
+    ExperimentConfig(
+        name="sgd_l2",
+        optimizer="sgd",
+        learning_rate=1e-2,
+        momentum=0.9,
+        l2=1e-4,
+        epochs=20,
+        description="SGD con momentum 0.9 y regularizacion L2.",
+    ),
+]
+
+ALL_EXPERIMENTS = [*EXPERIMENTS, *SGD_EXPERIMENTS]
 
 
 OVERFITTING_EXPERIMENT = ExperimentConfig(

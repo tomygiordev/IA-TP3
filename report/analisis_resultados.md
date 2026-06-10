@@ -1,89 +1,72 @@
-# Analisis de resultados (insumo tecnico para el informe)
+# Análisis de resultados
 
-Este documento interpreta la evidencia generada por `python src/train.py` el 2026-06-10: `results/metrics.csv`, `results/confusion_matrix.png`, `results/best_learning_curves.png` y `results/overfitting_learning_curves.png`. Todos los numeros citados salen de esos archivos y son reproducibles (semilla fija).
+Este documento resume la evidencia de `results/runs.csv`, `results/summary.csv`, `results/final_metrics.csv` y las curvas generadas el 2026-06-10.
 
-Es un insumo de trabajo: el informe final debe redactarse con palabras propias del grupo, siguiendo la estructura de `guia_informe.md`.
+## Metodología
 
-## 1. Dataset y configuracion general
+- Dataset binario `cornell-movie-review-data/rotten_tomatoes`.
+- Splits oficiales: 8530 train, 1066 validación y 1066 test.
+- TF-IDF adaptado exclusivamente con train.
+- Diez semillas por configuración.
+- Early stopping sobre F1 de validación.
+- Umbral sigmoide ajustado exclusivamente con validación.
+- Test consultado una sola vez para el ganador global.
 
-- Dataset: `cornell-movie-review-data/rotten_tomatoes` (criticas de cine, sentimiento binario).
-- Splits oficiales: 8530 ejemplos de train, 1066 de validacion y 1066 de test, balanceados (533 positivos y 533 negativos en test).
-- Entrada: TF-IDF de 5000 tokens, adaptado solo con train.
-- Todos los experimentos comparten batch size 32 y optimizador Adam; lo que varia cada uno esta en `src/config.py`.
+Las diez configuraciones iniciales y las seis variantes SGD produjeron 160 corridas únicas.
 
-## 2. Tabla comparativa (de `metrics.csv`, ordenada por val_f1)
+## Hallazgos principales
 
-| Experimento | Config distintiva | Epocas corridas | val_f1 | test_f1 | test_acc |
-| --- | --- | --- | --- | --- | --- |
-| e3_regularized | 128 neuronas + dropout 0.5 + L2 1e-4 | 6 de 12 | **0.7647** | 0.7775 | 0.7702 |
-| e0_baseline | 32 neuronas | 6 de 12 | 0.7525 | 0.7662 | 0.7589 |
-| e1_more_capacity | 128 neuronas | 6 de 12 | 0.7447 | 0.7656 | 0.7570 |
-| e5_small_regularized | 32 neuronas + dropout 0.5 + L2 1e-4 (control) | 7 de 12 | 0.7423 | 0.7679 | 0.7692 |
-| e2_lower_learning_rate | lr 1e-4 (resto = baseline) | 12 de 12 | 0.7405 | 0.7584 | 0.7645 |
-| e4_overfitting_demo | 512 neuronas, 500 ejemplos, 35 epocas, sin early stopping | 35 de 35 | 0.6127 | 0.6465 | 0.6604 |
+### La representación fue más importante que aumentar neuronas
 
-El mejor por F1 de validacion es `e3_regularized`; el test se uso una sola vez, sobre ese modelo.
+El baseline Adam de 32 neuronas obtuvo F1 medio 0.7651. Aumentar a 128 neuronas produjo 0.7682, con intervalos solapados. La MLP de 32 neuronas con unigramas, bigramas y TF-IDF normalizado alcanzó 0.7722 y fue el ganador.
 
-## 3. Lectura experimento por experimento
+El baseline lineal sin capa oculta llegó a 0.7697. Esto muestra que el espacio TF-IDF ya es fuertemente separable de forma lineal y explica por qué agregar capacidad aporta poco.
 
-**e0_baseline.** Una red chica ya resuelve el problema de forma aceptable (val_f1 0.7525). Es el punto de referencia contra el que se mide todo lo demas.
+### La regularización no mejoró de manera universal
 
-**e1_more_capacity (vs e0).** Cuadruplicar las neuronas NO mejoro validacion (0.7447 < 0.7525). Mas parametros ajustan mas rapido el train, pero sobre una entrada TF-IDF de 5000 dimensiones tambien memorizan antes patrones poco generalizables. Es el resultado que motiva el experimento de regularizacion.
+Dropout 0.2 fue competitivo con Adam y 128 neuronas, pero no estableció una ventaja concluyente. L2 quedó cerca o por debajo de las variantes sin regularización. Early stopping ya controla parte del sobreajuste y dropout puede eliminar demasiada señal en una red chica.
 
-**e2_lower_learning_rate (vs e0).** Bajar el learning rate de 1e-3 a 1e-4 hizo el entrenamiento mas lento y estable: fue el unico experimento que agoto las 12 epocas sin que el early stopping cortara antes. Pero no gano en validacion (0.7405). Conclusion util para el informe: un cambio "mas prudente" no es automaticamente mejor; se compara empiricamente.
+Por lo tanto, que la mejor red no use dropout ni L2 no es por sí solo evidencia de fuga de datos.
 
-**e3_regularized (vs e1).** Misma capacidad que e1 (128 neuronas) pero con dropout 0.5 y L2 1e-4: pasa de 0.7447 a 0.7647 de val_f1, el mejor del lote. La regularizacion recupero la capacidad extra que e1 desperdiciaba en memorizar. Esta es la comparacion mas valiosa del TP: capacidad sin control empeora, capacidad regularizada gana.
+### SGD no superó a Adam
 
-**e5_small_regularized (control de ablacion de e3).** Para descartar que la mejora de e3 viniera solo de la regularizacion, e5 aplica el mismo dropout 0.5 + L2 1e-4 sobre la red chica de 32 neuronas. Dio val_f1 0.7423, peor que el baseline (0.7525). El cuadro completo de la ablacion: ni la capacidad sola (e1: 0.7447) ni la regularizacion sola (e5: 0.7423) mejoran a e0; solo la combinacion gana (e3: 0.7647). Las 128 neuronas no son un numero magico, son la capacidad extra que la regularizacion permite aprovechar.
+| Configuración SGD | F1 medio | Desvío |
+| --- | ---: | ---: |
+| LR 0.001, momentum 0.9 | **0.7576** | 0.0065 |
+| LR 0.01, momentum 0.9 | 0.7554 | 0.0106 |
+| LR 0.01, momentum 0.9, L2 | 0.7539 | 0.0130 |
+| LR 0.01, sin momentum | 0.7476 | 0.0285 |
+| LR 0.01, momentum 0.9, dropout 0.2 | 0.7370 | 0.0084 |
+| LR 0.1, momentum 0.9 | 0.6889 | 0.0094 |
 
-**e4_overfitting_demo.** Ver seccion 5.
+Momentum redujo la variabilidad respecto de SGD puro. El LR bajo fue la mejor variante, aunque necesitó 18.3 épocas en promedio. LR 0.1 fue demasiado agresivo y dropout perjudicó el aprendizaje.
 
-## 4. Un patron transversal: el sobreajuste aparece desde la primera epoca
+### El umbral tiene un efecto medible
 
-Dato no obvio que conviene contar: e0, e1 y e3 frenaron todos en la epoca 6, lo que con patience 5 significa que su mejor val_loss fue la **epoca 1**. Las curvas del mejor modelo (`best_learning_curves.png`) lo muestran: el loss de train baja de 0.59 a 0.10, mientras el de validacion sube de ~0.52 a ~0.86 desde el inicio; la accuracy de train llega a ~0.98 mientras la de validacion se estanca en ~0.73-0.76.
+El ganador obtuvo F1 medio 0.7592 con umbral fijo 0.5 y 0.7722 al ajustar el corte en validación. Esa diferencia supera la observada entre 32 y 128 neuronas.
 
-Interpretacion: con TF-IDF de alta dimension, hasta una MLP moderada tiene capacidad de sobra para este dataset, y empieza a memorizar casi de inmediato. Las metricas finales son buenas porque `EarlyStopping(restore_best_weights=True)` devuelve los pesos del mejor momento de validacion, no los del final. El modelo "bueno" es, en realidad, el modelo detenido a tiempo.
+La capa final continúa siendo `Dense(1, activation="sigmoid")`; el ajuste solo decide en qué probabilidad se transforma la salida en clase.
 
-## 5. La simulacion de overfitting (e4)
+## Evaluación final
 
-Configuracion pensada para fallar: 512 neuronas, solo 500 ejemplos de train (muestreo balanceado), 35 epocas y sin early stopping. Las curvas (`overfitting_learning_curves.png`) muestran el patron de manual:
+El ganador fue `e9_mlp32_bigrams`. Reentrenado con semilla 42, su umbral de validación fue 0.4851.
 
-- Loss de train cae practicamente a 0 hacia la epoca 5 y se queda ahi.
-- Accuracy de train llega a 1.0 en ~3 epocas: memorizo los 500 ejemplos.
-- Loss de validacion baja apenas al principio (~0.64) y despues sube sostenido hasta ~0.84.
-- Accuracy de validacion queda estancada en ~0.64.
+| Métrica test | Valor |
+| --- | ---: |
+| Accuracy | 0.7824 |
+| Precision | 0.7573 |
+| Recall | 0.8311 |
+| F1 | 0.7925 |
 
-La brecha train-validacion (1.0 vs 0.64) es la definicion visual de sobreajuste: el modelo no aprendio el problema, aprendio el dataset. Comparado con e3 (mismo exceso de capacidad pero con datos completos y regularizacion), queda claro que el overfitting no es un accidente sino una consecuencia predecible de capacidad alta + pocos datos + entrenamiento largo sin control.
+La matriz final contiene 391 verdaderos negativos, 142 falsos positivos, 90 falsos negativos y 443 verdaderos positivos. El modelo favorece recall positivo: recupera más críticas positivas a costa de aceptar falsos positivos.
 
-## 6. Matriz de confusion y eleccion de metrica (e3 en test, umbral 0.5)
+## Overfitting
 
-|  | Predicho negativo | Predicho positivo |
-| --- | --- | --- |
-| **Real negativo** | 393 (TN) | 140 (FP) |
-| **Real positivo** | 105 (FN) | 428 (TP) |
+La simulación intencional usa 512 neuronas, 500 ejemplos, 35 épocas y no aplica early stopping. Train llega a accuracy 1.0 y loss casi cero, mientras validación queda cerca de 0.64 y su loss aumenta. Esta corrida demuestra memorización y se mantiene separada de la selección de hiperparámetros.
 
-Derivados (clase positiva): precision 428/568 = 0.7535, recall 428/533 = 0.8030, F1 0.7775. Para la clase negativa, el recall (especificidad) es 393/533 = 0.7373.
+## Limitaciones
 
-Lectura del patron de errores: el modelo es levemente "optimista" — recupera el 80% de las criticas positivas, a costa de marcar como positivas 140 criticas que eran negativas (26% de los negativos). El recall positivo supera a la precision positiva en ~5 puntos: prefiere no perderse positivos aunque acepte mas falsos positivos.
-
-Justificacion de la metrica principal: el dataset esta balanceado, asi que accuracy (0.7702) es una referencia honesta. Aun asi se elige **F1** porque resume en un solo numero el compromiso precision/recall y obliga a mirar los dos tipos de error por separado — que es exactamente lo que la matriz de confusion permite discutir. Con clases balanceadas F1 y accuracy cuentan historias parecidas (0.7775 vs 0.7702); la diferencia esta en que F1 hace visible la asimetria precision/recall que accuracy esconde.
-
-Coherencia metodologica: val_f1 0.7647 y test_f1 0.7775 son casi iguales, senal de que la seleccion por validacion no sobreestimo el rendimiento real.
-
-## 7. Detalles finos (observaciones que distinguen un buen informe)
-
-Los dos graficos de apoyo de esta seccion se generan desde `metrics.csv` con `python src/report_charts.py`.
-
-- **Hay dos overfittings, no uno.** El de e4 es simulado y extremo. Pero e0, e1 y e3 tambien sobreajustan por defecto (mejor val_loss en la epoca 1); la diferencia es que el early stopping lo controla. Comparar `best_learning_curves.png` con `overfitting_learning_curves.png` lado a lado muestra el mismo patron a distinta escala. El sobreajuste es el comportamiento natural de una red con capacidad de sobra, no un accidente que hubo que fabricar.
-- **Los hiperparametros mueven el tipo de error** (`results/precision_recall_test.png`). Con el mismo umbral 0.5, e0/e1/e3 son "optimistas" (recall > precision en test), pero dos experimentos invierten el balance: e2 (precision 0.7787 > recall 0.7392) y, mas levemente, e5 (0.7723 > 0.7636). El factor comun: ambos "frenan" el aprendizaje (pasos chicos en e2, dropout en e5) y producen modelos mas conservadores para declarar positivos. Cambiar un hiperparametro no solo sube o baja F1: puede cambiar que clase de error comete el modelo. Argumento concreto para mirar precision y recall por separado.
-- **Test dio mas alto que validacion en los 6 experimentos** (`results/val_vs_test_f1.png`). test_f1 > val_f1 en todos los casos. Que ocurra en los seis sugiere que el split de test es levemente mas "facil" que el de validacion: propiedad de los splits oficiales, no error metodologico, porque los modelos se comparan entre si siempre sobre validacion.
-- **El modelo sobreajustado igual aprendio algo.** En `val_vs_test_f1.png`, e4 queda claramente debajo del resto pero bien arriba de la linea de azar (0.5): memoriza su train (accuracy 1.0) pero rinde 0.6604 en test. El overfitting degrada la generalizacion, no la destruye; por eso la metrica aislada engana y hacen falta las curvas.
-- **Reproducibilidad verificada.** Semilla global fija + determinismo de TensorFlow: al reentrenar el lote completo, e3 reprodujo sus metricas digito por digito. Todo numero del informe se regenera con `python src/train.py`.
-- **e2 fue el unico que agoto sus 12 epocas.** Aprender mas despacio retrasa la memorizacion (el quiebre de validacion llega mas tarde), pero retrasar el sobreajuste no es evitarlo ni garantiza mejor resultado: e2 quedo ultimo entre los modelos normales.
-
-## 8. Limitaciones (para el cierre del informe)
-
-- Umbral fijo en 0.5: no se exploro ajustarlo para mover el balance precision/recall.
-- TF-IDF ignora orden y contexto de las palabras; un baseline razonable, no el techo del problema.
-- Sin validacion cruzada: un solo split de validacion, mitigado por usar los splits oficiales del dataset.
-- No se analizaron ejemplos mal clasificados individualmente.
+- Las semillas miden variación de inicialización y entrenamiento, pero usan el mismo split oficial.
+- TF-IDF no conserva orden ni contexto completo.
+- El umbral se optimiza para F1; otra aplicación podría priorizar precision o recall.
+- No se realizó análisis cualitativo de ejemplos mal clasificados.

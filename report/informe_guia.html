@@ -464,11 +464,12 @@
           </div>
           <div class="card">
             <h3>Arquitectura y entrenamiento</h3>
-            <p>La red es un <code>keras.Sequential</code>: capas densas con activacion ReLU y una salida sigmoide que devuelve la probabilidad de clase positiva, entrenada con <code>binary_crossentropy</code> y Adam.</p>
+            <p>La red es un <code>keras.Sequential</code>: capas densas con activacion ReLU y una salida sigmoide que devuelve la probabilidad de clase positiva, entrenada con <code>binary_crossentropy</code>. La matriz principal usa Adam y una familia posterior permite compararlo con SGD.</p>
             <ul>
-              <li>La probabilidad se convierte en clase con un umbral de 0.5.</li>
-              <li>Los experimentos comparan hiperparametros usando <b>validacion</b>; el test se reserva para una unica evaluacion final.</li>
-              <li>Todos los experimentos (salvo la demo de overfitting) usan early stopping que restaura los mejores pesos segun validacion.</li>
+              <li>Cada configuracion se entrena con <b>10 semillas</b>; se informa media, desvio e intervalo bootstrap del F1.</li>
+              <li>El umbral sigmoide se ajusta para maximizar F1 usando exclusivamente validacion; no se supone que 0.5 sea siempre optimo.</li>
+              <li>Los hiperparametros se seleccionan con validacion y el test se reserva para una unica evaluacion final.</li>
+              <li>Todos los experimentos (salvo la demo de overfitting) usan early stopping sobre F1 de validacion y restauran los mejores pesos.</li>
             </ul>
           </div>
         </div>
@@ -486,7 +487,7 @@
         <div class="grid-2">
           <figure class="chart-wrap">
             <img src="../results/overfitting_learning_curves.png" alt="Curvas de aprendizaje del experimento de overfitting: loss y accuracy de train y validacion">
-            <figcaption>e4_overfitting_demo: 512 neuronas, 500 ejemplos, 35 epocas, sin early stopping.</figcaption>
+            <figcaption>overfitting_demo: 512 neuronas, 500 ejemplos, 35 epocas, sin early stopping.</figcaption>
           </figure>
           <div class="card">
             <h3>Como leer estas curvas</h3>
@@ -507,97 +508,179 @@
             <div class="tagline">04 / experimentos</div>
             <h2>Cada experimento cambia una variable y pone a prueba una hipotesis.</h2>
           </div>
-          <p>Corresponde a la pagina 4 del informe. Los modelos se comparan por F1 de validacion; los numeros provienen de <code>results/metrics.csv</code> (corrida con semilla fija, 2026-06-10).</p>
+          <p>Corresponde a la pagina 4 del informe. Los modelos se ordenan por el F1 de validacion ajustado medio de 10 semillas; los numeros provienen de <code>results/summary.csv</code>.</p>
         </div>
 
         <table>
           <thead>
             <tr>
               <th>Experimento</th>
-              <th>Configuracion distintiva</th>
-              <th>Epocas corridas</th>
-              <th>val_f1</th>
-              <th>test_f1</th>
-              <th>test_acc</th>
+              <th>Optimizador y configuracion</th>
+              <th>F1 medio</th>
+              <th>Desvio</th>
+              <th>IC bootstrap 95%</th>
+              <th>Epocas medias</th>
             </tr>
           </thead>
           <tbody>
             <tr class="best">
-              <td><code>e3_regularized</code></td>
-              <td>128 neuronas + dropout 0.5 + L2 1e-4</td>
-              <td class="num">6 de 12</td>
-              <td class="num"><b>0.7647</b></td>
-              <td class="num">0.7775</td>
-              <td class="num">0.7702</td>
+              <td><code>e9_mlp32_bigrams</code></td>
+              <td>Adam, 32 neuronas, unigramas+bigrams, TF-IDF normalizado</td>
+              <td class="num"><b>0.7722</b></td>
+              <td class="num">0.0034</td>
+              <td class="num">[0.7701; 0.7742]</td>
+              <td class="num">8.7</td>
+            </tr>
+            <tr>
+              <td><code>e5_dropout_128</code></td>
+              <td>Adam, 128 neuronas, dropout 0.2</td>
+              <td class="num">0.7697</td>
+              <td class="num">0.0047</td>
+              <td class="num">[0.7670; 0.7725]</td>
+              <td class="num">9.2</td>
+            </tr>
+            <tr>
+              <td><code>e1_linear</code></td>
+              <td>Adam, salida lineal sobre TF-IDF, sin capa oculta</td>
+              <td class="num">0.7697</td>
+              <td class="num">0.0021</td>
+              <td class="num">[0.7685; 0.7709]</td>
+              <td class="num">10.3</td>
+            </tr>
+            <tr>
+              <td><code>e3_dropout_32</code></td>
+              <td>Adam, 32 neuronas, dropout 0.2</td>
+              <td class="num">0.7693</td>
+              <td class="num">0.0030</td>
+              <td class="num">[0.7676; 0.7711]</td>
+              <td class="num">8.9</td>
+            </tr>
+            <tr>
+              <td><code>e7_combined_128</code></td>
+              <td>Adam, 128 neuronas, dropout 0.5 + L2</td>
+              <td class="num">0.7685</td>
+              <td class="num">0.0056</td>
+              <td class="num">[0.7650; 0.7716]</td>
+              <td class="num">9.2</td>
+            </tr>
+            <tr>
+              <td><code>e2_more_capacity</code></td>
+              <td>Adam, 128 neuronas, sin regularizacion</td>
+              <td class="num">0.7682</td>
+              <td class="num">0.0036</td>
+              <td class="num">[0.7662; 0.7703]</td>
+              <td class="num">8.9</td>
             </tr>
             <tr>
               <td><code>e0_baseline</code></td>
-              <td>32 neuronas</td>
-              <td class="num">6 de 12</td>
-              <td class="num">0.7525</td>
-              <td class="num">0.7662</td>
-              <td class="num">0.7589</td>
+              <td>Adam, 32 neuronas, unigramas</td>
+              <td class="num">0.7651</td>
+              <td class="num">0.0033</td>
+              <td class="num">[0.7632; 0.7670]</td>
+              <td class="num">8.1</td>
             </tr>
             <tr>
-              <td><code>e1_more_capacity</code></td>
-              <td>128 neuronas</td>
-              <td class="num">6 de 12</td>
-              <td class="num">0.7447</td>
-              <td class="num">0.7656</td>
-              <td class="num">0.7570</td>
+              <td><code>e6_l2_128</code></td>
+              <td>Adam, 128 neuronas, L2</td>
+              <td class="num">0.7658</td>
+              <td class="num">0.0049</td>
+              <td class="num">[0.7630; 0.7687]</td>
+              <td class="num">9.5</td>
             </tr>
             <tr>
-              <td><code>e5_small_regularized</code></td>
-              <td>32 neuronas + dropout 0.5 + L2 1e-4 (control de ablacion)</td>
-              <td class="num">7 de 12</td>
-              <td class="num">0.7423</td>
-              <td class="num">0.7679</td>
-              <td class="num">0.7692</td>
+              <td><code>e4_l2_32</code></td>
+              <td>Adam, 32 neuronas, L2</td>
+              <td class="num">0.7648</td>
+              <td class="num">0.0040</td>
+              <td class="num">[0.7624; 0.7671]</td>
+              <td class="num">9.3</td>
             </tr>
             <tr>
-              <td><code>e2_lower_learning_rate</code></td>
-              <td>learning rate 1e-4 (resto igual al baseline)</td>
-              <td class="num">12 de 12</td>
-              <td class="num">0.7405</td>
-              <td class="num">0.7584</td>
-              <td class="num">0.7645</td>
+              <td><code>e8_linear_bigrams</code></td>
+              <td>Adam, lineal, unigramas+bigrams normalizados</td>
+              <td class="num">0.7613</td>
+              <td class="num">0.0018</td>
+              <td class="num">[0.7602; 0.7624]</td>
+              <td class="num">11.5</td>
             </tr>
             <tr>
-              <td><code>e4_overfitting_demo</code></td>
-              <td>512 neuronas, 500 ejemplos, sin early stopping</td>
-              <td class="num">35 de 35</td>
-              <td class="num">0.6127</td>
-              <td class="num">0.6465</td>
-              <td class="num">0.6604</td>
+              <td><code>sgd_lr_low</code></td>
+              <td>SGD, LR 0.001, momentum 0.9</td>
+              <td class="num">0.7576</td>
+              <td class="num">0.0065</td>
+              <td class="num">[0.7536; 0.7612]</td>
+              <td class="num">18.3</td>
+            </tr>
+            <tr>
+              <td><code>sgd_momentum_09</code></td>
+              <td>SGD, LR 0.01, momentum 0.9</td>
+              <td class="num">0.7554</td>
+              <td class="num">0.0106</td>
+              <td class="num">[0.7487; 0.7611]</td>
+              <td class="num">10.9</td>
+            </tr>
+            <tr>
+              <td><code>sgd_l2</code></td>
+              <td>SGD, LR 0.01, momentum 0.9, L2</td>
+              <td class="num">0.7539</td>
+              <td class="num">0.0130</td>
+              <td class="num">[0.7459; 0.7608]</td>
+              <td class="num">11.2</td>
+            </tr>
+            <tr>
+              <td><code>sgd_no_momentum</code></td>
+              <td>SGD, LR 0.01, sin momentum</td>
+              <td class="num">0.7476</td>
+              <td class="num">0.0285</td>
+              <td class="num">[0.7285; 0.7601]</td>
+              <td class="num">17.1</td>
+            </tr>
+            <tr>
+              <td><code>sgd_dropout</code></td>
+              <td>SGD, LR 0.01, momentum 0.9, dropout 0.2</td>
+              <td class="num">0.7370</td>
+              <td class="num">0.0084</td>
+              <td class="num">[0.7319; 0.7415]</td>
+              <td class="num">11.5</td>
+            </tr>
+            <tr>
+              <td><code>sgd_lr_high</code></td>
+              <td>SGD, LR 0.1, momentum 0.9</td>
+              <td class="num">0.6889</td>
+              <td class="num">0.0094</td>
+              <td class="num">[0.6839; 0.6950]</td>
+              <td class="num">8.4</td>
             </tr>
           </tbody>
         </table>
 
         <div class="bars" aria-label="Comparacion de F1 de validacion">
-          <div class="bar-row"><span>e3_regularized</span><div class="bar-track"><span style="--w: 100%"></span></div><span class="num">0.7647</span></div>
-          <div class="bar-row"><span>e0_baseline</span><div class="bar-track"><span style="--w: 98.4%"></span></div><span class="num">0.7525</span></div>
-          <div class="bar-row"><span>e1_more_capacity</span><div class="bar-track"><span style="--w: 97.4%"></span></div><span class="num">0.7447</span></div>
-          <div class="bar-row"><span>e5_small_regularized</span><div class="bar-track"><span style="--w: 97.1%"></span></div><span class="num">0.7423</span></div>
-          <div class="bar-row"><span>e2_lower_lr</span><div class="bar-track"><span style="--w: 96.8%"></span></div><span class="num">0.7405</span></div>
-          <div class="bar-row"><span>e4_overfitting</span><div class="bar-track"><span style="--w: 80.1%"></span></div><span class="num">0.6127</span></div>
+          <div class="bar-row"><span>Adam + bigrams</span><div class="bar-track"><span style="--w: 100%"></span></div><span class="num">0.7722</span></div>
+          <div class="bar-row"><span>Adam lineal</span><div class="bar-track"><span style="--w: 99.7%"></span></div><span class="num">0.7697</span></div>
+          <div class="bar-row"><span>Adam 32</span><div class="bar-track"><span style="--w: 99.1%"></span></div><span class="num">0.7651</span></div>
+          <div class="bar-row"><span>SGD LR bajo</span><div class="bar-track"><span style="--w: 98.1%"></span></div><span class="num">0.7576</span></div>
+          <div class="bar-row"><span>SGD momentum</span><div class="bar-track"><span style="--w: 97.8%"></span></div><span class="num">0.7554</span></div>
+          <div class="bar-row"><span>SGD sin momentum</span><div class="bar-track"><span style="--w: 96.8%"></span></div><span class="num">0.7476</span></div>
+          <div class="bar-row"><span>SGD dropout</span><div class="bar-track"><span style="--w: 95.4%"></span></div><span class="num">0.7370</span></div>
+          <div class="bar-row"><span>SGD LR alto</span><div class="bar-track"><span style="--w: 89.2%"></span></div><span class="num">0.6889</span></div>
         </div>
 
         <div class="reading-list">
           <div class="reading">
-            <b>e1 vs e0: mas capacidad no mejoro validacion</b>
-            <p>Cuadruplicar las neuronas (32 a 128) bajo el val_f1 de 0.7525 a 0.7447. Sobre una entrada TF-IDF de 5000 dimensiones, los parametros extra se usan antes para memorizar patrones especificos del train que para generalizar mejor. Este resultado es el que motiva el experimento de regularizacion.</p>
+            <b>La representacion aporto mas que cuadruplicar las neuronas</b>
+            <p>Pasar de 32 a 128 neuronas llevo el F1 medio de <span class="num">0.7651</span> a <span class="num">0.7682</span>, una diferencia pequena y con intervalos solapados. En cambio, 32 neuronas con unigramas, bigramas y normalizacion alcanzaron <span class="num">0.7722</span>. El cuello de botella estaba mas cerca de la representacion TF-IDF que de la capacidad de la capa oculta.</p>
           </div>
           <div class="reading">
-            <b>e2 vs e0: mas lento y estable no es automaticamente mejor</b>
-            <p>Bajar el learning rate de 1e-3 a 1e-4 hizo el entrenamiento mas suave: fue el unico experimento que agoto las 12 epocas sin que el early stopping cortara. Pero no gano en validacion (0.7405). La leccion metodologica: los cambios "prudentes" tambien se validan empiricamente, no se asumen.</p>
+            <b>El baseline lineal casi empato a las MLP</b>
+            <p>La salida sigmoide conectada directamente al TF-IDF obtuvo <span class="num">0.7697</span>, por encima de varias redes con capa oculta. Esto indica que gran parte de la separacion ya es lineal en el espacio de palabras; agregar neuronas aumenta mucho los parametros, pero no garantiza informacion nueva.</p>
           </div>
           <div class="reading">
-            <b>e3 vs e1 vs e5: la ablacion completa de capacidad y regularizacion</b>
-            <p>Con la misma red de 128 neuronas que e1, agregar dropout 0.5 y L2 1e-4 subio el val_f1 de 0.7447 a 0.7647, el mejor del lote. El control e5 cierra la ablacion: 32 neuronas con la misma regularizacion dan 0.7423, tambien por debajo del baseline. Ni la capacidad sola (e1) ni la regularizacion sola (e5) mejoran a e0; solo la combinacion gana. Es la comparacion mas valiosa del TP: la regularizacion no es un bonus generico, es lo que permite aprovechar la capacidad extra.</p>
+            <b>SGD necesito momentum y pasos moderados, pero no gano</b>
+            <p>La mejor variante SGD uso LR <span class="num">0.001</span> y momentum <span class="num">0.9</span>: llego a <span class="num">0.7576</span> y necesito 18.3 epocas en promedio. Sin momentum la variabilidad subio mucho (desvio <span class="num">0.0285</span>); con LR 0.1 el F1 cayo a <span class="num">0.6889</span>. Adam fue mas fuerte y estable para esta entrada dispersa.</p>
           </div>
           <div class="reading">
-            <b>Un patron transversal: el sobreajuste empieza en la primera epoca</b>
-            <p>e0, e1 y e3 frenaron todos en la epoca 6; con patience 5, eso significa que su mejor val_loss fue la epoca 1. Con TF-IDF de alta dimension, hasta una MLP moderada tiene capacidad de sobra para este dataset y empieza a memorizar casi de inmediato. Las metricas finales son buenas porque el early stopping restaura los pesos del mejor momento de validacion: el modelo "bueno" es el modelo detenido a tiempo.</p>
+            <b>La regularizacion no es automaticamente beneficiosa</b>
+            <p>Dropout 0.2 llevo SGD de <span class="num">0.7554</span> a <span class="num">0.7370</span>; L2 quedo cerca, pero no mejoro de forma convincente (<span class="num">0.7539</span>). Que una red sin regularizacion gane no prueba una fuga: puede indicar que early stopping ya controla el sobreajuste y que dropout elimina demasiada señal en una capa de solo 32 unidades.</p>
           </div>
         </div>
       </section>
@@ -614,29 +697,29 @@
         <div class="grid-2">
           <figure class="chart-wrap">
             <img src="../results/confusion_matrix.png" alt="Matriz de confusion del mejor modelo en test">
-            <figcaption>e3_regularized en test (1066 ejemplos, umbral 0.5).</figcaption>
+            <figcaption>e9_mlp32_bigrams en test (1066 ejemplos, umbral 0.4851 elegido en validacion).</figcaption>
           </figure>
           <div class="card">
             <h3>Lectura de la matriz</h3>
             <ul>
-              <li>Aciertos: <span class="num">393</span> negativos y <span class="num">428</span> positivos (accuracy <span class="num">0.7702</span>).</li>
-              <li>Falsos positivos: <span class="num">140</span> criticas negativas marcadas como positivas (el 26% de los negativos).</li>
-              <li>Falsos negativos: <span class="num">105</span> criticas positivas que se perdieron.</li>
-              <li>Precision positiva <span class="num">0.7535</span>, recall positivo <span class="num">0.8030</span>, F1 <span class="num">0.7775</span>.</li>
+              <li>Aciertos: <span class="num">391</span> negativos y <span class="num">443</span> positivos (accuracy <span class="num">0.7824</span>).</li>
+              <li>Falsos positivos: <span class="num">142</span> criticas negativas marcadas como positivas.</li>
+              <li>Falsos negativos: <span class="num">90</span> criticas positivas que se perdieron.</li>
+              <li>Precision positiva <span class="num">0.7573</span>, recall positivo <span class="num">0.8311</span>, F1 <span class="num">0.7925</span>.</li>
             </ul>
-            <p>El patron de errores muestra un modelo levemente "optimista": recupera el 80% de las criticas positivas a costa de aceptar mas falsos positivos. El recall supera a la precision en unos 5 puntos; ese desbalance es invisible si solo se mira accuracy.</p>
+            <p>El patron de errores muestra un modelo "optimista": recupera el 83% de las criticas positivas a costa de aceptar mas falsos positivos. El recall supera a la precision en 7.4 puntos; ese desbalance es invisible si solo se mira accuracy.</p>
           </div>
         </div>
 
         <div class="grid-2" style="margin-top: 24px;">
           <figure class="chart-wrap">
             <img src="../results/best_learning_curves.png" alt="Curvas de aprendizaje del mejor modelo">
-            <figcaption>Curvas del mejor modelo: incluso e3 sobreajusta; el early stopping restaura los pesos de la mejor epoca.</figcaption>
+            <figcaption>Curvas de e9_mlp32_bigrams: el early stopping restaura los pesos de la mejor epoca de validacion.</figcaption>
           </figure>
           <div class="card">
             <h3>Por que F1 como metrica principal</h3>
-            <p>El dataset esta balanceado, asi que accuracy (<span class="num">0.7702</span>) es una referencia honesta. Aun asi se elige F1 porque resume en un solo numero el compromiso entre precision y recall, y obliga a discutir los dos tipos de error que la matriz hace visibles. Con clases balanceadas, F1 y accuracy cuentan historias parecidas (<span class="num">0.7775</span> vs <span class="num">0.7702</span>); la diferencia es que F1 expone la asimetria precision/recall que accuracy esconde.</p>
-            <p>Senal de buena metodologia: el F1 de validacion (<span class="num">0.7647</span>) y el de test (<span class="num">0.7775</span>) son casi iguales. La seleccion por validacion no sobreestimo el rendimiento real del modelo.</p>
+            <p>El dataset esta balanceado, asi que accuracy (<span class="num">0.7824</span>) es una referencia honesta. Aun asi se elige F1 porque resume el compromiso entre precision y recall. En test, F1 y accuracy cuentan historias parecidas (<span class="num">0.7925</span> vs <span class="num">0.7824</span>), pero F1 deja visible la preferencia por recuperar positivos.</p>
+            <p>La configuracion se eligio por su promedio sobre 10 semillas, luego se reentreno con semilla 42, se fijo el umbral <span class="num">0.4851</span> usando validacion y recien entonces se consulto test. El F1 ajustado de validacion fue <span class="num">0.7732</span>; que test resulte algo mayor no intervino en la seleccion.</p>
           </div>
         </div>
       </section>
@@ -647,20 +730,20 @@
             <div class="tagline">06 / detalles finos</div>
             <h2>Lo que se ve solo cuando se miran los datos de cerca.</h2>
           </div>
-          <p>Observaciones que no entran en una tabla pero distinguen un informe que reporta numeros de uno que los entiende. Todas salen de <code>results/metrics.csv</code> y de las curvas.</p>
+          <p>Observaciones que no entran en una tabla pero distinguen un informe que reporta numeros de uno que los entiende. Surgen de <code>results/runs.csv</code>, <code>results/summary.csv</code> y de las curvas.</p>
         </div>
 
         <div class="reading-list">
           <div class="reading">
             <b>Hay dos overfittings en este TP, no uno</b>
-            <p>El de la seccion 3 (e4) es el simulado: capacidad enorme, 500 ejemplos, 35 epocas y sin early stopping, fabricado para que falle. Pero la red tambien sobreajusta <i>por defecto</i>: e0, e1 y e3 tienen su mejor val_loss en la epoca 1, y de ahi en adelante validacion empeora mientras train mejora. La diferencia entre ambos casos no es el fenomeno, es el control: el early stopping detecta el quiebre y restaura los mejores pesos. El sobreajuste no es un accidente exotico que hubo que provocar: es el comportamiento natural de una red con capacidad de sobra, y lo que cambia es si se lo controla o se lo deja correr. Las dos curvas, lado a lado, muestran el mismo patron a distinta escala:</p>
+            <p>El de la seccion 3 es el simulado: capacidad enorme, 500 ejemplos, 35 epocas y sin early stopping, fabricado para que falle. El entrenamiento normal tambien empieza a separar train de validacion, pero el early stopping detecta el quiebre y restaura los mejores pesos. La diferencia no es la existencia del fenomeno, sino si se lo controla o se lo deja avanzar. Las dos curvas, lado a lado, muestran el mismo patron a distinta escala:</p>
           </div>
         </div>
 
         <div class="grid-2" style="margin-top: 16px;">
           <figure class="chart-wrap">
             <img src="../results/best_learning_curves.png" alt="Curvas del mejor modelo: overfitting natural controlado por early stopping">
-            <figcaption>Overfitting natural (e3, el mejor modelo): validacion se degrada desde la epoca 1, pero el early stopping corta en la 6 y restaura los mejores pesos.</figcaption>
+            <figcaption>Entrenamiento controlado (e9): early stopping conserva la epoca con mejor F1 de validacion.</figcaption>
           </figure>
           <figure class="chart-wrap">
             <img src="../results/overfitting_learning_curves.png" alt="Curvas del experimento de overfitting simulado, sin control">
@@ -669,37 +752,26 @@
         </div>
 
         <div class="grid-2" style="margin-top: 24px;">
-          <figure class="chart-wrap">
-            <img src="../results/precision_recall_test.png" alt="Barras de precision y recall en test por experimento">
-            <figcaption>Generado desde metrics.csv con <code>python src/report_charts.py</code>.</figcaption>
-          </figure>
           <div class="card">
-            <h3>Los hiperparametros mueven el tipo de error, no solo el rendimiento</h3>
-            <p>Con el mismo umbral de 0.5, e0, e1 y e3 son modelos "optimistas": el recall (naranja) supera a la precision (azul). Pero dos experimentos invierten el balance: e2, el del learning rate bajo (precision <span class="num">0.7787</span> vs recall <span class="num">0.7392</span>) y, mas levemente, e5, la red chica regularizada (<span class="num">0.7723</span> vs <span class="num">0.7636</span>). El factor comun es que ambos "frenan" el aprendizaje — uno con pasos chicos, el otro con dropout — y eso produce modelos mas conservadores para declarar positivos.</p>
-            <p>Cambiar un hiperparametro no solo sube o baja el F1: puede cambiar que tipo de error comete el modelo. Es el argumento concreto de por que mirar precision y recall por separado, y no quedarse con una sola cifra.</p>
+            <h3>El umbral importa casi tanto como algunas arquitecturas</h3>
+            <p>El ganador obtiene F1 medio <span class="num">0.7592</span> con umbral fijo 0.5 y <span class="num">0.7722</span> al elegir el corte en validacion. Esa mejora de 1.3 puntos es mayor que la diferencia entre 32 y 128 neuronas. La salida sigue siendo una sigmoide; lo que cambia es donde se transforma la probabilidad en clase.</p>
+            <p>El umbral no se busca en test. Cada semilla lo estima sobre validacion y la evaluacion final congela el valor antes de mirar las etiquetas reservadas.</p>
           </div>
-        </div>
-
-        <div class="grid-2" style="margin-top: 24px;">
           <div class="card">
-            <h3>Test dio mas alto que validacion en los 6 experimentos</h3>
-            <p>El test_f1 (naranja) supera al val_f1 (azul) en todos los casos, por ejemplo e3: <span class="num">0.7775</span> contra <span class="num">0.7647</span>. Si fuera un solo experimento podria ser azar, pero que pase en los seis sugiere que el split de test del dataset es levemente mas "facil" que el de validacion. Esto no invalida nada: los modelos se comparan entre si siempre sobre el mismo conjunto (validacion), asi que la eleccion del mejor no se ve afectada. Es una propiedad de los splits oficiales, y reconocerla muestra lectura critica de los datos.</p>
-            <p>El mismo grafico responde otra pregunta: cuanto aprendio el modelo sobreajustado. e4 queda claramente por debajo del resto, pero bien arriba de la linea punteada del azar (<span class="num">0.5</span>): memorizar el train degrado su generalizacion, no la destruyo. Incluso memorizando, la red capturo patrones reales (palabras fuertemente positivas o negativas) que transfieren a datos nuevos. Por eso una metrica aislada engana: <span class="num">0.65</span> "no parece tan mal" hasta que las curvas muestran que el modelo dejo de aprender en la epoca 3.</p>
+            <h3>Los intervalos evitan declarar ganadores por azar</h3>
+            <p>Varias configuraciones Adam quedan entre <span class="num">0.765</span> y <span class="num">0.770</span> y sus intervalos se solapan. Por eso no corresponde afirmar que 128 neuronas son superiores de manera concluyente. El ganador con bigramas tiene una ventaja pequena, pero consistente: su intervalo [<span class="num">0.7701</span>; <span class="num">0.7742</span>] queda por encima del baseline de 32 neuronas.</p>
+            <p>SGD sin momentum ilustra el riesgo de mirar una sola corrida: su desvio es casi nueve veces el del ganador. Dependiendo de la semilla puede parecer competitivo o muy inferior.</p>
           </div>
-          <figure class="chart-wrap">
-            <img src="../results/val_vs_test_f1.png" alt="Barras de F1 de validacion y test por experimento, con linea de nivel de azar">
-            <figcaption>Generado desde metrics.csv con <code>python src/report_charts.py</code>. La linea punteada marca el nivel de azar.</figcaption>
-          </figure>
         </div>
 
         <div class="reading-list" style="margin-top: 24px;">
           <div class="reading">
             <b>Los resultados son reproducibles, y eso se verifico</b>
-            <p>El proyecto fija una semilla global y pide determinismo a TensorFlow. No es decorativo: al reentrenar todo el lote (tras corregir la configuracion de e2), e3 reprodujo exactamente las mismas metricas, digito por digito. Para un informe academico esto importa: cualquier numero del informe se puede regenerar ejecutando <code>python src/train.py</code>, y la comparacion entre experimentos no depende de la suerte de una corrida.</p>
+            <p>Cada par configuracion-semilla reinicia TensorFlow antes de entrenar. Las diez semillas son identicas para todos los experimentos y <code>runs.csv</code> se guarda de forma incremental, por lo que reordenar configuraciones o reanudar una ejecucion no cambia las comparaciones ya obtenidas.</p>
           </div>
           <div class="reading">
-            <b>e2 fue el unico que agoto sus epocas, y eso tambien cuenta una historia</b>
-            <p>Con learning rate 1e-4, e2 corrio las 12 epocas completas mientras los demas frenaron en la 6. Aprender mas despacio retrasa la memorizacion: el quiebre de validacion llega mas tarde. Pero retrasar el sobreajuste no es evitarlo, y tampoco garantiza mejor resultado final (e2 quedo ultimo entre los modelos normales). La velocidad de aprendizaje cambia la dinamica del entrenamiento, no el destino.</p>
+            <b>SGD bajo aprendio mas lento, no mejor</b>
+            <p>Con LR 0.001, SGD necesito 18.3 epocas medias y fue su mejor variante. Con LR 0.01 y momentum uso 10.9 epocas; con LR 0.1 se volvio inestable y el early stopping corto pronto. La tasa de aprendizaje cambia tanto la calidad final como la velocidad con que aparece el sobreajuste.</p>
           </div>
         </div>
       </section>
@@ -717,9 +789,9 @@
           <h3>El objetivo se cumplio: entender el proceso, no maximizar el numero.</h3>
           <p>El TP demuestra el ciclo completo: representar texto para una MLP, comparar hiperparametros con validacion, reconocer y provocar sobreajuste, y leer el resultado final con una matriz de confusion. Las limitaciones que conviene declarar:</p>
           <ul>
-            <li>Umbral fijo en 0.5: no se exploro ajustarlo para mover el balance precision/recall.</li>
+            <li>El umbral se optimiza para F1; otra aplicacion podria preferir recall o precision y elegir un corte diferente.</li>
             <li>TF-IDF ignora orden y contexto de las palabras; es un baseline razonable, no el techo del problema.</li>
-            <li>Sin validacion cruzada: un solo split de validacion, mitigado por usar los splits oficiales del dataset.</li>
+            <li>No se usa validacion cruzada: las diez semillas miden inicializacion y entrenamiento, pero comparten el mismo split oficial.</li>
             <li>No se analizaron individualmente los ejemplos mal clasificados.</li>
           </ul>
           <p>Declararlas no debilita el informe: muestra que se sabe donde termina lo que se midio.</p>
@@ -728,7 +800,7 @@
 
       <footer>
         <span>TP 3 IA - Informe guia de resultados</span>
-        <span>Fuentes: results/metrics.csv y graficos de la corrida 2026-06-10</span>
+        <span>Fuentes: results/runs.csv, results/summary.csv, results/final_metrics.csv y graficos de la corrida 2026-06-10</span>
       </footer>
     </main>
   </div>

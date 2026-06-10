@@ -1,6 +1,6 @@
 # Experimentos
 
-La consigna pide variar hiperparametros en al menos 4 experimentos y explicar resultados. Este proyecto define 5 casos para cubrir comparacion, regularizacion y overfitting. Cada experimento cambia una sola cosa respecto del baseline, para poder atribuirle el resultado a esa variable. Los valores exactos estan en `src/config.py`.
+La consigna pide variar hiperparametros en al menos 4 experimentos y explicar resultados. Este proyecto define 6 casos para cubrir comparacion, regularizacion, overfitting y la ablacion del mejor modelo. Cada experimento cambia una sola cosa respecto del baseline, para poder atribuirle el resultado a esa variable. Los valores exactos estan en `src/config.py`.
 
 ## Tabla de experimentos
 
@@ -11,6 +11,7 @@ La consigna pide variar hiperparametros en al menos 4 experimentos y explicar re
 | `e2_lower_learning_rate` | Learning rate mas bajo | Un entrenamiento mas lento y estable no necesariamente gana en validacion. |
 | `e3_regularized` | Mas capacidad + dropout + L2 | La regularizacion controla el sobreajuste del modelo con mas capacidad. |
 | `e4_overfitting_demo` | Pocos datos, mucha capacidad, mas epocas y sin early stopping | Una red sobredimensionada memoriza el train y generaliza mal. |
+| `e5_small_regularized` | Solo dropout + L2 (capacidad del baseline) | Control de ablacion: la mejora de e3 no viene de la regularizacion sola. |
 
 ## Criterio de comparacion
 
@@ -23,5 +24,5 @@ Los resultados numericos vigentes estan en [RESULTS.md](RESULTS.md) y en `result
 - El baseline funciona bien, pero sobreajusta despues de pocas epocas.
 - Aumentar neuronas mejora el ajuste en train rapido, pero no garantiza mejor generalizacion.
 - Bajar el learning rate entrena mas suave, aunque no necesariamente gana en validacion.
-- Dropout + L2 ayudan a controlar el exceso de capacidad.
+- Dropout + L2 ayudan a controlar el exceso de capacidad. El control e5 (red chica + la misma regularizacion) confirma que ni la capacidad sola ni la regularizacion sola mejoran al baseline: solo la combinacion.
 - El experimento de overfitting memoriza entrenamiento y falla en validacion, que es exactamente lo que se queria demostrar.

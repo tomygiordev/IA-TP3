@@ -51,4 +51,10 @@ EXPERIMENTS = [
         train_limit=500,
         description="Simulacion intencional de overfitting con pocos datos y mucha capacidad.",
     ),
+    ExperimentConfig(
+        name="e5_small_regularized",
+        dropout=0.5,
+        l2=1e-4,
+        description="Control de ablacion: red chica con la misma regularizacion que e3.",
+    ),
 ]

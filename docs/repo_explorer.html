@@ -589,7 +589,7 @@
         <div class="hero-copy reveal" style="--i:0">
           <div class="eyebrow">Explorador del repositorio</div>
           <h1>Una MLP simple, explicada paso a paso.</h1>
-          <p>Este documento explica como esta organizado el proyecto, que hace cada parte del pipeline, que experimentos se entrenaron y por que se tomo cada decision tecnica.</p>
+          <p>El objetivo de la red es leer una frase de una critica de cine y predecir si expresa una opinion positiva o negativa (analisis de sentimiento binario). Este documento explica como esta organizado el proyecto, que hace cada parte del pipeline, que experimentos se entrenaron y por que se tomo cada decision tecnica.</p>
         </div>
       </section>
 
@@ -616,11 +616,11 @@
 
           <aside class="inspector" id="inspector">
             <h3>Hugging Face dataset</h3>
-            <p>Se usa `cornell-movie-review-data/rotten_tomatoes` porque es binario, manejable y trae splits definidos.</p>
+            <p>Se usa `cornell-movie-review-data/rotten_tomatoes`: 10.662 frases cortas de criticas de cine en ingles, cada una etiquetada como positiva o negativa.</p>
             <ul>
-              <li>Evita perder tiempo buscando un dataset gigante.</li>
-              <li>Permite entrenar muchas veces en una PC comun.</li>
-              <li>Encaja directo con salida sigmoide y binary crossentropy.</li>
+              <li>Splits oficiales: 8530 de train, 1066 de validacion y 1066 de test.</li>
+              <li>Balanceado 50/50 entre clases, lo que simplifica leer las metricas.</li>
+              <li>Chico y de textos cortos: permite entrenar muchas veces en una PC comun.</li>
             </ul>
           </aside>
         </div>
@@ -663,6 +663,7 @@
             <button class="exp-button" data-exp="e2"><b>e2_lower_learning_rate</b><span>Learning rate mas bajo.</span></button>
             <button class="exp-button" data-exp="e3"><b>e3_regularized</b><span>Dropout + L2 sobre la red con mas capacidad.</span></button>
             <button class="exp-button" data-exp="e4"><b>e4_overfitting_demo</b><span>Pocos datos, red grande.</span></button>
+            <button class="exp-button" data-exp="e5"><b>e5_small_regularized</b><span>Control de ablacion: red chica + regularizacion.</span></button>
           </div>
 
           <article class="metric-board" id="metricBoard">
@@ -721,6 +722,7 @@
               <button class="active" data-q="metric">Por que F1 como metrica principal?</button>
               <button data-q="test">Por que no elegir el modelo por test?</button>
               <button data-q="overfit">Que demuestra la simulacion de overfitting?</button>
+              <button data-q="neurons">Las 128 neuronas del mejor modelo son un numero real?</button>
             </div>
             <div class="answer" id="answerBox">F1 combina precision y recall en un solo valor. Accuracy sirve como referencia porque el dataset esta balanceado, pero F1 permite discutir mejor los falsos positivos y falsos negativos.</div>
           </div>
@@ -738,8 +740,8 @@
     const nodeData = {
       dataset: {
         title: "Hugging Face dataset",
-        text: "Se usa rotten_tomatoes porque es binario, manejable y trae splits definidos.",
-        bullets: ["Clasificacion binaria directa.", "Entrena rapido en PC comun.", "Evita agrandar el problema antes de tener base funcional."]
+        text: "10.662 frases cortas de criticas de cine en ingles, cada una etiquetada como positiva o negativa.",
+        bullets: ["Splits oficiales: 8530 train / 1066 validacion / 1066 test.", "Balanceado 50/50 entre clases.", "Chico y de textos cortos: entrena rapido en PC comun."]
       },
       splits: {
         title: "Train / validation / test",
@@ -793,13 +795,19 @@
         title: "e4_overfitting_demo",
         text: "Una capa oculta grande entrenada con pocos ejemplos, mas epocas y sin early stopping. Configuracion pensada para fallar en generalizacion.",
         note: "Las curvas de aprendizaje muestran la memorizacion: el train se vuelve casi perfecto mientras la validacion se degrada."
+      },
+      e5: {
+        title: "e5_small_regularized",
+        text: "La red chica del baseline con la misma regularizacion del mejor modelo (dropout + L2).",
+        note: "Hipotesis: si la mejora de e3 viniera de la regularizacion sola, este experimento deberia ganar. Rinde peor que el baseline: solo capacidad + regularizacion combinadas mejoran."
       }
     };
 
     const answers = {
       metric: "F1 combina precision y recall en un solo valor. Accuracy sirve como referencia porque el dataset esta balanceado, pero F1 permite discutir mejor los falsos positivos y falsos negativos.",
       test: "El test debe reservarse para la evaluacion final. Si el mejor modelo se eligiera mirando test, se contaminaria la medicion de generalizacion.",
-      overfit: "Demuestra que una red con demasiada capacidad puede memorizar el entrenamiento: la accuracy de train llega a 1.0 mientras la de validacion queda baja y su loss sube."
+      overfit: "Demuestra que una red con demasiada capacidad puede memorizar el entrenamiento: la accuracy de train llega a 1.0 mientras la de validacion queda baja y su loss sube.",
+      neurons: "Si. Los experimentos funcionan como ablacion: 128 neuronas sin regularizacion rinden peor que el baseline de 32 (e1 vs e0), y el control e5 (32 neuronas + la misma regularizacion de e3) tambien rinde peor que el baseline. Ninguno de los dos ingredientes mejora por separado; solo la combinacion capacidad + regularizacion gana. Los numeros vigentes estan en results/metrics.csv."
     };
 
     const inspector = document.querySelector("#inspector");

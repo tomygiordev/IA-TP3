@@ -547,6 +547,14 @@
               <td class="num">0.7570</td>
             </tr>
             <tr>
+              <td><code>e5_small_regularized</code></td>
+              <td>32 neuronas + dropout 0.5 + L2 1e-4 (control de ablacion)</td>
+              <td class="num">7 de 12</td>
+              <td class="num">0.7423</td>
+              <td class="num">0.7679</td>
+              <td class="num">0.7692</td>
+            </tr>
+            <tr>
               <td><code>e2_lower_learning_rate</code></td>
               <td>learning rate 1e-4 (resto igual al baseline)</td>
               <td class="num">12 de 12</td>
@@ -569,6 +577,7 @@
           <div class="bar-row"><span>e3_regularized</span><div class="bar-track"><span style="--w: 100%"></span></div><span class="num">0.7647</span></div>
           <div class="bar-row"><span>e0_baseline</span><div class="bar-track"><span style="--w: 98.4%"></span></div><span class="num">0.7525</span></div>
           <div class="bar-row"><span>e1_more_capacity</span><div class="bar-track"><span style="--w: 97.4%"></span></div><span class="num">0.7447</span></div>
+          <div class="bar-row"><span>e5_small_regularized</span><div class="bar-track"><span style="--w: 97.1%"></span></div><span class="num">0.7423</span></div>
           <div class="bar-row"><span>e2_lower_lr</span><div class="bar-track"><span style="--w: 96.8%"></span></div><span class="num">0.7405</span></div>
           <div class="bar-row"><span>e4_overfitting</span><div class="bar-track"><span style="--w: 80.1%"></span></div><span class="num">0.6127</span></div>
         </div>
@@ -583,8 +592,8 @@
             <p>Bajar el learning rate de 1e-3 a 1e-4 hizo el entrenamiento mas suave: fue el unico experimento que agoto las 12 epocas sin que el early stopping cortara. Pero no gano en validacion (0.7405). La leccion metodologica: los cambios "prudentes" tambien se validan empiricamente, no se asumen.</p>
           </div>
           <div class="reading">
-            <b>e3 vs e1: la regularizacion recupera la capacidad desperdiciada</b>
-            <p>Con la misma red de 128 neuronas que e1, agregar dropout 0.5 y L2 1e-4 subio el val_f1 de 0.7447 a 0.7647, el mejor del lote. Es la comparacion mas valiosa del TP: capacidad sin control empeora; capacidad regularizada gana. La mejora no es magia, es la respuesta directa a lo que mostraron las curvas de e1.</p>
+            <b>e3 vs e1 vs e5: la ablacion completa de capacidad y regularizacion</b>
+            <p>Con la misma red de 128 neuronas que e1, agregar dropout 0.5 y L2 1e-4 subio el val_f1 de 0.7447 a 0.7647, el mejor del lote. El control e5 cierra la ablacion: 32 neuronas con la misma regularizacion dan 0.7423, tambien por debajo del baseline. Ni la capacidad sola (e1) ni la regularizacion sola (e5) mejoran a e0; solo la combinacion gana. Es la comparacion mas valiosa del TP: la regularizacion no es un bonus generico, es lo que permite aprovechar la capacidad extra.</p>
           </div>
           <div class="reading">
             <b>Un patron transversal: el sobreajuste empieza en la primera epoca</b>
@@ -666,15 +675,15 @@
           </figure>
           <div class="card">
             <h3>Los hiperparametros mueven el tipo de error, no solo el rendimiento</h3>
-            <p>Con el mismo umbral de 0.5, e0, e1 y e3 son modelos "optimistas": el recall (naranja) supera a la precision (azul). Pero e2, el del learning rate bajo, invierte el balance: precision <span class="num">0.7787</span> y recall <span class="num">0.7392</span>. En el grafico se ve de un vistazo: es el unico experimento normal donde el azul gana.</p>
+            <p>Con el mismo umbral de 0.5, e0, e1 y e3 son modelos "optimistas": el recall (naranja) supera a la precision (azul). Pero dos experimentos invierten el balance: e2, el del learning rate bajo (precision <span class="num">0.7787</span> vs recall <span class="num">0.7392</span>) y, mas levemente, e5, la red chica regularizada (<span class="num">0.7723</span> vs <span class="num">0.7636</span>). El factor comun es que ambos "frenan" el aprendizaje — uno con pasos chicos, el otro con dropout — y eso produce modelos mas conservadores para declarar positivos.</p>
             <p>Cambiar un hiperparametro no solo sube o baja el F1: puede cambiar que tipo de error comete el modelo. Es el argumento concreto de por que mirar precision y recall por separado, y no quedarse con una sola cifra.</p>
           </div>
         </div>
 
         <div class="grid-2" style="margin-top: 24px;">
           <div class="card">
-            <h3>Test dio mas alto que validacion en los 5 experimentos</h3>
-            <p>El test_f1 (naranja) supera al val_f1 (azul) en todos los casos, por ejemplo e3: <span class="num">0.7775</span> contra <span class="num">0.7647</span>. Si fuera un solo experimento podria ser azar, pero que pase en los cinco sugiere que el split de test del dataset es levemente mas "facil" que el de validacion. Esto no invalida nada: los modelos se comparan entre si siempre sobre el mismo conjunto (validacion), asi que la eleccion del mejor no se ve afectada. Es una propiedad de los splits oficiales, y reconocerla muestra lectura critica de los datos.</p>
+            <h3>Test dio mas alto que validacion en los 6 experimentos</h3>
+            <p>El test_f1 (naranja) supera al val_f1 (azul) en todos los casos, por ejemplo e3: <span class="num">0.7775</span> contra <span class="num">0.7647</span>. Si fuera un solo experimento podria ser azar, pero que pase en los seis sugiere que el split de test del dataset es levemente mas "facil" que el de validacion. Esto no invalida nada: los modelos se comparan entre si siempre sobre el mismo conjunto (validacion), asi que la eleccion del mejor no se ve afectada. Es una propiedad de los splits oficiales, y reconocerla muestra lectura critica de los datos.</p>
             <p>El mismo grafico responde otra pregunta: cuanto aprendio el modelo sobreajustado. e4 queda claramente por debajo del resto, pero bien arriba de la linea punteada del azar (<span class="num">0.5</span>): memorizar el train degrado su generalizacion, no la destruyo. Incluso memorizando, la red capturo patrones reales (palabras fuertemente positivas o negativas) que transfieren a datos nuevos. Por eso una metrica aislada engana: <span class="num">0.65</span> "no parece tan mal" hasta que las curvas muestran que el modelo dejo de aprender en la epoca 3.</p>
           </div>
           <figure class="chart-wrap">

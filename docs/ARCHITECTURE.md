@@ -26,9 +26,11 @@ Test para evaluacion final
 Metricas, matriz de confusion y curvas
 ```
 
-## Dataset
+## Objetivo y dataset
 
-Se usa `cornell-movie-review-data/rotten_tomatoes`, disponible en Hugging Face. Es adecuado para el TP porque:
+El objetivo de la red es de clasificacion binaria de sentimiento: dada una frase de una critica de cine, predecir si expresa una opinion positiva o negativa.
+
+Se usa `cornell-movie-review-data/rotten_tomatoes`, disponible en Hugging Face: 10.662 frases cortas de criticas de cine en ingles, con splits oficiales de 8530 ejemplos de entrenamiento, 1066 de validacion y 1066 de test. Es adecuado para el TP porque:
 
 - Es de clasificacion binaria.
 - Tiene textos cortos, por lo que entrena rapido.

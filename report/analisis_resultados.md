@@ -70,3 +70,15 @@ La simulación intencional usa 512 neuronas, 500 ejemplos, 35 épocas y no aplic
 - TF-IDF no conserva orden ni contexto completo.
 - El umbral se optimiza para F1; otra aplicación podría priorizar precision o recall.
 - No se realizó análisis cualitativo de ejemplos mal clasificados.
+
+## Conclusión general
+
+La evidencia no permite afirmar que 128 neuronas sean necesarias. La diferencia frente a 32 neuronas es pequeña y sus intervalos se solapan. Además, una red de 32 neuronas sobre 5000 entradas ya contiene 160 065 parámetros.
+
+El cambio más útil ocurrió en la representación: la MLP de 32 neuronas con bigramas y normalización fue superior al baseline de unigramas. El modelo lineal, con solo 5001 parámetros, quedó muy cerca del ganador, señal de que TF-IDF vuelve al problema mayormente separable de forma lineal.
+
+Que el ganador no use dropout ni L2 no constituye evidencia de fuga. El vectorizador se adapta únicamente con train, la selección usa validación y test permanece reservado. Early stopping ya limita el sobreajuste; en una capa pequeña, dropout puede eliminar señal útil.
+
+Adam fue más eficaz y estable que todas las variantes SGD probadas. Momentum redujo variabilidad, pero no cerró la diferencia. El siguiente paso razonable no es aumentar neuronas, sino separar el efecto de bigramas y normalización, modelar mejor negaciones y analizar errores individuales.
+
+En términos académicos, la red es un baseline sólido y reproducible, con F1 test 0.7925. Sirve para demostrar correctamente el ciclo completo de preparación, entrenamiento, sobreajuste y evaluación, aunque no representa el techo del análisis de sentimiento.

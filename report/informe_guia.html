@@ -780,9 +780,40 @@
         <div class="section-head">
           <div>
             <div class="tagline">07 / limitaciones y cierre</div>
-            <h2>Que queda honestamente afuera.</h2>
+            <h2>Que se puede concluir y que queda honestamente afuera.</h2>
           </div>
-          <p>Material para el cierre del informe: limitaciones reconocidas y posibles mejoras futuras.</p>
+          <p>Material para el cierre del informe: una sintesis de la evidencia, sus limites y los proximos pasos razonables.</p>
+        </div>
+
+        <div class="reading-list">
+          <div class="reading">
+            <b>Conclusion 1: 128 neuronas no son necesarias para este problema</b>
+            <p>La red de 128 neuronas sin regularizacion obtuvo F1 medio <span class="num">0.7682</span>, apenas 0.0031 por encima de la red de 32 neuronas. Sus intervalos se solapan, de modo que la evidencia no alcanza para declarar que la red grande generaliza mejor. Como la entrada tiene 5000 dimensiones, incluso la red chica ya posee <span class="num">160 065</span> parametros: "32 neuronas" describe una capa corta, no un modelo de poca capacidad.</p>
+          </div>
+          <div class="reading">
+            <b>Conclusion 2: el principal margen de mejora estaba antes de la red</b>
+            <p>La mejor configuracion mantuvo 32 neuronas y cambio la representacion a unigramas+bigrams con normalizacion. Alcanzo <span class="num">0.7722</span>, mientras el baseline de 32 neuronas quedo en <span class="num">0.7651</span>. Esto respalda la sospecha inicial: para sentimiento, representar expresiones de dos palabras aporta contexto que una bolsa de unigramas pierde, por ejemplo negaciones o combinaciones valorativas.</p>
+          </div>
+          <div class="reading">
+            <b>Conclusion 3: la capa oculta aporta poco sobre TF-IDF</b>
+            <p>El modelo lineal, sin ninguna capa ReLU, obtuvo <span class="num">0.7697</span> con solo <span class="num">5001</span> parametros. Quedo muy cerca del ganador de <span class="num">320 065</span> parametros. La interpretacion no es que la red este mal implementada, sino que TF-IDF ya organiza gran parte del problema de forma casi lineal. La MLP agrega una mejora pequena a un costo de parametros mucho mayor.</p>
+          </div>
+          <div class="reading">
+            <b>Conclusion 4: ganar sin regularizacion no prueba data leakage</b>
+            <p>El vectorizador se adapta solo con train, las configuraciones se eligen con validacion y test queda reservado. No aparece una fuga evidente en ese recorrido. Ademas, early stopping ya funciona como regularizacion temporal. En este contexto, L2 puede no cambiar lo suficiente y dropout puede quitar señal util. Por eso el resultado sin dropout ni weight decay es plausible; lo sospechoso habria sido un salto desproporcionado entre train y datos no vistos, no una ventaja pequena y estable.</p>
+          </div>
+          <div class="reading">
+            <b>Conclusion 5: Adam fue la eleccion mas adecuada entre las probadas</b>
+            <p>La mejor variante SGD quedo en <span class="num">0.7576</span>, por debajo incluso del baseline Adam. Momentum estabilizo el entrenamiento, pero no cerro la diferencia; bajar el learning rate exigio mas epocas y subirlo a 0.1 deterioro el modelo. Para estos vectores dispersos y esta cantidad de datos, Adam encontro soluciones mejores con menor sensibilidad a la configuracion.</p>
+          </div>
+          <div class="reading">
+            <b>Conclusion 6: una sola corrida habria producido conclusiones fragiles</b>
+            <p>SGD sin momentum tuvo desvio <span class="num">0.0285</span>, frente a <span class="num">0.0034</span> del ganador. Una semilla favorable podria hacerlo parecer competitivo y una desfavorable, inutil. Las diez semillas, los intervalos y el uso del mismo split permiten distinguir diferencias repetibles de accidentes de inicializacion.</p>
+          </div>
+          <div class="reading">
+            <b>Conclusion general</b>
+            <p>La red final puede clasificarse como un baseline academico solido: generaliza cerca de <span class="num">0.79</span> F1 en test, tiene un protocolo reproducible y permite explicar claramente arquitectura, sobreajuste y evaluacion. No representa el techo del analisis de sentimiento. La mejora siguiente no deberia ser agregar cientos de neuronas, sino estudiar mejor representacion textual, analizar errores y, recien despues, considerar embeddings o modelos que preserven el orden.</p>
+          </div>
         </div>
 
         <div class="dark-card">
@@ -794,6 +825,7 @@
             <li>No se usa validacion cruzada: las diez semillas miden inicializacion y entrenamiento, pero comparten el mismo split oficial.</li>
             <li>No se analizaron individualmente los ejemplos mal clasificados.</li>
           </ul>
+          <p>Como continuidad, conviene probar por separado el efecto de bigramas y normalizacion, incorporar manejo explicito de negaciones y revisar ejemplos donde el modelo falla. Solo si esas mejoras se agotan tendria sentido aumentar nuevamente la capacidad de la red.</p>
           <p>Declararlas no debilita el informe: muestra que se sabe donde termina lo que se midio.</p>
         </div>
       </section>

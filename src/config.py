@@ -34,7 +34,6 @@ EXPERIMENTS = [
     ),
     ExperimentConfig(
         name="e2_lower_learning_rate",
-        hidden_units=(64,),
         learning_rate=1e-4,
         description="Menor tasa de aprendizaje.",
     ),

@@ -34,19 +34,15 @@ def _limit_balanced(
         return texts, labels
 
     rng = np.random.default_rng(seed)
-    selected: list[int] = []
-    per_class = max(1, limit // 2)
-    for label in np.unique(labels):
-        indices = np.flatnonzero(labels == label)
-        selected.extend(rng.choice(indices, size=min(per_class, len(indices)), replace=False))
-
-    if len(selected) < limit:
-        remaining = np.setdiff1d(np.arange(len(labels)), np.array(selected), assume_unique=False)
-        selected.extend(rng.choice(remaining, size=limit - len(selected), replace=False))
-
-    selected_array = np.array(selected)
-    rng.shuffle(selected_array)
-    return texts[selected_array], labels[selected_array]
+    per_class = limit // 2
+    selected = np.concatenate(
+        [
+            rng.choice(np.flatnonzero(labels == label), size=per_class, replace=False)
+            for label in np.unique(labels)
+        ]
+    )
+    rng.shuffle(selected)
+    return texts[selected], labels[selected]
 
 
 def load_rotten_tomatoes(train_limit: int | None = None) -> DatasetSplits:

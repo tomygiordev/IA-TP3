@@ -42,8 +42,8 @@ def train_experiment(config):
         verbose=2,
     )
 
-    val_pred, _ = predict_classes(model, splits.x_val)
-    test_pred, _ = predict_classes(model, splits.x_test)
+    val_pred = predict_classes(model, splits.x_val)
+    test_pred = predict_classes(model, splits.x_test)
 
     val_metrics = classification_metrics(splits.y_val, val_pred)
     test_metrics = classification_metrics(splits.y_test, test_pred)

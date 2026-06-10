@@ -27,7 +27,7 @@ def main() -> None:
         batch_size=config.batch_size,
         verbose=2,
     )
-    predictions, _ = predict_classes(model, splits.x_test[:200])
+    predictions = predict_classes(model, splits.x_test[:200])
     metrics = classification_metrics(splits.y_test[:200], predictions)
     print(metrics)
 

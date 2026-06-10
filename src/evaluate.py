@@ -16,10 +16,9 @@ from sklearn.metrics import (
 from config import THRESHOLD
 
 
-def predict_classes(model, texts: np.ndarray, threshold: float = THRESHOLD) -> tuple[np.ndarray, np.ndarray]:
+def predict_classes(model, texts: np.ndarray, threshold: float = THRESHOLD) -> np.ndarray:
     probabilities = model.predict(texts, verbose=0).reshape(-1)
-    predictions = (probabilities > threshold).astype(np.int32)
-    return predictions, probabilities
+    return (probabilities > threshold).astype(np.int32)
 
 
 def classification_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, float]:

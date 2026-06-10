@@ -86,6 +86,7 @@ Ese HTML explica de forma visual el flujo del repositorio, la arquitectura MLP, 
 - [Notas para revision critica](docs/REVIEWER_NOTES.md)
 - [Apartado de prompts](docs/prompts/README.md)
 - [Guia del informe](report/guia_informe.md)
+- [Analisis de resultados](report/analisis_resultados.md)
 
 ## Instrucciones para agentes
 

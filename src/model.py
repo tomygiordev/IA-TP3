@@ -12,10 +12,15 @@ def set_global_determinism(seed: int = RANDOM_SEED) -> None:
     tf.config.experimental.enable_op_determinism()
 
 
-def build_vectorizer(max_tokens: int, train_texts) -> layers.TextVectorization:
+def build_vectorizer(
+    max_tokens: int,
+    train_texts,
+    ngrams: int | tuple[int, ...] | None = None,
+) -> layers.TextVectorization:
     vectorizer = layers.TextVectorization(
         max_tokens=max_tokens,
         output_mode="tf_idf",
+        ngrams=ngrams,
         standardize="lower_and_strip_punctuation",
         name="text_vectorization",
     )
@@ -23,13 +28,26 @@ def build_vectorizer(max_tokens: int, train_texts) -> layers.TextVectorization:
     return vectorizer
 
 
-def build_mlp(config: ExperimentConfig, vectorizer: layers.TextVectorization) -> keras.Model:
+def build_normalizer(train_features) -> layers.Normalization:
+    normalizer = layers.Normalization(name="numeric_normalization")
+    normalizer.adapt(train_features)
+    return normalizer
+
+
+def build_mlp(
+    config: ExperimentConfig,
+    *,
+    input_shape: tuple[int, ...] = (),
+    input_dtype: str = "string",
+    preprocessor: keras.layers.Layer | None = None,
+) -> keras.Model:
     l2_regularizer = regularizers.l2(config.l2) if config.l2 else None
 
     model_layers: list[keras.layers.Layer] = [
-        keras.Input(shape=(), dtype=tf.string, name="text"),
-        vectorizer,
+        keras.Input(shape=input_shape, dtype=input_dtype, name="input")
     ]
+    if preprocessor is not None:
+        model_layers.append(preprocessor)
 
     for index, units in enumerate(config.hidden_units, start=1):
         model_layers.append(
@@ -43,7 +61,7 @@ def build_mlp(config: ExperimentConfig, vectorizer: layers.TextVectorization) ->
         if config.dropout:
             model_layers.append(layers.Dropout(config.dropout, name=f"dropout_{index}"))
 
-    model_layers.append(layers.Dense(1, activation="sigmoid", name="sentiment_probability"))
+    model_layers.append(layers.Dense(1, activation="sigmoid", name="class_probability"))
 
     model = keras.Sequential(model_layers, name=config.name)
     model.compile(

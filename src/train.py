@@ -19,7 +19,7 @@ from model import build_mlp, build_vectorizer, set_global_determinism
 def train_experiment(config):
     splits = load_rotten_tomatoes(train_limit=config.train_limit)
     vectorizer = build_vectorizer(config.max_tokens, splits.x_train)
-    model = build_mlp(config, vectorizer)
+    model = build_mlp(config, preprocessor=vectorizer)
 
     callbacks = [
         keras.callbacks.EarlyStopping(

@@ -407,6 +407,7 @@
         <a href="#modelo" title="Modelo y preparacion">MOD</a>
         <a href="#overfitting" title="Overfitting">OVF</a>
         <a href="#experimentos" title="Experimentos">EXP</a>
+        <a href="#generalizacion" title="Seleccion final">FIN</a>
         <a href="#evaluacion" title="Evaluacion final">EVA</a>
         <a href="#detalles" title="Detalles finos">DET</a>
         <a href="#cierre" title="Limitaciones y cierre">LIM</a>
@@ -654,6 +655,10 @@
           </tbody>
         </table>
 
+        <p style="margin: 12px 0 0; font-family: var(--mono); font-size: 12px; color: var(--ink-2);">
+          Parametros compartidos por todos los experimentos Adam salvo indicacion: <code>max_tokens=5000</code>, <code>hidden_units=(32,)</code>, <code>optimizer=adam lr=0.001</code>, <code>batch=32</code>, <code>epochs_max=12</code>, early stopping sobre <code>val_f1</code> (patience 5). Excepciones: <code>e8</code> y <code>e9</code> usan <code>max_tokens=10 000</code>, bigramas y <code>normalize_tfidf=True</code>.
+        </p>
+
         <div class="bars" aria-label="Comparacion de F1 de validacion">
           <div class="bar-row"><span>Adam + bigrams</span><div class="bar-track"><span style="--w: 100%"></span></div><span class="num">0.7722</span></div>
           <div class="bar-row"><span>Adam lineal</span><div class="bar-track"><span style="--w: 99.7%"></span></div><span class="num">0.7697</span></div>
@@ -685,10 +690,312 @@
         </div>
       </section>
 
+      <section id="generalizacion">
+        <div class="section-head">
+          <div>
+            <div class="tagline">05 / busqueda y seleccion del modelo final</div>
+            <h2>De 30 experimentos exploratorios a un finalista elegido con 10 semillas.</h2>
+          </div>
+          <p>El ganador inicial presentaba overfitting real. Se ejecutaron dos tandas de 10 configuraciones con 3 semillas para diagnosticar, y luego un protocolo de 6 finalistas con 10 semillas para decidir. Test no se consulto en ningun momento de esta etapa.</p>
+        </div>
+
+        <div class="card">
+          <h3>Motivacion: las curvas del ganador inicial revelaban sobreajuste</h3>
+          <p>El modelo <code>e9_mlp32_bigrams</code> mostraba train accuracy ~0.95 frente a val accuracy ~0.75 a partir de la epoca 2: una brecha de 20 puntos que el early stopping sobre <code>val_f1</code> contenia pero no eliminaba. Las siguientes tandas buscaron configuraciones que reduzcan esa divergencia sin perder F1.</p>
+        </div>
+
+        <div style="margin-top: 28px;">
+          <div class="tagline" style="margin-bottom: 14px; width: fit-content;">tanda 1 — 10 configuraciones × 3 semillas (un cambio a la vez)</div>
+          <p style="margin: 0 0 14px; color: var(--ink-2);">Cada experimento toma como base <code>e9_mlp32_bigrams</code> y varia un solo parametro. Se comparan los cuatro mejores resultados; el resto (vocabulario reducido, modelo lineal, L2 fuerte) quedo por debajo del ganador inicial.</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Experimento</th>
+                <th>Neuronas</th>
+                <th>Tokens</th>
+                <th>n-gramas</th>
+                <th>Dropout</th>
+                <th>L2</th>
+                <th>Monitor ES</th>
+                <th>F1 medio (3 sem)</th>
+                <th>Desvio</th>
+                <th>Val loss medio</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>gen_dropout_02</code></td>
+                <td class="num">32</td>
+                <td class="num">10 000</td>
+                <td class="num">2</td>
+                <td class="num">0.2</td>
+                <td class="num">0</td>
+                <td><code>val_f1</code></td>
+                <td class="num"><b>0.7749</b></td>
+                <td class="num">0.0024</td>
+                <td class="num">0.5015</td>
+              </tr>
+              <tr>
+                <td><code>gen_es_valloss</code></td>
+                <td class="num">32</td>
+                <td class="num">10 000</td>
+                <td class="num">2</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td><code>val_loss</code></td>
+                <td class="num">0.7733</td>
+                <td class="num">0.0015</td>
+                <td class="num">0.5017</td>
+              </tr>
+              <tr>
+                <td><code>gen_unigrams</code></td>
+                <td class="num">32</td>
+                <td class="num">10 000</td>
+                <td class="num">1</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td><code>val_f1</code></td>
+                <td class="num">0.7720</td>
+                <td class="num">0.0023</td>
+                <td class="num"><b>0.4884</b></td>
+              </tr>
+              <tr>
+                <td><code>gen_units_16</code></td>
+                <td class="num">16</td>
+                <td class="num">10 000</td>
+                <td class="num">2</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td><code>val_f1</code></td>
+                <td class="num">0.7719</td>
+                <td class="num">0.0026</td>
+                <td class="num">0.5010</td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="margin: 10px 0 0; font-family: var(--mono); font-size: 12px; color: var(--ink-2);">
+            Adam lr=0.001, batch=32, epochs_max=12, normalize_tfidf=True en todos. Ganador anterior para referencia: <code>e9_mlp32_bigrams</code> F1=0.7722, val_loss=0.5070.
+          </p>
+        </div>
+
+        <div style="margin-top: 32px;">
+          <div class="tagline" style="margin-bottom: 14px; width: fit-content;">tanda 2 — 10 configuraciones × 3 semillas (combinaciones de las mejores pistas)</div>
+          <p style="margin: 0 0 14px; color: var(--ink-2);">Las hipotesis del batch 1 (dropout, monitor val_loss, unigramas) se combinan en pares. Los cuatro mejores resultados:</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Experimento</th>
+                <th>Neuronas</th>
+                <th>Tokens</th>
+                <th>n-gramas</th>
+                <th>Dropout</th>
+                <th>L2</th>
+                <th>Monitor ES</th>
+                <th>F1 medio (3 sem)</th>
+                <th>Desvio</th>
+                <th>Val loss medio</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>gen2_dropout03_valloss</code></td>
+                <td class="num">32</td>
+                <td class="num">10 000</td>
+                <td class="num">2</td>
+                <td class="num">0.3</td>
+                <td class="num">0</td>
+                <td><code>val_loss</code></td>
+                <td class="num"><b>0.7760</b></td>
+                <td class="num">0.0019</td>
+                <td class="num">0.5003</td>
+              </tr>
+              <tr>
+                <td><code>gen2_dropout01_valloss</code></td>
+                <td class="num">32</td>
+                <td class="num">10 000</td>
+                <td class="num">2</td>
+                <td class="num">0.1</td>
+                <td class="num">0</td>
+                <td><code>val_loss</code></td>
+                <td class="num">0.7751</td>
+                <td class="num">0.0029</td>
+                <td class="num">0.5014</td>
+              </tr>
+              <tr>
+                <td><code>gen2_unigrams_valloss</code></td>
+                <td class="num">32</td>
+                <td class="num">10 000</td>
+                <td class="num">1</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td><code>val_loss</code></td>
+                <td class="num">0.7749</td>
+                <td class="num">0.0024</td>
+                <td class="num"><b>0.4884</b></td>
+              </tr>
+              <tr>
+                <td><code>gen2_dropout02_valloss</code></td>
+                <td class="num">32</td>
+                <td class="num">10 000</td>
+                <td class="num">2</td>
+                <td class="num">0.2</td>
+                <td class="num">0</td>
+                <td><code>val_loss</code></td>
+                <td class="num">0.7741</td>
+                <td class="num">0.0001</td>
+                <td class="num">0.5015</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top: 32px;">
+          <div class="tagline" style="margin-bottom: 14px; width: fit-content;">protocolo de finalistas — 6 candidatos × 10 semillas</div>
+          <p style="margin: 0 0 14px; color: var(--ink-2);">Los seis candidatos mas prometedores de las tandas anteriores se reejecutan con 10 semillas para medir con mayor confianza estadistica. El ganador se elige por un score compuesto que pondera F1 medio (45%), estabilidad del F1 (25%), val loss (20%) y estabilidad del loss (10%).</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Experimento</th>
+                <th>Neuronas</th>
+                <th>Tokens</th>
+                <th>n-gramas</th>
+                <th>Dropout</th>
+                <th>L2</th>
+                <th>Monitor ES</th>
+                <th>F1 medio</th>
+                <th>Desvio</th>
+                <th>Val loss</th>
+                <th>Epocas medias</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="best">
+                <td><code>gen2_unigrams_valloss</code> ★</td>
+                <td class="num">32</td>
+                <td class="num">10 000</td>
+                <td class="num">1</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td><code>val_loss</code></td>
+                <td class="num"><b>0.7753</b></td>
+                <td class="num"><b>0.0020</b></td>
+                <td class="num"><b>0.4879</b></td>
+                <td class="num"><b>8.0</b></td>
+                <td class="num"><b>0.871</b></td>
+              </tr>
+              <tr>
+                <td><code>gen2_unigrams_dropout02</code></td>
+                <td class="num">32</td>
+                <td class="num">10 000</td>
+                <td class="num">1</td>
+                <td class="num">0.2</td>
+                <td class="num">0</td>
+                <td><code>val_f1</code></td>
+                <td class="num">0.7751</td>
+                <td class="num">0.0050</td>
+                <td class="num">0.4866</td>
+                <td class="num">8.7</td>
+                <td class="num">0.641</td>
+              </tr>
+              <tr>
+                <td><code>gen2_dropout01_valloss</code></td>
+                <td class="num">32</td>
+                <td class="num">10 000</td>
+                <td class="num">2</td>
+                <td class="num">0.1</td>
+                <td class="num">0</td>
+                <td><code>val_loss</code></td>
+                <td class="num">0.7747</td>
+                <td class="num">0.0024</td>
+                <td class="num">0.5015</td>
+                <td class="num">10.0</td>
+                <td class="num">0.562</td>
+              </tr>
+              <tr>
+                <td><code>gen2_dropout03_valloss</code></td>
+                <td class="num">32</td>
+                <td class="num">10 000</td>
+                <td class="num">2</td>
+                <td class="num">0.3</td>
+                <td class="num">0</td>
+                <td><code>val_loss</code></td>
+                <td class="num">0.7746</td>
+                <td class="num">0.0020</td>
+                <td class="num">0.5009</td>
+                <td class="num">11.1</td>
+                <td class="num">0.468</td>
+              </tr>
+              <tr>
+                <td><code>gen2_dropout02_valloss</code></td>
+                <td class="num">32</td>
+                <td class="num">10 000</td>
+                <td class="num">2</td>
+                <td class="num">0.2</td>
+                <td class="num">0</td>
+                <td><code>val_loss</code></td>
+                <td class="num">0.7742</td>
+                <td class="num">0.0021</td>
+                <td class="num">0.5019</td>
+                <td class="num">10.6</td>
+                <td class="num">0.329</td>
+              </tr>
+              <tr>
+                <td><code>gen_es_valloss</code></td>
+                <td class="num">32</td>
+                <td class="num">10 000</td>
+                <td class="num">2</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td><code>val_loss</code></td>
+                <td class="num">0.7739</td>
+                <td class="num">0.0017</td>
+                <td class="num">0.5017</td>
+                <td class="num">10.0</td>
+                <td class="num">0.330</td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="margin: 10px 0 0; font-family: var(--mono); font-size: 12px; color: var(--ink-2);">
+            Todos comparten: Adam lr=0.001, batch=32, epochs_max=12, normalize_tfidf=True, l2=0. Score compuesto = 0.45·F1_mean + 0.25·(1−F1_std) + 0.20·(1−loss_mean) + 0.10·(1−loss_std), normalizado dentro del grupo.
+          </p>
+        </div>
+
+        <div class="grid-2" style="margin-top: 28px;">
+          <figure class="chart-wrap">
+            <img src="../results/finalists_comparison.png" alt="Comparacion de F1, val loss y score compuesto de los 6 finalistas">
+            <figcaption>Los 6 finalistas ordenados por score compuesto. Verde mas oscuro = score mas alto. La brecha en val loss entre unigramas (~0.488) y bigramas (~0.501) es pequena en valor absoluto pero consistente en 10 semillas.</figcaption>
+          </figure>
+          <figure class="chart-wrap">
+            <img src="../results/finalists_learning_curves.png" alt="Learning curves promediadas de los 6 finalistas en 10 semillas">
+            <figcaption>Curvas promediadas sobre 10 semillas con banda de desvio de val loss. Los modelos con unigramas (panel inferior derecha) paran antes: early stopping actua en epoca 3 porque val loss no mejora mas ahi.</figcaption>
+          </figure>
+        </div>
+
+        <div class="reading-list" style="margin-top: 24px;">
+          <div class="reading">
+            <b>Los unigramas generalizaron mejor que los bigramas</b>
+            <p>La hipotesis inicial era que los bigramas aportaban contexto util (negaciones, combinaciones valorativas). La evidencia contradice eso para este modelo y dataset: <code>gen2_unigrams_valloss</code> obtuvo val loss <span class="num">0.4879</span> frente a <span class="num">0.5009–0.5019</span> de los modelos con bigramas. Los bigramas agregan ~7 millones de combinaciones posibles de las cuales la mayoria aparece pocas veces en train, introduciendo features ruidosas que el modelo sobreajusta facilmente.</p>
+          </div>
+          <div class="reading">
+            <b>Dropout 0.3 vs Dropout 0.1: diferencia estadisticamente nula</b>
+            <p>Con 10 semillas, <code>gen2_dropout03_valloss</code> obtuvo F1 <span class="num">0.7746</span> y <code>gen2_dropout01_valloss</code> obtuvo <span class="num">0.7747</span>. La diferencia absoluta es <span class="num">0.0001</span> frente a una std de <span class="num">0.0022</span>; el ratio es menor a 0.1. Son el mismo modelo a efectos practicos. Elegir entre ellos por el numero de 3 semillas habria sido una conclusion espuria.</p>
+          </div>
+          <div class="reading">
+            <b>El monitor val_loss mejora la calibracion de probabilidades</b>
+            <p>Cambiar el criterio de parada de <code>val_f1</code> a <code>val_loss</code> detiene el entrenamiento cuando la calibracion de probabilidades empeora, no cuando el ranking de clases se estanca. El efecto se ve en que el umbral optimo baja de <span class="num">~0.48</span> a <span class="num">0.396</span>: el modelo es menos sobreconfiante y la curva precision-recall tiene mejor forma.</p>
+          </div>
+          <div class="reading">
+            <b>El score compuesto resolvio el empate entre los dos mejores</b>
+            <p><code>gen2_unigrams_valloss</code> y <code>gen2_unigrams_dropout02</code> tienen F1 casi identico (<span class="num">0.7753</span> vs <span class="num">0.7751</span>), pero el segundo tiene std <span class="num">0.0050</span> frente a <span class="num">0.0020</span> del ganador: 2.5 veces mas variable. Esa variabilidad refleja que dropout en una red de 32 neuronas ya es una regularizacion agresiva que a veces ayuda y a veces quita demasiada señal segun la semilla.</p>
+          </div>
+        </div>
+      </section>
+
       <section id="evaluacion">
         <div class="section-head">
           <div>
-            <div class="tagline">05 / evaluacion final</div>
+            <div class="tagline">06 / evaluacion final</div>
             <h2>El mejor modelo, evaluado una sola vez en test.</h2>
           </div>
           <p>Corresponde a la pagina 5 del informe: matriz de confusion, metricas finales y eleccion de la metrica principal.</p>
@@ -697,29 +1004,29 @@
         <div class="grid-2">
           <figure class="chart-wrap">
             <img src="../results/confusion_matrix.png" alt="Matriz de confusion del mejor modelo en test">
-            <figcaption>e9_mlp32_bigrams en test (1066 ejemplos, umbral 0.4851 elegido en validacion).</figcaption>
+            <figcaption>gen2_unigrams_valloss en test (1066 ejemplos, umbral 0.3964 elegido en validacion).</figcaption>
           </figure>
           <div class="card">
             <h3>Lectura de la matriz</h3>
             <ul>
-              <li>Aciertos: <span class="num">391</span> negativos y <span class="num">443</span> positivos (accuracy <span class="num">0.7824</span>).</li>
-              <li>Falsos positivos: <span class="num">142</span> criticas negativas marcadas como positivas.</li>
-              <li>Falsos negativos: <span class="num">90</span> criticas positivas que se perdieron.</li>
-              <li>Precision positiva <span class="num">0.7573</span>, recall positivo <span class="num">0.8311</span>, F1 <span class="num">0.7925</span>.</li>
+              <li>Aciertos: <span class="num">379</span> negativos y <span class="num">447</span> positivos (accuracy <span class="num">0.7749</span>).</li>
+              <li>Falsos positivos: <span class="num">154</span> criticas negativas marcadas como positivas.</li>
+              <li>Falsos negativos: <span class="num">86</span> criticas positivas que se perdieron.</li>
+              <li>Precision positiva <span class="num">0.7438</span>, recall positivo <span class="num">0.8386</span>, F1 <span class="num">0.7884</span>.</li>
             </ul>
-            <p>El patron de errores muestra un modelo "optimista": recupera el 83% de las criticas positivas a costa de aceptar mas falsos positivos. El recall supera a la precision en 7.4 puntos; ese desbalance es invisible si solo se mira accuracy.</p>
+            <p>El patron de errores muestra un modelo "optimista": recupera el 84% de las criticas positivas a costa de aceptar mas falsos positivos. El recall supera a la precision en 9.5 puntos. El umbral <span class="num">0.3964</span>, por debajo de 0.5, refleja que el modelo esta bien calibrado: sus probabilidades no se acumulan sobre 0.5 como ocurre con modelos sobreconfiantes.</p>
           </div>
         </div>
 
         <div class="grid-2" style="margin-top: 24px;">
           <figure class="chart-wrap">
             <img src="../results/best_learning_curves.png" alt="Curvas de aprendizaje del mejor modelo">
-            <figcaption>Curvas de e9_mlp32_bigrams: el early stopping restaura los pesos de la mejor epoca de validacion.</figcaption>
+            <figcaption>Curvas de gen2_unigrams_valloss (semilla 42): early stopping sobre val_loss para en epoca 3 y restaura esos pesos. La brecha train/val es notablemente menor que en el ganador anterior.</figcaption>
           </figure>
           <div class="card">
             <h3>Por que F1 como metrica principal</h3>
-            <p>El dataset esta balanceado, asi que accuracy (<span class="num">0.7824</span>) es una referencia honesta. Aun asi se elige F1 porque resume el compromiso entre precision y recall. En test, F1 y accuracy cuentan historias parecidas (<span class="num">0.7925</span> vs <span class="num">0.7824</span>), pero F1 deja visible la preferencia por recuperar positivos.</p>
-            <p>La configuracion se eligio por su promedio sobre 10 semillas, luego se reentreno con semilla 42, se fijo el umbral <span class="num">0.4851</span> usando validacion y recien entonces se consulto test. El F1 ajustado de validacion fue <span class="num">0.7732</span>; que test resulte algo mayor no intervino en la seleccion.</p>
+            <p>El dataset esta balanceado, asi que accuracy (<span class="num">0.7749</span>) es una referencia honesta. Aun asi se elige F1 porque resume el compromiso entre precision y recall. El modelo clasifica como positivo casi toda critica que supere probabilidad <span class="num">0.396</span>: esa eleccion baja precision pero eleva recall, decision coherente en un sistema donde perder criticas positivas es mas costoso que marcar de mas.</p>
+            <p>La configuracion se eligio por score compuesto sobre 10 semillas usando solo validacion, luego se reentreno con semilla 42, se fijo el umbral <span class="num">0.3964</span> en validacion y recien entonces se consulto test. El F1 de validacion fue <span class="num">0.7538</span> a umbral fijo 0.5 y <span class="num">0.7753</span> ajustado; el resultado final de test <span class="num">0.7884</span> no intervino en la seleccion.</p>
           </div>
         </div>
       </section>
@@ -727,7 +1034,7 @@
       <section id="detalles">
         <div class="section-head">
           <div>
-            <div class="tagline">06 / detalles finos</div>
+            <div class="tagline">07 / detalles finos</div>
             <h2>Lo que se ve solo cuando se miran los datos de cerca.</h2>
           </div>
           <p>Observaciones que no entran en una tabla pero distinguen un informe que reporta numeros de uno que los entiende. Surgen de <code>results/runs.csv</code>, <code>results/summary.csv</code> y de las curvas.</p>
@@ -779,7 +1086,7 @@
       <section id="cierre">
         <div class="section-head">
           <div>
-            <div class="tagline">07 / limitaciones y cierre</div>
+            <div class="tagline">08 / limitaciones y cierre</div>
             <h2>Que se puede concluir y que queda honestamente afuera.</h2>
           </div>
           <p>Material para el cierre del informe: una sintesis de la evidencia, sus limites y los proximos pasos razonables.</p>
@@ -791,8 +1098,8 @@
             <p>La red de 128 neuronas sin regularizacion obtuvo F1 medio <span class="num">0.7682</span>, apenas 0.0031 por encima de la red de 32 neuronas. Sus intervalos se solapan, de modo que la evidencia no alcanza para declarar que la red grande generaliza mejor. Como la entrada tiene 5000 dimensiones, incluso la red chica ya posee <span class="num">160 065</span> parametros: "32 neuronas" describe una capa corta, no un modelo de poca capacidad.</p>
           </div>
           <div class="reading">
-            <b>Conclusion 2: el principal margen de mejora estaba antes de la red</b>
-            <p>La mejor configuracion mantuvo 32 neuronas y cambio la representacion a unigramas+bigrams con normalizacion. Alcanzo <span class="num">0.7722</span>, mientras el baseline de 32 neuronas quedo en <span class="num">0.7651</span>. Esto respalda la sospecha inicial: para sentimiento, representar expresiones de dos palabras aporta contexto que una bolsa de unigramas pierde, por ejemplo negaciones o combinaciones valorativas.</p>
+            <b>Conclusion 2: los bigramas no mejoraron la generalizacion</b>
+            <p>La MLP con bigramas <code>e9_mlp32_bigrams</code> obtuvo F1 <span class="num">0.7722</span> en la primera fase, mejor que el baseline de unigramas (<span class="num">0.7651</span>). Sin embargo, en la busqueda de generalizacion, el modelo con unigramas y monitor <code>val_loss</code> obtuvo F1 <span class="num">0.7753</span> con val loss <span class="num">0.4879</span> frente a <span class="num">0.501</span> de los modelos con bigramas. Los bigramas agregan millones de combinaciones raras que el modelo memoriza facilmente; una capa de 32 neuronas no tiene capacidad para aprovecharlos y si para sobreajustarlos.</p>
           </div>
           <div class="reading">
             <b>Conclusion 3: la capa oculta aporta poco sobre TF-IDF</b>
@@ -811,8 +1118,12 @@
             <p>SGD sin momentum tuvo desvio <span class="num">0.0285</span>, frente a <span class="num">0.0034</span> del ganador. Una semilla favorable podria hacerlo parecer competitivo y una desfavorable, inutil. Las diez semillas, los intervalos y el uso del mismo split permiten distinguir diferencias repetibles de accidentes de inicializacion.</p>
           </div>
           <div class="reading">
+            <b>Conclusion 6 (nueva): la eleccion del monitor de early stopping impacta la calibracion</b>
+            <p>Cambiar el criterio de parada de <code>val_f1</code> a <code>val_loss</code> redujo el val loss medio de <span class="num">0.507</span> a <span class="num">0.488</span> y bajo el umbral optimo de ~0.48 a <span class="num">0.396</span>. Esto indica que el modelo monitorizado por loss produce probabilidades mas calibradas: cuando predice 0.40, esa probabilidad refleja mejor la verdadera incertidumbre que cuando el modelo se entrenaba hasta exprimir F1 y acababa sobreconfiante.</p>
+          </div>
+          <div class="reading">
             <b>Conclusion general</b>
-            <p>La red final puede clasificarse como un baseline academico solido: generaliza cerca de <span class="num">0.79</span> F1 en test, tiene un protocolo reproducible y permite explicar claramente arquitectura, sobreajuste y evaluacion. No representa el techo del analisis de sentimiento. La mejora siguiente no deberia ser agregar cientos de neuronas, sino estudiar mejor representacion textual, analizar errores y, recien despues, considerar embeddings o modelos que preserven el orden.</p>
+            <p>La red final puede clasificarse como un baseline academico solido: generaliza <span class="num">0.7884</span> F1 en test, tiene un protocolo reproducible con 60 corridas de finalistas y permite explicar claramente arquitectura, sobreajuste y evaluacion. No representa el techo del analisis de sentimiento. La mejora siguiente no deberia ser agregar cientos de neuronas, sino estudiar mejor representacion textual, analizar errores y, recien despues, considerar embeddings o modelos que preserven el orden.</p>
           </div>
         </div>
 
@@ -832,7 +1143,7 @@
 
       <footer>
         <span>TP 3 IA - Informe guia de resultados</span>
-        <span>Fuentes: results/runs.csv, results/summary.csv, results/final_metrics.csv y graficos de la corrida 2026-06-10</span>
+        <span>Fuentes: results/runs.csv, results/summary.csv, results/finalists_summary.csv, results/final_metrics.csv y graficos de la corrida 2026-06-11</span>
       </footer>
     </main>
   </div>

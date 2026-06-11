@@ -1,0 +1,17 @@
+Para este trabajo decidimos hacer una clasifiación binaria sobre críticas de películas usando una red neuronal multicapa (MLP).
+Nuestro objetivo fue que, mediante un texto corto, el modelo reconozca si la crítica es positiva o negativa.
+Para eso usamos el dataset cornell-movie-review-data/rotten_tomatoes de Hugging Face.
+Se trabajó con una arquitectura relativamente simple: una representación TF-IDF del texto y una MLP implementada con Keras Sequential.
+La primer tarea fue vectorizar las reviews usando TextVectorization. Adaptamos el vectorizador con el conjunto de entrenamiento para evitar filtración de información desde validación o test.
+Además usamos train para ajustar pesos y validation para comparar configs.
+Planteamos una arquitectura MLP con una sola capa oculta ya que el problema era binario y profundizar más hubiera requerido justificarlo, no nos pareció una mejora clara.
+Dentro de la carpeta 'src' tenemos la carga de datos, la construcción del modelo, el entrenamiento, la evaluación y los scripts. Basicamente casi todo.
+En 'results' ubicamos la evidencia.
+El flujo es simple: primero se cargan los datos bajando el dataset de Hugging Face, luego convertimos ese mismo dataset en numeros (vectorizamos).
+Se arma la red con 'build_mlp()' y luego la entrenamos desde el archivo 'train.py', el cual esta configurado para no seguir entrenando cuando ya no conviene.
+Mediante 'evaluate.py' calculamos accuracy, precision, recall, F1, threshold optimo, matriz de confusion y curvas y GUARDAMOS la evidencia en archivos formato CSV y PNG en la carpeta mencionada anteriormente 'results/'
+
+Se corrieron una serie de experimentos para compararlos entre si. Probamos un baseline con 32 neuronas, un baseline lineal sin capa oculta, variantes con más capacidad, para reducir el sobreajuste implementamos Dropout (para forzar el aprendizaje general) y L2 (para penalizar pesos exagerados), y modelos unigramas y bigramas.
+Por último, comparamos el optimizador Adam con SGD llegando a la conclusión de que Adam fue mas consistente y con mejor desempeño en general.
+
+[Aca redacte que se hizo asi de forma breve y simple, lo que falta es con que criterio decidimos que un experimento es mejor que otro y los resultados]
